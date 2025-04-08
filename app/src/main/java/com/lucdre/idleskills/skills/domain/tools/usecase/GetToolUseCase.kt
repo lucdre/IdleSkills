@@ -4,7 +4,7 @@ import com.lucdre.idleskills.skills.domain.tools.Tool
 import com.lucdre.idleskills.skills.domain.tools.ToolRepositoryInterface
 import javax.inject.Inject
 
-class GetToolUseCase @Inject constructor(
+class GetToolUseCase (
     private val toolRepository: ToolRepositoryInterface
 ) {
     operator fun invoke(skillName: String): List<Tool> {

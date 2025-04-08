@@ -4,7 +4,7 @@ import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryInterface
 import javax.inject.Inject
 
-class GetTrainingMethodUseCase @Inject constructor(
+class GetTrainingMethodUseCase (
     private val trainingMethodRepository: TrainingMethodRepositoryInterface
 ) {
     operator fun invoke(skillName: String): List<TrainingMethod> {
