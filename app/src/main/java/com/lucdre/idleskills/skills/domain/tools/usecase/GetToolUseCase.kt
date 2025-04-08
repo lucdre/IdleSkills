@@ -4,6 +4,15 @@ import com.lucdre.idleskills.skills.domain.tools.Tool
 import com.lucdre.idleskills.skills.domain.tools.ToolRepositoryInterface
 import javax.inject.Inject
 
+/**
+ * Use case for retrieving tools for training a specific skill.
+ *
+ * @property toolRepository The repository for tools.
+ *
+ * Methods:
+ * - [invoke]: Get all available tools for a specific skill.
+ * - [getBestAvailableTool]: Returns the best available tool for a skill at the current level. (Placeholder)
+ */
 class GetToolUseCase (
     private val toolRepository: ToolRepositoryInterface
 ) {

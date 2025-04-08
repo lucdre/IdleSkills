@@ -14,6 +14,11 @@ import com.lucdre.idleskills.skills.presentation.SkillListViewModel
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 import dagger.hilt.android.AndroidEntryPoint
 
+/**
+ * Main entry point for the UI.
+ *
+ * Activity hosts the skill list screen as main interface.
+ */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

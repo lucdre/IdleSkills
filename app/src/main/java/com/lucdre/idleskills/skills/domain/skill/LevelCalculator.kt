@@ -2,25 +2,42 @@ package com.lucdre.idleskills.skills.domain.skill
 
 import kotlin.math.pow
 
+/**
+ * Utility object to calculate everything related to XP and skill levels.
+ *
+ * ## XP Formula: WIP
+ */
 object LevelCalculator {
 
-    // Base xp required for level 1->2
+    /**
+     * (Placeholder)
+     * Base XP required from level 1 to level 2.
+     */
     private const val BASE_XP = 10
 
-    // Exponential scaling factor
+    /**
+     * (Placeholder)
+     * Exponential scaling factor to determine subsequent XP requirements to level up.
+     */
     private const val SCALING_FACTOR = 1.1
 
     /**
-     * XP required for next level
+     * Calculates XP required from current level to the next level.
+     *
+     * @param currentLevel The current level of the skill.
+     * @return XP needed for the next level.
      */
     fun xpForNextLevel(currentLevel: Int): Int {
         return (BASE_XP * SCALING_FACTOR.pow(currentLevel - 1)).toInt()
     }
 
     /**
-     * Check for level up
+     * Checks if you can level up based on your XP.
      *
      * Multiple level ups are possible and surplus XP is kept after all level ups are processed.
+     *
+     * @param skill The skill to check for level up.
+     * @return The updated skill with the potentially new level and adjusted XP, or the original skill in case of no level up.
      */
     fun checkForLevelUp(skill: Skill): Skill {
         var currentLevel = skill.level
@@ -55,7 +72,8 @@ object LevelCalculator {
     }
 
     /**
-     * Calculate total XP required to reach a specific level from level 1, for the future
+     * (Placeholder)
+     * Calculate total XP required to reach a specific level from level 1.
      */
     fun totalXpForLevel(targetLevel: Int): Int {
         var totalXp = 0

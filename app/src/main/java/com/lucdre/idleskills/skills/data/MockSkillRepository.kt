@@ -1,7 +1,7 @@
 package com.lucdre.idleskills.skills.data
 
 import com.lucdre.idleskills.skills.domain.skill.Skill
-import com.lucdre.idleskills.skills.domain.skill.SkillRepository
+import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -9,8 +9,11 @@ import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asStateFlow
 
+/**
+ * Mock repository, will be replaced by something better in the future.
+ */
 @Singleton
-class MockSkillRepository @Inject constructor() : SkillRepository {
+class MockSkillRepository @Inject constructor() : SkillRepositoryInterface {
 
     private val _skills = MutableStateFlow(
         listOf(

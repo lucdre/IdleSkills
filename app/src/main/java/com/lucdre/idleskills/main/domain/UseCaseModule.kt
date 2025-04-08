@@ -1,7 +1,7 @@
 package com.lucdre.idleskills.main.domain
 
 import com.lucdre.idleskills.skills.domain.skill.usecase.GetSkillsUseCase
-import com.lucdre.idleskills.skills.domain.skill.SkillRepository
+import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import com.lucdre.idleskills.skills.domain.training.usecase.GetTrainingMethodUseCase
 import com.lucdre.idleskills.skills.domain.skill.usecase.UpdateSkillUseCase
 import com.lucdre.idleskills.skills.domain.tools.ToolRepositoryInterface
@@ -22,6 +22,11 @@ import dagger.hilt.android.scopes.ViewModelScoped
  *
  * All use cases are [ViewModelScoped] ensuring they are reused within the same ViewModel
  * but not shared between different ViewModels.
+ *
+ * Dagger flow:
+ * - A ViewModel requests a use case via @inject constructor.
+ * - Dagger checks if it can be provided by [UseCaseModule] (if it has a @Provides annotation).
+ * - The repository module provides a repository for it.
  */
 @Module
 @InstallIn(ViewModelComponent::class)
@@ -37,7 +42,7 @@ object UseCaseModule {
      */
     @Provides
     @ViewModelScoped
-    fun provideGetSkillsUseCase(repository: SkillRepository): GetSkillsUseCase {
+    fun provideGetSkillsUseCase(repository: SkillRepositoryInterface): GetSkillsUseCase {
         return GetSkillsUseCase(repository)
     }
 
@@ -51,7 +56,7 @@ object UseCaseModule {
      */
     @Provides
     @ViewModelScoped
-    fun provideUpdateSkillUseCase(repository: SkillRepository): UpdateSkillUseCase {
+    fun provideUpdateSkillUseCase(repository: SkillRepositoryInterface): UpdateSkillUseCase {
         return UpdateSkillUseCase(repository)
     }
 
