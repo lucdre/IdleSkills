@@ -2,7 +2,8 @@ package com.lucdre.idleskills.skills.presentation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.lucdre.idleskills.skills.domain.TrainingMethod
+import com.lucdre.idleskills.skills.domain.tools.Tool
+import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 import com.lucdre.idleskills.skills.woodcutting.presentation.WcTrainingMethodsPanel
 
 /**
@@ -15,7 +16,8 @@ object TrainingMethodsPanelFactory {
         skillName: String,
         methods: List<TrainingMethod>,
         activeMethod: TrainingMethod?,
-        trainingProgress: Float = 0f,  // Add this new parameter
+        trainingProgress: Float = 0f,
+        activeTool: Tool?,
         onMethodSelected: (TrainingMethod) -> Unit,
         modifier: Modifier = Modifier
     ) {
@@ -23,7 +25,8 @@ object TrainingMethodsPanelFactory {
             "woodcutting" -> WcTrainingMethodsPanel(
                 methods = methods,
                 activeMethod = activeMethod,
-                trainingProgress = trainingProgress,  // Pass the parameter
+                trainingProgress = trainingProgress,
+                activeTool = activeTool,
                 onMethodSelected = onMethodSelected,
                 modifier = modifier
             )
@@ -33,7 +36,7 @@ object TrainingMethodsPanelFactory {
             else -> DefaultTrainingMethodsPanel(
                 methods = methods,
                 activeMethod = activeMethod,
-                trainingProgress = trainingProgress,  // Pass the parameter
+                trainingProgress = trainingProgress,
                 onMethodSelected = onMethodSelected,
                 modifier = modifier
             )

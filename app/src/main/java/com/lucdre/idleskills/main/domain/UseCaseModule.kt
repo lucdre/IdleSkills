@@ -1,10 +1,10 @@
 package com.lucdre.idleskills.main.domain
 
-import com.lucdre.idleskills.skills.domain.usecase.GetSkillsUseCase
-import com.lucdre.idleskills.skills.domain.SkillRepository
-import com.lucdre.idleskills.skills.domain.usecase.GetTrainingMethodUseCase
-import com.lucdre.idleskills.skills.domain.usecase.UpdateSkillUseCase
-import com.lucdre.idleskills.skills.domain.TrainingMethodRepositoryInterface
+import com.lucdre.idleskills.skills.domain.skill.usecase.GetSkillsUseCase
+import com.lucdre.idleskills.skills.domain.skill.SkillRepository
+import com.lucdre.idleskills.skills.domain.training.usecase.GetTrainingMethodUseCase
+import com.lucdre.idleskills.skills.domain.skill.usecase.UpdateSkillUseCase
+import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryInterface
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

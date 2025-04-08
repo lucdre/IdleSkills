@@ -1,7 +1,7 @@
 package com.lucdre.idleskills.skills.data
 
-import com.lucdre.idleskills.skills.domain.Skill
-import com.lucdre.idleskills.skills.domain.SkillRepository
+import com.lucdre.idleskills.skills.domain.skill.Skill
+import com.lucdre.idleskills.skills.domain.skill.SkillRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton

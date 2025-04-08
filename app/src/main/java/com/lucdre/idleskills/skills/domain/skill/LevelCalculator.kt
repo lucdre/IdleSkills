@@ -1,4 +1,4 @@
-package com.lucdre.idleskills.skills.domain
+package com.lucdre.idleskills.skills.domain.skill
 
 import kotlin.math.pow
 

@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.lucdre.idleskills.skills.domain.TrainingMethod
+import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
 @Composable

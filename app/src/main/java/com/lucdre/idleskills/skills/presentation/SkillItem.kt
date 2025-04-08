@@ -24,10 +24,10 @@ import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import com.lucdre.idleskills.skills.domain.Skill
+import com.lucdre.idleskills.skills.domain.skill.Skill
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import com.lucdre.idleskills.skills.domain.LevelCalculator
+import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
 @Composable

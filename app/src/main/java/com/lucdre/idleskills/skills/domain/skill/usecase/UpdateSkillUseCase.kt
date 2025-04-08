@@ -1,9 +1,9 @@
-package com.lucdre.idleskills.skills.domain.usecase
+package com.lucdre.idleskills.skills.domain.skill.usecase
 
 import android.util.Log
-import com.lucdre.idleskills.skills.domain.LevelCalculator
-import com.lucdre.idleskills.skills.domain.Skill
-import com.lucdre.idleskills.skills.domain.SkillRepository
+import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
+import com.lucdre.idleskills.skills.domain.skill.Skill
+import com.lucdre.idleskills.skills.domain.skill.SkillRepository
 
 class UpdateSkillUseCase(private val skillRepository: SkillRepository) {
     // Default version that adds 1 XP (for backward compatibility/default scenario with no training methods)

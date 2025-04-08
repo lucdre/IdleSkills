@@ -13,8 +13,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.lucdre.idleskills.skills.domain.Skill
+import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
+
 
 @Composable
 fun SkillListScreen(viewModel: SkillListViewModel, modifier: Modifier = Modifier) {
@@ -32,7 +33,7 @@ fun SkillListScreen(viewModel: SkillListViewModel, modifier: Modifier = Modifier
             onSkillClick = { viewModel.onSkillClick(it) }
         )
 
-        // Training methods panel at the bottom
+        // Training methods panel animation
         AnimatedVisibility(
             visible = uiState.activeSkill != null && uiState.trainingMethods.isNotEmpty(),
             enter = slideInVertically(initialOffsetY = { it }),
@@ -40,11 +41,13 @@ fun SkillListScreen(viewModel: SkillListViewModel, modifier: Modifier = Modifier
             modifier = Modifier.align(Alignment.BottomCenter)
         ) {
             uiState.activeSkill?.let { activeSkill ->
+                // Training methods panel
                 TrainingMethodsPanelFactory.CreateTrainingMethodsPanel(
                     skillName = activeSkill,
                     methods = uiState.trainingMethods,
                     activeMethod = uiState.activeTrainingMethod,
                     trainingProgress = uiState.trainingProgress,
+                    activeTool = uiState.activeTool,
                     onMethodSelected = { viewModel.selectTrainingMethod(it) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -87,7 +90,7 @@ private fun SkillListScreenContents(
     }
 }
 
-// Preview function
+
 @Preview(showBackground = true, showSystemUi = false)
 @Composable
 fun SkillListScreenContentsPreview() {
@@ -105,7 +108,7 @@ fun SkillListScreenContentsPreview() {
         SkillListScreenContents(
             uiState = previewState,
             modifier = Modifier.padding(8.dp),
-            onSkillClick = { /* Do nothing in preview */ }
+            onSkillClick = { /* nothing */ }
         )
     }
 }
