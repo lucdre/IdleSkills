@@ -1,4 +1,4 @@
-package com.lucdre.idleskills.skills.presentation
+package com.lucdre.idleskills.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,6 +17,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
+import com.lucdre.idleskills.skills.presentation.ExpandableSkillItem
+import com.lucdre.idleskills.skills.presentation.SkillListUiState
+import com.lucdre.idleskills.skills.presentation.SkillListViewModel
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
 /**
@@ -55,7 +58,7 @@ fun SkillListScreen(modifier: Modifier = Modifier, viewModel: SkillListViewModel
  * - Error message when there's an error
  * - List of skills when data is available
  *
- * Shows more UI thanks to [ExpandableSkillItem]
+ * Shows more UI thanks to [com.lucdre.idleskills.skills.presentation.ExpandableSkillItem]
  *
  * @param modifier Modifier
  * @param uiState Current UI state from the ViewModel
@@ -96,7 +99,8 @@ private fun SkillListScreenContents(
                         isActive = skill.name == uiState.activeSkill,
                         isExpanded = skill.name == expandedSkillName,
                         xpPerHour = if (skill.name == uiState.activeSkill)
-                            uiState.activeTrainingMethod?.calculateXpPerHour() ?: 3600 // Fallback to 3600 (1 XP per second)
+                            uiState.activeTrainingMethod?.calculateXpPerHour()
+                                ?: 3600 // Fallback to 3600 (1 XP per second)
                         else 0,
                         trainingMethods = if (skill.name == uiState.activeSkill) uiState.trainingMethods else emptyList(),
                         activeMethod = if (skill.name == uiState.activeSkill) uiState.activeTrainingMethod else null,
