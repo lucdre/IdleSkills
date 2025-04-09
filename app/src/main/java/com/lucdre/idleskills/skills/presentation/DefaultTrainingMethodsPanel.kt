@@ -15,13 +15,22 @@ import androidx.compose.ui.unit.dp
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
+/**
+ * Default panel for displaying training methods and related information for a skill.
+ *
+ * @param modifier Modifier
+ * @param methods List of training methods to display
+ * @param activeMethod Currently selected training method
+ * @param trainingProgress Progress of the current training action (0-1)
+ * @param onMethodSelected Callback for when a method is selected by the user
+ */
 @Composable
 fun DefaultTrainingMethodsPanel(
+    modifier: Modifier = Modifier,
     methods: List<TrainingMethod>,
     activeMethod: TrainingMethod?,
     trainingProgress: Float = 0f,
-    onMethodSelected: (TrainingMethod) -> Unit,
-    modifier: Modifier = Modifier
+    onMethodSelected: (TrainingMethod) -> Unit
 ) {
     Surface(
         tonalElevation = 8.dp,
@@ -53,7 +62,14 @@ fun DefaultTrainingMethodsPanel(
     }
 }
 
-
+/**
+ * A compact card displaying a single training method.
+ *
+ * @param method The training method to display
+ * @param isSelected Whether this method is currently selected/active
+ * @param trainingProgress Progress of the current training action (0-1)
+ * @param onMethodSelected Callback for when this method is selected by the user
+ */
 @Composable
 fun CompactTrainingMethodItem(
     method: TrainingMethod,
@@ -105,10 +121,10 @@ fun CompactTrainingMethodItem(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 LinearProgressIndicator(
-                    progress = { trainingProgress },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(4.dp),
+                    progress = { trainingProgress },
                     color = MaterialTheme.colorScheme.primary,
                     trackColor = MaterialTheme.colorScheme.surfaceVariant
                 )

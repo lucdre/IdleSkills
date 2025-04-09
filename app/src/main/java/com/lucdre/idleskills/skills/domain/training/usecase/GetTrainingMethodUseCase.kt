@@ -2,8 +2,16 @@ package com.lucdre.idleskills.skills.domain.training.usecase
 
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryInterface
-import javax.inject.Inject
 
+/**
+ * Use case for retrieving training methods for a specific skill.
+ *
+ * @property trainingMethodRepository The repository for training methods.
+ *
+ * Methods:
+ * - [invoke]: Get all available training methods for a specific skill.
+ * - [getBestAvailableMethod]: Returns the best available training method for a skill at the current level. (Placeholder)
+ */
 class GetTrainingMethodUseCase (
     private val trainingMethodRepository: TrainingMethodRepositoryInterface
 ) {

@@ -17,6 +17,17 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * ViewModel for the skill list screen.
+ *
+ * Manages UI state and business logic for skill list, training methods and tools.
+ * Handles user interactions and communicates with domain layer use cases.
+ *
+ * @property getSkillsUseCase Use case for retrieving available skills
+ * @property updateSkillUseCase Use case for updating skill data
+ * @property getTrainingMethodUseCase Use case for retrieving training methods
+ * @property getToolUseCase Use case for retrieving tools
+ */
 @HiltViewModel
 class SkillListViewModel @Inject constructor(
     private val getSkillsUseCase: GetSkillsUseCase,
@@ -28,7 +39,6 @@ class SkillListViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(SkillListUiState(isLoading = true))
     val uiState: StateFlow<SkillListUiState> = _uiState.asStateFlow()
 
-    // Create training manager to separate logic from this viewmodel
     private val trainingManager = SkillTrainingManager(
         updateSkillUseCase = updateSkillUseCase,
         coroutineScope = viewModelScope,
@@ -50,7 +60,7 @@ class SkillListViewModel @Inject constructor(
                         .filter { it.requiredLevel <= updatedSkill.level }
 
                     // Fetch updated tools that might be available with new level
-                    //TODO doesn't work properly for now
+                    //TODO doesn't work properly for now, only after re-clicking
                     val updatedTools = getToolUseCase(updatedSkill.name)
                         .filter { it.requiredLevel <= updatedSkill.level }
 
@@ -63,6 +73,10 @@ class SkillListViewModel @Inject constructor(
         }
     )
 
+    /**
+     * Initializes the ViewModel and sets up observers.
+     * Loads skills and starts observing skill updates.
+     */
     init {
         loadSkills()
 
@@ -77,6 +91,10 @@ class SkillListViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Loads available skills from the repository.
+     * Updates UI state.
+     */
     fun loadSkills() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
@@ -90,11 +108,19 @@ class SkillListViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Handles the selection of a skill by the user.
+     *
+     * Updates UI state, fetches relevant training methods and tools,
+     * and starts training with the best available method and tool (Placeholder).
+     *
+     * @param skill The skill that was selected
+     */
     fun onSkillClick(skill: Skill) {
-        // If we click the same skill that's already active, do nothing
+        // Clicking the same skill that's already active, do nothing
         if (trainingManager.isTraining(skill.name)) return
 
-        // Cancel any previous increment job
+        // Cancel any previous training
         trainingManager.cancelTraining()
 
         // Fetch training methods for this skill
@@ -127,6 +153,14 @@ class SkillListViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Handles the selection of a training method by the user.
+     *
+     * Updates UI state and starts training with the selected method
+     * and currently active tool.
+     *
+     * @param method The training method that was selected
+     */
     fun selectTrainingMethod(method: TrainingMethod) {
         // If the training method is already active, don't restart it
         if (method == _uiState.value.activeTrainingMethod) {
@@ -145,9 +179,11 @@ class SkillListViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Called when the ViewModel is being destroyed.
+     */
     override fun onCleared() {
         super.onCleared()
         trainingManager.cancelTraining()
     }
 }
-

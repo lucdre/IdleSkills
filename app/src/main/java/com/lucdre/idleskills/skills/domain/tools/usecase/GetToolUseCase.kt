@@ -2,7 +2,6 @@ package com.lucdre.idleskills.skills.domain.tools.usecase
 
 import com.lucdre.idleskills.skills.domain.tools.Tool
 import com.lucdre.idleskills.skills.domain.tools.ToolRepositoryInterface
-import javax.inject.Inject
 
 /**
  * Use case for retrieving tools for training a specific skill.

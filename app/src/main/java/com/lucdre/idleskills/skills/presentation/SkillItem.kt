@@ -23,13 +23,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.dp
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
+/**
+ * Displays information about a skill.
+ *
+ * Shows skill name, level, XP progress to next level and XP gain rate
+ * when the skill is actively being trained.
+ *
+ * @param skill The skill to display
+ * @param isActive Whether this skill is currently being trained
+ * @param xpPerHour Current XP gain rate when active
+ * @param onItemClick Callback for when this skill item is clicked
+ */
 @Composable
 fun SkillItem(
     skill: Skill,
@@ -73,17 +84,17 @@ fun SkillItem(
 
             // XP Progress bar
             CustomLinearProgressIndicator(
-                progress = progress,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(8.dp),
+                progress = progress,
                 progressColor = if (isActive) Color(0xFF4CAF50) else MaterialTheme.colorScheme.primary,
                 backgroundColor = MaterialTheme.colorScheme.surfaceVariant
             )
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // XP Counter
+            // XP Info
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -105,10 +116,19 @@ fun SkillItem(
     }
 }
 
+/**
+ * A custom linear progress indicator. Doesn't clip at the end like the default one.
+ *
+ * @param modifier Modifier
+ * @param progress The current progress, between 0 and 1
+ * @param progressColor The color of the progress bar
+ * @param backgroundColor The color of the background
+ * @param cornerRadius The radius [dp] of the corners
+ */
 @Composable
 fun CustomLinearProgressIndicator(
-    progress: Float,
     modifier: Modifier = Modifier,
+    progress: Float,
     progressColor: Color = MaterialTheme.colorScheme.primary,
     backgroundColor: Color = MaterialTheme.colorScheme.surfaceVariant,
     cornerRadius: Dp = 4.dp

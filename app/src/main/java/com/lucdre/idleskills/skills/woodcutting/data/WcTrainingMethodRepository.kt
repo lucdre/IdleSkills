@@ -6,9 +6,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * WC training methods
+ * Temporary repository that provides woodcutting training methods.
  *
- * Skill name, Training method name, XP per action and action duration (in milliseconds)
+ * Contains predefined training methods for the woodcutting skill
+ * with XP amount, action durations, and level requirements.
  */
 @Singleton
 class WcTrainingMethodRepository @Inject constructor(): TrainingMethodRepositoryInterface{
@@ -22,6 +23,12 @@ class WcTrainingMethodRepository @Inject constructor(): TrainingMethodRepository
         )
     )
 
+    /**
+     * Retrieves training methods available for the specified skill.
+     *
+     * @param skillName The name of the skill to get training methods for
+     * @return List of training methods available for the skill, or empty list if skill not found
+     */
     override fun getTrainingMethodsForSkill(skillName: String): List<TrainingMethod> {
         return trainingMethods[skillName] ?: emptyList()
     }

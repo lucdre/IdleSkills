@@ -1,13 +1,10 @@
 package com.lucdre.idleskills.skills.woodcutting.presentation
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -23,25 +20,33 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import com.lucdre.idleskills.R
 import com.lucdre.idleskills.skills.domain.tools.Tool
 
+/**
+ * Woodcutting-specific training methods panel.
+ *
+ * @param modifier Modifier
+ * @param methods List of available woodcutting training methods
+ * @param activeMethod Currently selected training method
+ * @param activeTool Currently selected woodcutting tool
+ * @param trainingProgress Progress of the current woodcutting action (0-1)
+ * @param onMethodSelected Callback for when a training method is selected by the user
+ */
 @Composable
 fun WcTrainingMethodsPanel(
+    modifier: Modifier = Modifier,
     methods: List<TrainingMethod>,
     activeMethod: TrainingMethod?,
     activeTool: Tool?,
     trainingProgress: Float = 0f,
-    onMethodSelected: (TrainingMethod) -> Unit,
-    modifier: Modifier = Modifier
+    onMethodSelected: (TrainingMethod) -> Unit
 ) {
     Surface(
+        modifier = modifier,
         tonalElevation = 8.dp,
         shadowElevation = 8.dp,
-        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-        modifier = modifier
+        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
     ) {
         Column(
             modifier = Modifier
@@ -55,10 +60,10 @@ fun WcTrainingMethodsPanel(
             ) {
                 // Training method title
                 Text(
+                    modifier = Modifier.padding(bottom = 8.dp, start = 8.dp, end = 8.dp),
                     text = "Trees",
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color(0xFF2E7D32), // Darker green for woodcutting theme
-                    modifier = Modifier.padding(bottom = 8.dp, start = 8.dp, end = 8.dp)
+                    color = Color(0xFF2E7D32)// Darker green for woodcutting theme
                 )
 
                 // Tool UI
@@ -77,10 +82,10 @@ fun WcTrainingMethodsPanel(
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
+                                modifier = Modifier.size(24.dp),
                                 painter = painterResource(id = tool.iconResId ?: R.drawable.ic_tree),
                                 contentDescription = tool.name,
-                                tint = Color(0xFF2E7D32),
-                                modifier = Modifier.size(24.dp)
+                                tint = Color(0xFF2E7D32)
                             )
                         }
 
@@ -96,8 +101,8 @@ fun WcTrainingMethodsPanel(
                 // Training method info UI
                 activeMethod?.let { method ->
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(end = 16.dp)
+                        modifier = Modifier.padding(end = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column {
                             Text(
@@ -112,10 +117,10 @@ fun WcTrainingMethodsPanel(
                             )
 
                             CustomLinearProgressIndicator(
-                                progress = trainingProgress,
                                 modifier = Modifier
                                     .width(120.dp)
                                     .height(8.dp),
+                                progress = trainingProgress,
                                 progressColor = Color(0xFF4CAF50),
                                 backgroundColor = MaterialTheme.colorScheme.surfaceVariant
                             )
@@ -126,11 +131,11 @@ fun WcTrainingMethodsPanel(
 
             // Grid of training method icons
             LazyVerticalGrid(
+                modifier = Modifier.fillMaxWidth(),
                 columns = GridCells.Fixed(4),
                 contentPadding = PaddingValues(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth()
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(methods.size) { index ->
                     val method = methods[index]
@@ -146,8 +151,11 @@ fun WcTrainingMethodsPanel(
 }
 
 /**
- * The training method icons.
+ * Icon representing a woodcutting training method.
  *
+ * @param method The woodcutting training method to display
+ * @param isSelected Whether this method is currently selected/active
+ * @param onMethodSelected Callback for when this method is selected by the user
  */
 @Composable
 fun WcMethodIcon(
@@ -179,9 +187,9 @@ fun WcMethodIcon(
             verticalArrangement = Arrangement.Center
         ) {
             Icon(
+                modifier = Modifier.size(40.dp),
                 painter = painterResource(id = imageRes),
                 contentDescription = method.name,
-                modifier = Modifier.size(40.dp),
                 tint = if (isSelected) Color(0xFF2E7D32) else Color.Gray
             )
 

@@ -16,9 +16,14 @@ import androidx.compose.ui.unit.dp
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
-
+/**
+ * Main screen. Displays the list of skills.
+ *
+ * @param modifier Modifier
+ * @param viewModel ViewModel that provides UI state and handles UI events
+ */
 @Composable
-fun SkillListScreen(viewModel: SkillListViewModel, modifier: Modifier = Modifier) {
+fun SkillListScreen(modifier: Modifier = Modifier, viewModel: SkillListViewModel) {
     val uiState by viewModel.uiState.collectAsState()
 
     // Fetch the data when the composable is created
@@ -28,40 +33,50 @@ fun SkillListScreen(viewModel: SkillListViewModel, modifier: Modifier = Modifier
 
     Box(modifier = modifier.fillMaxSize()) {
         SkillListScreenContents(
-            uiState = uiState,
             modifier = Modifier.fillMaxSize(),
+            uiState = uiState,
             onSkillClick = { viewModel.onSkillClick(it) }
         )
 
         // Training methods panel animation
         AnimatedVisibility(
+            modifier = Modifier.align(Alignment.BottomCenter),
             visible = uiState.activeSkill != null && uiState.trainingMethods.isNotEmpty(),
             enter = slideInVertically(initialOffsetY = { it }),
-            exit = slideOutVertically(targetOffsetY = { it }),
-            modifier = Modifier.align(Alignment.BottomCenter)
+            exit = slideOutVertically(targetOffsetY = { it })
         ) {
             uiState.activeSkill?.let { activeSkill ->
                 // Training methods panel
                 TrainingMethodsPanelFactory.CreateTrainingMethodsPanel(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
                     skillName = activeSkill,
                     methods = uiState.trainingMethods,
                     activeMethod = uiState.activeTrainingMethod,
                     trainingProgress = uiState.trainingProgress,
                     activeTool = uiState.activeTool,
-                    onMethodSelected = { viewModel.selectTrainingMethod(it) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
+                    onMethodSelected = { viewModel.selectTrainingMethod(it) }
                 )
             }
         }
     }
 }
 
+/**
+ * Renders different UI based on the current state:
+ * - Loading indicator when data is being fetched (needed?)
+ * - Error message when there's an error
+ * - List of skills when data is available
+ *
+ * @param modifier Modifier
+ * @param uiState Current UI state from the ViewModel
+ * @param onSkillClick Callback for when a skill is clicked
+ */
 @Composable
 private fun SkillListScreenContents(
-    uiState: SkillListUiState,
     modifier: Modifier = Modifier,
+    uiState: SkillListUiState,
     onSkillClick: (Skill) -> Unit
 ) {
     Column(modifier = modifier) {
@@ -106,8 +121,8 @@ fun SkillListScreenContentsPreview() {
         )
 
         SkillListScreenContents(
-            uiState = previewState,
             modifier = Modifier.padding(8.dp),
+            uiState = previewState,
             onSkillClick = { /* nothing */ }
         )
     }
