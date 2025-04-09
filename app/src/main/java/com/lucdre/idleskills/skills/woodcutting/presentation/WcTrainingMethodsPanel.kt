@@ -14,7 +14,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
-import com.lucdre.idleskills.skills.presentation.CustomLinearProgressIndicator
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
@@ -22,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import com.lucdre.idleskills.R
 import com.lucdre.idleskills.skills.domain.tools.Tool
+import com.lucdre.idleskills.skills.presentation.util.CustomLinearProgressIndicator
 
 /**
  * Woodcutting-specific training methods panel.
