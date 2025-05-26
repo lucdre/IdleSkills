@@ -39,6 +39,9 @@ class SkillListViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(SkillListUiState(isLoading = true))
     val uiState: StateFlow<SkillListUiState> = _uiState.asStateFlow()
 
+    // Track previous levels to detect level ups
+    private val previousLevels = mutableMapOf<String, Int>()
+
     private val trainingManager = SkillTrainingManager(
         updateSkillUseCase = updateSkillUseCase,
         coroutineScope = viewModelScope,
@@ -48,11 +51,14 @@ class SkillListViewModel @Inject constructor(
         onSkillUpdate = { updatedSkill ->
             viewModelScope.launch {
                 // Get the level before update to check for level up
-                val previousLevel = _uiState.value.skills
-                    .find { it.name == updatedSkill.name }?.level ?: updatedSkill.level
+                val previousLevel = previousLevels[updatedSkill.name] ?: updatedSkill.level
+                Log.d("SkillListViewModel", "Level check for ${updatedSkill.name}: ${updatedSkill.level} > $previousLevel = ${updatedSkill.level > previousLevel}")
+
+                // Update the stored level for next time
+                previousLevels[updatedSkill.name] = updatedSkill.level
 
                 // If level up, check for newly available training methods and tools
-                if (updatedSkill.level > previousLevel) {
+                if (updatedSkill.level > previousLevel && updatedSkill.name == _uiState.value.activeSkill) {
                     Log.d("SkillListViewModel", "🎉 ${updatedSkill.name} leveled up to ${updatedSkill.level}!")
 
                     // Fetch updated training methods that might be available with new level
@@ -60,9 +66,10 @@ class SkillListViewModel @Inject constructor(
                         .filter { it.requiredLevel <= updatedSkill.level }
 
                     // Fetch updated tools that might be available with new level
-                    //TODO doesn't work properly for now, only after re-clicking
                     val updatedTools = getToolUseCase(updatedSkill.name)
                         .filter { it.requiredLevel <= updatedSkill.level }
+
+                    Log.d("SkillListViewModel", "Updated tools for ${updatedSkill.name}: ${updatedTools.map { it.name }}")
 
                     _uiState.value = _uiState.value.copy(
                         trainingMethods = updatedMethods,
@@ -122,6 +129,9 @@ class SkillListViewModel @Inject constructor(
 
         // Cancel any previous training
         trainingManager.cancelTraining()
+
+        Log.d("SkillListViewModel", "Initialized previousLevel for ${skill.name}: ${skill.level}")
+        previousLevels[skill.name] = skill.level
 
         // Fetch training methods for this skill
         val methods = getTrainingMethodUseCase(skill.name)
