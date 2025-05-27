@@ -10,6 +10,7 @@ import com.lucdre.idleskills.skills.domain.training.SkillTrainingManager
 import com.lucdre.idleskills.skills.domain.tools.usecase.GetToolUseCase
 import com.lucdre.idleskills.skills.domain.training.usecase.GetTrainingMethodUseCase
 import com.lucdre.idleskills.skills.domain.skill.usecase.UpdateSkillUseCase
+import com.lucdre.idleskills.skills.domain.tools.Tool
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -41,6 +42,12 @@ class SkillListViewModel @Inject constructor(
 
     // Track previous levels to detect level ups
     private val previousLevels = mutableMapOf<String, Int>()
+    
+    // Track selected tools per skill to maintain selection across skill switches
+    private val selectedTools = mutableMapOf<String, Tool>()
+    
+    // Track selected training methods per skill to maintain selection across skill switches
+    private val selectedMethods = mutableMapOf<String, TrainingMethod>()
 
     private val trainingManager = SkillTrainingManager(
         updateSkillUseCase = updateSkillUseCase,
@@ -58,22 +65,20 @@ class SkillListViewModel @Inject constructor(
                 previousLevels[updatedSkill.name] = updatedSkill.level
 
                 // If level up, check for newly available training methods and tools
-                if (updatedSkill.level > previousLevel && updatedSkill.name == _uiState.value.activeSkill) {
+                if (updatedSkill.level > previousLevel) {
                     Log.d("SkillListViewModel", "🎉 ${updatedSkill.name} leveled up to ${updatedSkill.level}!")
 
-                    // Fetch updated training methods that might be available with new level
-                    val updatedMethods = getTrainingMethodUseCase(updatedSkill.name)
-                        .filter { it.requiredLevel <= updatedSkill.level }
+                    // Fetch training methods and tools that might be available with new level
+                    val (updatedMethods, updatedTools) = getUpdatedMethodsAndTools(updatedSkill)
 
-                    // Fetch updated tools that might be available with new level
-                    val updatedTools = getToolUseCase(updatedSkill.name)
-                        .filter { it.requiredLevel <= updatedSkill.level }
+                    // Check if there's a better tool available now
+                    val hasBetterTool = checkForBetterTool(updatedSkill.name, updatedSkill.level, _uiState.value.activeTool)
 
-                    Log.d("SkillListViewModel", "Updated tools for ${updatedSkill.name}: ${updatedTools.map { it.name }}")
 
                     _uiState.value = _uiState.value.copy(
                         trainingMethods = updatedMethods,
-                        tools = updatedTools
+                        tools = updatedTools,
+                        hasBetterToolAvailable = hasBetterTool
                     )
                 }
             }
@@ -119,7 +124,7 @@ class SkillListViewModel @Inject constructor(
      * Handles the selection of a skill by the user.
      *
      * Updates UI state, fetches relevant training methods and tools,
-     * and starts training with the best available method and tool (Placeholder).
+     * and starts training with the previously selected method and tool.
      *
      * @param skill The skill that was selected
      */
@@ -137,27 +142,31 @@ class SkillListViewModel @Inject constructor(
         val methods = getTrainingMethodUseCase(skill.name)
             .filter { it.requiredLevel <= skill.level }
 
-        // Find best available method and set it as active by default
-        val bestMethod = getTrainingMethodUseCase.getBestAvailableMethod(skill.name, skill.level)
+        // Use previously selected method for this skill, or default to basic method if first time
+        val selectedMethod = selectedMethods[skill.name] ?: methods.minByOrNull { it.requiredLevel }
 
         // Fetch tools for this skill
         val tools = getToolUseCase(skill.name)
             .filter { it.requiredLevel <= skill.level }
 
-        // Find best available tool
-        val bestTool = getToolUseCase.getBestAvailableTool(skill.name, skill.level)
+        // Use previously selected tool for this skill, or default to basic tool if first time
+        val selectedTool = selectedTools[skill.name] ?: tools.minByOrNull { it.requiredLevel }
+        
+        // Find best available tool to check if there's a better one than the selected tool
+        val hasBetterTool = checkForBetterTool(skill.name, skill.level, selectedTool)
 
         _uiState.value = _uiState.value.copy(
             activeSkill = skill.name,
             trainingMethods = methods,
-            activeTrainingMethod = bestMethod,
+            activeTrainingMethod = selectedMethod,
             tools = tools,
-            activeTool = bestTool
+            activeTool = selectedTool,
+            hasBetterToolAvailable = hasBetterTool
         )
 
-        // Start training with best method and tool if available
-        if (bestMethod != null) {
-            trainingManager.startTraining(skill, bestMethod, bestTool)
+        // Start training with selected method and selected tool
+        if (selectedMethod != null) {
+            trainingManager.startTraining(skill, selectedMethod, selectedTool)
         } else {
             trainingManager.startBasicTraining(skill)
         }
@@ -177,6 +186,11 @@ class SkillListViewModel @Inject constructor(
             return
         }
 
+        // Save the selected method for this skill
+        _uiState.value.activeSkill?.let { skillName ->
+            selectedMethods[skillName] = method
+        }
+
         _uiState.value = _uiState.value.copy(
             activeTrainingMethod = method,
             trainingProgress = 0f)
@@ -188,6 +202,58 @@ class SkillListViewModel @Inject constructor(
             trainingManager.startTraining(it, method, activeTool)
         }
     }
+
+    /**
+     * Selects and equips the best available tool for the specified skill.
+     *
+     * Updates the UI state with the new tool and restarts training if the skill
+     * is currently being trained.
+     *
+     * @param skillName The name of the skill to select a better tool for
+     */
+    fun selectBetterTool(skillName: String) {
+        val currentSkill = _uiState.value.skills.find { it.name == skillName }
+        currentSkill?.let { skill ->
+            val bestTool = getToolUseCase.getBestAvailableTool(skill.name, skill.level)
+            if (bestTool != null && bestTool != _uiState.value.activeTool) {
+                // Save the selected tool for this skill
+                selectedTools[skillName] = bestTool
+                
+                _uiState.value = _uiState.value.copy(
+                    activeTool = bestTool,
+                    hasBetterToolAvailable = false // Reset the flag since we just equipped the better tool
+                )
+
+                // Restart training with the new tool
+                val activeMethod = _uiState.value.activeTrainingMethod
+                if (trainingManager.isTraining(skill.name) && activeMethod != null) {
+                    trainingManager.startTraining(skill, activeMethod, bestTool)
+                }
+            }
+        }
+    }
+
+    /**
+     * Helper function to get updated methods and tools after a level up.
+     */
+    private fun getUpdatedMethodsAndTools(skill: Skill): Pair<List<TrainingMethod>, List<Tool>> {
+        val updatedMethods = getTrainingMethodUseCase(skill.name)
+            .filter { it.requiredLevel <= skill.level }
+
+        val updatedTools = getToolUseCase(skill.name)
+            .filter { it.requiredLevel <= skill.level }
+
+        return Pair(updatedMethods, updatedTools)
+    }
+
+    /**
+     * Helper function to check if there is a better tool available.
+     */
+    private fun checkForBetterTool(skillName: String, skillLevel: Int, currentTool: Tool?): Boolean {
+        val bestTool = getToolUseCase.getBestAvailableTool(skillName, skillLevel)
+        return bestTool != null && bestTool != currentTool
+    }
+
 
     /**
      * Called when the ViewModel is being destroyed.

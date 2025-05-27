@@ -47,7 +47,8 @@ fun SkillListScreen(modifier: Modifier = Modifier, viewModel: SkillListViewModel
             onToggleExpand = { skillName -> 
                 expandedSkillName = if (expandedSkillName == skillName) null else skillName
             },
-            onMethodSelected = { viewModel.selectTrainingMethod(it) }
+            onMethodSelected = { viewModel.selectTrainingMethod(it) },
+            onToolSelected = { uiState.activeSkill?.let { viewModel.selectBetterTool(it) } }
         )
     }
 }
@@ -66,6 +67,7 @@ fun SkillListScreen(modifier: Modifier = Modifier, viewModel: SkillListViewModel
  * @param onSkillClick Callback for when a skill is clicked
  * @param onToggleExpand Callback for when a skill's expansion state should toggle
  * @param onMethodSelected Callback for when a training method is selected
+ * @param onToolSelected Callback for when a better tool is selected
  */
 @Composable
 private fun SkillListScreenContents(
@@ -74,7 +76,8 @@ private fun SkillListScreenContents(
     expandedSkillName: String?,
     onSkillClick: (Skill) -> Unit,
     onToggleExpand: (String) -> Unit,
-    onMethodSelected: (TrainingMethod) -> Unit
+    onMethodSelected: (TrainingMethod) -> Unit,
+    onToolSelected: () -> Unit
 ) {
     Column(modifier = modifier) {
         if (uiState.isLoading) {
@@ -94,21 +97,25 @@ private fun SkillListScreenContents(
                 contentPadding = PaddingValues(vertical = 16.dp)
             ) {
                 items(uiState.skills) { skill ->
+                    val isActiveSkill = skill.name == uiState.activeSkill
+
                     ExpandableSkillItem(
                         skill = skill,
-                        isActive = skill.name == uiState.activeSkill,
+                        isActive = isActiveSkill,
                         isExpanded = skill.name == expandedSkillName,
-                        xpPerHour = if (skill.name == uiState.activeSkill)
+                        xpPerHour = if (isActiveSkill)
                             uiState.activeTrainingMethod?.calculateXpPerHour()
                                 ?: 3600 // Fallback to 3600 (1 XP per second)
                         else 0,
-                        trainingMethods = if (skill.name == uiState.activeSkill) uiState.trainingMethods else emptyList(),
-                        activeMethod = if (skill.name == uiState.activeSkill) uiState.activeTrainingMethod else null,
-                        activeTool = if (skill.name == uiState.activeSkill) uiState.activeTool else null,
-                        trainingProgress = if (skill.name == uiState.activeSkill) uiState.trainingProgress else 0f,
+                        trainingMethods = if (isActiveSkill) uiState.trainingMethods else emptyList(),
+                        activeMethod = if (isActiveSkill) uiState.activeTrainingMethod else null,
+                        activeTool = if (isActiveSkill) uiState.activeTool else null,
+                        hasBetterToolAvailable = if (isActiveSkill) uiState.hasBetterToolAvailable else false,
+                        trainingProgress = if (isActiveSkill) uiState.trainingProgress else 0f,
                         onSkillClick = onSkillClick,
                         onToggleExpand = { onToggleExpand(skill.name) },
-                        onMethodSelected = onMethodSelected
+                        onMethodSelected = onMethodSelected,
+                        onToolSelected = onToolSelected
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                 }
@@ -140,7 +147,8 @@ fun SkillListScreenContentsPreview() {
             expandedSkillName = expandedSkillName,
             onSkillClick = { /* nothing */ },
             onToggleExpand = { name -> expandedSkillName = if (expandedSkillName == name) null else name },
-            onMethodSelected = { /* nothing */ }
+            onMethodSelected = { /* nothing */ },
+            onToolSelected = { /* nothing */ }
         )
     }
 }

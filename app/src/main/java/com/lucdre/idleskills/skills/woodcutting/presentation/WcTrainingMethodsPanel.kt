@@ -30,8 +30,10 @@ import com.lucdre.idleskills.skills.presentation.util.CustomLinearProgressIndica
  * @param methods List of available woodcutting training methods
  * @param activeMethod Currently selected training method
  * @param activeTool Currently selected woodcutting tool
+ * @param hasBetterToolAvailable Whether a better tool is available
  * @param trainingProgress Progress of the current woodcutting action (0-1)
  * @param onMethodSelected Callback for when a training method is selected by the user
+ * @param onToolSelected Callback for when a tool is selected by the user
  */
 @Composable
 fun WcTrainingMethodsPanel(
@@ -39,8 +41,10 @@ fun WcTrainingMethodsPanel(
     methods: List<TrainingMethod>,
     activeMethod: TrainingMethod?,
     activeTool: Tool?,
+    hasBetterToolAvailable: Boolean = false,
     trainingProgress: Float = 0f,
-    onMethodSelected: (TrainingMethod) -> Unit
+    onMethodSelected: (TrainingMethod) -> Unit,
+    onToolSelected: (Tool) -> Unit
 ) {
     Surface(
         modifier = modifier,
@@ -72,28 +76,43 @@ fun WcTrainingMethodsPanel(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        // Tool icon
+                        // Tool icon with notification and click functionality. TopEnd Alignment for the icon
                         Box(
-                            modifier = Modifier
-                                .size(32.dp)
-                                .clip(CircleShape)
-                                .background(Color(0x33A5D6A7)) // Very light green background
-                                .padding(4.dp),
-                            contentAlignment = Alignment.Center
+                            modifier = Modifier.clickable { onToolSelected(tool) },
+                            contentAlignment = Alignment.TopEnd
                         ) {
-                            Icon(
-                                modifier = Modifier.size(24.dp),
-                                painter = painterResource(id = tool.iconResId ?: R.drawable.ic_tree),
-                                contentDescription = tool.name,
-                                tint = Color(0xFF2E7D32)
-                            )
+                            Box(
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(0x33A5D6A7)) // Very light green background
+                                    .padding(4.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    modifier = Modifier.size(24.dp),
+                                    painter = painterResource(id = tool.iconResId ?: R.drawable.ic_tree),
+                                    contentDescription = tool.name,
+                                    tint = Color(0xFF2E7D32)
+                                )
+                            }
+                            
+                            // Notification bubble when better tool is available
+                            if (hasBetterToolAvailable) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(8.dp)
+                                        .background(Color.Red, CircleShape)
+                                )
+                            }
                         }
 
                         // Tool name
                         Text(
                             text = tool.name,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color(0xFF2E7D32),)
+                            color = Color(0xFF2E7D32),
+                        )
                     }
                 }
 
@@ -153,6 +172,8 @@ fun WcTrainingMethodsPanel(
 /**
  * Icon representing a woodcutting training method.
  *
+ *
+ *
  * @param method The woodcutting training method to display
  * @param isSelected Whether this method is currently selected/active
  * @param onMethodSelected Callback for when this method is selected by the user
@@ -163,6 +184,7 @@ fun WcMethodIcon(
     isSelected: Boolean,
     onMethodSelected: (TrainingMethod) -> Unit
 ) {
+    // Placeholder icons //TODO
     val imageRes = when(method.name) {
         "Tree" -> R.drawable.ic_tree
         "Oak Tree" -> R.drawable.ic_tree
@@ -213,17 +235,19 @@ fun WcTrainingMethodsPanelPreview() {
             TrainingMethod("Woodcutting", "Oak", 15, 10000, 5),
             TrainingMethod("Woodcutting", "Willow Tree Tree Thisisatee", 30, 15000, 20),
             TrainingMethod("Woodcutting", "Willow", 30, 15000, 20),
-            TrainingMethod("Woodcutting", "Willow", 30, 15000, 20),
-            TrainingMethod("Woodcutting", "Willow", 30, 15000, 20)
+            TrainingMethod("Woodcutting", "Willow 2", 30, 15000, 20),
+            TrainingMethod("Woodcutting", "Willow 3", 30, 15000, 20)
         )
 
         val tool = Tool("Woodcutting", "Iron Axe", 1.2f, 5, R.drawable.ic_tree)
 
         WcTrainingMethodsPanel(
             methods = methods,
-            activeMethod = methods[1],
+            activeMethod = methods[3],
             activeTool = tool,
-            onMethodSelected = {}
+            hasBetterToolAvailable = true,
+            onMethodSelected = {},
+            onToolSelected = {}
         )
     }
 }

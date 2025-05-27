@@ -23,7 +23,9 @@ object TrainingMethodsPanelFactory {
      * @param activeMethod Currently selected training method
      * @param trainingProgress Progress of the current training action (0-1)
      * @param activeTool Currently selected tool
+     * @param hasBetterToolAvailable Whether a better tool is available for the skill
      * @param onMethodSelected Callback for when a training method is selected
+     * @param onToolSelected Callback for when a better tool is selected
      */
     @Composable
     fun CreateTrainingMethodsPanel(
@@ -33,7 +35,9 @@ object TrainingMethodsPanelFactory {
         activeMethod: TrainingMethod?,
         trainingProgress: Float = 0f,
         activeTool: Tool?,
-        onMethodSelected: (TrainingMethod) -> Unit
+        hasBetterToolAvailable: Boolean = false,
+        onMethodSelected: (TrainingMethod) -> Unit,
+        onToolSelected: () -> Unit
     ) {
         when (skillName.lowercase()) {
             "woodcutting" -> WcTrainingMethodsPanel(
@@ -42,7 +46,9 @@ object TrainingMethodsPanelFactory {
                 activeMethod = activeMethod,
                 trainingProgress = trainingProgress,
                 activeTool = activeTool,
-                onMethodSelected = onMethodSelected
+                hasBetterToolAvailable = hasBetterToolAvailable,
+                onMethodSelected = onMethodSelected,
+                onToolSelected = { onToolSelected() }
             )
             // Add cases for other skills as they're implemented //TODO
 

@@ -53,10 +53,12 @@ import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
  * @param trainingMethods List of available training methods for this skill
  * @param activeMethod Currently selected training method
  * @param activeTool Currently selected tool
+ * @param hasBetterToolAvailable Whether a better tool is available for this skill
  * @param trainingProgress Progress of the current training action (0-1)
  * @param onSkillClick Callback for when this skill is clicked
  * @param onToggleExpand Callback for when expansion state should change
  * @param onMethodSelected Callback for when a training method is selected
+ * @param onToolSelected Callback for when a better tool is selected
  */
 @Composable
 fun ExpandableSkillItem(
@@ -67,10 +69,12 @@ fun ExpandableSkillItem(
     trainingMethods: List<TrainingMethod> = emptyList(),
     activeMethod: TrainingMethod? = null,
     activeTool: Tool? = null,
+    hasBetterToolAvailable: Boolean = false,
     trainingProgress: Float = 0f,
     onSkillClick: (Skill) -> Unit,
     onToggleExpand: () -> Unit,
-    onMethodSelected: (TrainingMethod) -> Unit
+    onMethodSelected: (TrainingMethod) -> Unit,
+    onToolSelected: () -> Unit
 ) {
     val xpRequired = LevelCalculator.xpForNextLevel(skill.level)
     val progress = skill.xp.toFloat() / xpRequired.toFloat()
@@ -207,7 +211,9 @@ fun ExpandableSkillItem(
                                 activeMethod = activeMethod,
                                 trainingProgress = trainingProgress,
                                 activeTool = activeTool,
-                                onMethodSelected = onMethodSelected
+                                hasBetterToolAvailable = hasBetterToolAvailable,
+                                onMethodSelected = onMethodSelected,
+                                onToolSelected = onToolSelected
                             )
                         }
                     } else {
@@ -234,7 +240,8 @@ fun ExpandableSkillItemCollapsedPreview() {
             xpPerHour = 0,
             onSkillClick = { },
             onToggleExpand = { },
-            onMethodSelected = { }
+            onMethodSelected = { },
+            onToolSelected = {}
         )
     }
 }
@@ -258,10 +265,12 @@ fun ExpandableSkillItemExpandedPreview() {
             trainingMethods = methods,
             activeMethod = methods[1],
             activeTool = Tool("Woodcutting", "Iron Axe", 1.2f, 5, null),
+            hasBetterToolAvailable = true,
             trainingProgress = 0.35f,
             onSkillClick = { },
             onToggleExpand = { },
-            onMethodSelected = { }
+            onMethodSelected = { },
+            onToolSelected = {}
         )
     }
 }

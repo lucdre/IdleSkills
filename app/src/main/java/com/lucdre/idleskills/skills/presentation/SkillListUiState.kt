@@ -18,6 +18,7 @@ import com.lucdre.idleskills.skills.domain.training.TrainingMethod
  * @property tools List of available tools for the active skill
  * @property activeTool Currently selected tool
  * @property trainingProgress Progress of the current training action (0-1)
+ * @property hasBetterToolAvailable Whether a better tool is available than the currently selected one
  */
 data class SkillListUiState(
     val skills: List<Skill> = emptyList(),
@@ -28,5 +29,6 @@ data class SkillListUiState(
     val activeTrainingMethod: TrainingMethod? = null,
     val tools: List<Tool> = emptyList(),
     val activeTool: Tool? = null,
-    val trainingProgress: Float = 0f // Progress from 0 to 1.0
+    val trainingProgress: Float = 0f, // Progress from 0 to 1.0
+    val hasBetterToolAvailable: Boolean = false
 )
