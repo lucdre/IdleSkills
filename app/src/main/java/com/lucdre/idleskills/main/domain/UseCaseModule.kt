@@ -1,7 +1,13 @@
 package com.lucdre.idleskills.main.domain
 
+import com.lucdre.idleskills.prestige.domain.PrestigeRepositoryInterface
+import com.lucdre.idleskills.prestige.domain.usecase.CheckPrestigeRequirementsUseCase
+import com.lucdre.idleskills.prestige.domain.usecase.GetPrestigeStateUseCase
+import com.lucdre.idleskills.prestige.domain.usecase.GetVisibleSkillsUseCase
+import com.lucdre.idleskills.prestige.domain.usecase.PerformPrestigeUseCase
 import com.lucdre.idleskills.skills.domain.skill.usecase.GetSkillsUseCase
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
+import com.lucdre.idleskills.skills.domain.skill.usecase.ResetSkillsUseCase
 import com.lucdre.idleskills.skills.domain.training.usecase.GetTrainingMethodUseCase
 import com.lucdre.idleskills.skills.domain.skill.usecase.UpdateSkillUseCase
 import com.lucdre.idleskills.skills.domain.tools.ToolRepositoryInterface
@@ -86,5 +92,101 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideGetToolUseCase(repository: ToolRepositoryInterface): GetToolUseCase {
         return GetToolUseCase(repository)
+    }
+
+    /**
+     * Provides a [ResetSkillsUseCase] instance.
+     *
+     * This use case handles resetting all skills to their initial state (level 1, 0 XP).
+     * Used during prestige operations to reset player progress.
+     *
+     * @param skillRepository The skill repository used to persist skill resets
+     * @return A configured [ResetSkillsUseCase]
+     */
+    @Provides
+    @ViewModelScoped
+    fun provideResetSkillsUseCase(
+        skillRepository: SkillRepositoryInterface
+    ): ResetSkillsUseCase {
+        return ResetSkillsUseCase(skillRepository)
+    }
+
+    /**
+     * Provides a [CheckPrestigeRequirementsUseCase] instance.
+     *
+     * This use case validates whether the player meets the requirements to prestige
+     * based on their current prestige level and skill levels.
+     *
+     * @param skillRepository The skill repository to check skill levels
+     * @param prestigeRepository The prestige repository to check current prestige level
+     * @return A configured [CheckPrestigeRequirementsUseCase]
+     */
+    @Provides
+    @ViewModelScoped
+    fun provideCheckPrestigeRequirementsUseCase(
+        skillRepository: SkillRepositoryInterface,
+        prestigeRepository: PrestigeRepositoryInterface
+    ): CheckPrestigeRequirementsUseCase {
+        return CheckPrestigeRequirementsUseCase(skillRepository, prestigeRepository)
+    }
+
+    /**
+     * Provides a [GetVisibleSkillsUseCase] instance.
+     *
+     * This use case filters skills based on prestige level to control which skills
+     * are visible to the player. Implements the progressive skill unlocking system.
+     *
+     * @param skillRepository The skill repository that provides all skills
+     * @param prestigeRepository The prestige repository to check visibility rules
+     * @return A configured [GetVisibleSkillsUseCase]
+     */
+    @Provides
+    @ViewModelScoped
+    fun provideGetVisibleSkillsUseCase(
+        skillRepository: SkillRepositoryInterface,
+        prestigeRepository: PrestigeRepositoryInterface
+    ): GetVisibleSkillsUseCase {
+        return GetVisibleSkillsUseCase(skillRepository, prestigeRepository)
+    }
+
+    /**
+     * Provides a [PerformPrestigeUseCase] instance.
+     *
+     * This use case orchestrates the complete prestige operation: checking requirements,
+     * resetting skills, and incrementing prestige level.
+     *
+     * @param prestigeRepository The prestige repository to update prestige state
+     * @param checkPrestigeRequirementsUseCase Use case to validate prestige requirements
+     * @param resetSkillsUseCase Use case to reset all skills during prestige
+     * @return A configured [PerformPrestigeUseCase]
+     */
+    @Provides
+    @ViewModelScoped
+    fun providePerformPrestigeUseCase(
+        prestigeRepository: PrestigeRepositoryInterface,
+        checkPrestigeRequirementsUseCase: CheckPrestigeRequirementsUseCase,
+        resetSkillsUseCase: ResetSkillsUseCase
+    ): PerformPrestigeUseCase {
+        return PerformPrestigeUseCase(prestigeRepository, checkPrestigeRequirementsUseCase, resetSkillsUseCase)
+    }
+
+    /**
+     * Provides a [GetPrestigeStateUseCase] instance.
+     *
+     * This use case combines stored prestige data with real-time requirement checking
+     * to provide complete prestige state information for UI display
+     * (Prestige level and if you can prestige).
+     *
+     * @param prestigeRepository The prestige repository to get current prestige level
+     * @param checkPrestigeRequirementsUseCase Use case to check if prestiging is possible
+     * @return A configured [GetPrestigeStateUseCase]
+     */
+    @Provides
+    @ViewModelScoped
+    fun provideGetPrestigeStateUseCase(
+        prestigeRepository: PrestigeRepositoryInterface,
+        checkPrestigeRequirementsUseCase: CheckPrestigeRequirementsUseCase
+    ): GetPrestigeStateUseCase {
+        return GetPrestigeStateUseCase(prestigeRepository, checkPrestigeRequirementsUseCase)
     }
 }

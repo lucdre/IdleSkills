@@ -18,10 +18,10 @@ class MockSkillRepository @Inject constructor() : SkillRepositoryInterface {
     private val _skills = MutableStateFlow(
         listOf(
             Skill("Woodcutting"),
-            Skill("Firemaking"),
             Skill("Mining"),
-            Skill("Smithing"),
             Skill("Fishing"),
+            Skill("Firemaking"),
+            Skill("Smelting"),
             Skill("Cooking")
         )
     )
@@ -50,4 +50,11 @@ class MockSkillRepository @Inject constructor() : SkillRepositoryInterface {
 
         return skill
     }
+
+    override suspend fun resetSkills(skills: List<Skill>): List<Skill> {
+        Log.d("MockSkillRepository", "Resetting all skills to level 1, XP 0")
+        _skills.value = skills
+        return _skills.value
+    }
+
 }

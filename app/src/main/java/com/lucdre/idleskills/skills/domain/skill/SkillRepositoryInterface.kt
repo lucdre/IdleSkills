@@ -23,4 +23,9 @@ interface SkillRepositoryInterface {
      * @return The updated skill.
      */
     suspend fun updateSkill(skill: Skill): Skill
+
+    /**
+     * Resets all Skills to their initial state.
+     */
+    suspend fun resetSkills(skills: List<Skill>): List<Skill>
 }

@@ -2,6 +2,8 @@
 
 package com.lucdre.idleskills.main.data
 
+import com.lucdre.idleskills.prestige.domain.PrestigeRepositoryInterface
+import com.lucdre.idleskills.prestige.data.MockPrestigeRepository
 import com.lucdre.idleskills.skills.data.MockSkillRepository
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import com.lucdre.idleskills.skills.domain.tools.ToolRepositoryInterface
@@ -26,6 +28,7 @@ import javax.inject.Singleton
  * - [TrainingMethodRepositoryInterface] to [WcTrainingMethodRepository]
  * - [ToolRepositoryInterface] to [WcToolRepository]
  * - [SkillRepositoryInterface] to [MockSkillRepository]
+ * - [PrestigeRepositoryInterface] to [MockPrestigeRepository]
  */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -48,4 +51,9 @@ abstract class RepositoryModule {
     abstract fun bindSkillRepository(
         repository: MockSkillRepository
     ): SkillRepositoryInterface
+
+    @Binds
+    abstract fun bindPrestigeRepository(
+        mockPrestigeRepository: MockPrestigeRepository
+    ): PrestigeRepositoryInterface
 }
