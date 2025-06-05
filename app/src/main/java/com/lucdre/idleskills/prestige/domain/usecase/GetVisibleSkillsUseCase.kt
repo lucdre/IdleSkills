@@ -1,8 +1,11 @@
 package com.lucdre.idleskills.prestige.domain.usecase
 
+import com.lucdre.idleskills.prestige.domain.PrestigeConfig
 import com.lucdre.idleskills.prestige.domain.PrestigeRepositoryInterface
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
 
 /**
@@ -21,23 +24,29 @@ class GetVisibleSkillsUseCase @Inject constructor(
     /**
      * Returns the list of skills that should be visible based on prestige level.
      *
-     * - Prestige level 0: Only Woodcutting, Mining, and Fishing are visible
-     * - Prestige level 1: Adds Firemaking, Smelting, Cooking
+     * Requirements by prestige level: See [PrestigeConfig]
      *
      * @return A filtered list of skills appropriate for the current prestige level.
      */
     suspend operator fun invoke(): List<Skill> {
         val skills = skillRepository.getSkills()
         val prestige = prestigeRepository.getPrestige()
+        val visibleSkillNames = PrestigeConfig.getVisibleSkills(prestige.level)
 
-        return when (prestige.level) {
-            0 -> {
-                skills.filter { it.name in listOf("Woodcutting", "Mining", "Fishing") }
-            }
-            else -> {
-                //TODO after first prestige all skills visible, so far.
-                skills
-            }
+        return skills.filter { it.name in visibleSkillNames }
+    }
+
+    /**
+     * Observes the list of skills that should be visible based on prestige level.
+     *
+     * @return A Flow of filtered skills that updates when skills or prestige changes.
+     */
+    fun observeVisibleSkills(): Flow<List<Skill>> {
+        return skillRepository.observeSkills().combine(
+            prestigeRepository.observePrestige()
+        ) { skills, prestige ->
+            val visibleSkillNames = PrestigeConfig.getVisibleSkills(prestige.level)
+            skills.filter { it.name in visibleSkillNames }
         }
     }
 }

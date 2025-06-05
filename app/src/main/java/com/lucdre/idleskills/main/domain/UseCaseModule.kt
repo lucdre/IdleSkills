@@ -156,7 +156,7 @@ object UseCaseModule {
      * resetting skills, and incrementing prestige level.
      *
      * @param prestigeRepository The prestige repository to update prestige state
-     * @param checkPrestigeRequirementsUseCase Use case to validate prestige requirements
+     * @param getPrestigeStateUseCase Use case to see the complete state of a prestige
      * @param resetSkillsUseCase Use case to reset all skills during prestige
      * @return A configured [PerformPrestigeUseCase]
      */
@@ -164,10 +164,10 @@ object UseCaseModule {
     @ViewModelScoped
     fun providePerformPrestigeUseCase(
         prestigeRepository: PrestigeRepositoryInterface,
-        checkPrestigeRequirementsUseCase: CheckPrestigeRequirementsUseCase,
+        getPrestigeStateUseCase: GetPrestigeStateUseCase,
         resetSkillsUseCase: ResetSkillsUseCase
     ): PerformPrestigeUseCase {
-        return PerformPrestigeUseCase(prestigeRepository, checkPrestigeRequirementsUseCase, resetSkillsUseCase)
+        return PerformPrestigeUseCase(prestigeRepository, getPrestigeStateUseCase, resetSkillsUseCase)
     }
 
     /**

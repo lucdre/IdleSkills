@@ -1,5 +1,6 @@
 package com.lucdre.idleskills.prestige.domain.usecase
 
+import com.lucdre.idleskills.prestige.domain.PrestigeConfig
 import com.lucdre.idleskills.prestige.domain.PrestigeRepositoryInterface
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import javax.inject.Inject
@@ -20,9 +21,7 @@ class CheckPrestigeRequirementsUseCase @Inject constructor(
     /**
      * Checks if the player can prestige based on their current state.
      *
-     * Requirements by prestige level:
-     * - Level 0 → 1: Woodcutting, Mining, and Fishing must be level 99
-     * - Level 1+: No further prestiges implemented yet
+     * Requirements by prestige level: See [PrestigeConfig]
      *
      * @return True if prestige requirements are met, false otherwise.
      */
@@ -30,17 +29,16 @@ class CheckPrestigeRequirementsUseCase @Inject constructor(
         val currentPrestige = prestigeRepository.getPrestige()
         val skills = skillRepository.getSkills()
 
-        // Prestige 1 requirements:
-        // - Level 99: WC, Mining, Fishing
-        return when (currentPrestige.level) {
-            0 -> {
-                val woodcutting = skills.find { it.name == "Woodcutting" }
-                val mining = skills.find { it.name == "Mining" }
-                val fishing = skills.find { it.name == "Fishing" }
+        // Check if this prestige level exists in config
+        val requiredSkills = PrestigeConfig.getRequiredSkills(currentPrestige.level)
+        val requiredLevel = PrestigeConfig.getRequiredLevel(currentPrestige.level)
 
-                woodcutting?.level == 99 && mining?.level == 99 && fishing?.level == 99
-            }
-            else -> false // No further prestiges implemented yet
+        // If no required skills, can't prestige further (no next level defined)
+        // Will need more checks when more conditions have to be met
+        if (requiredSkills.isEmpty()) return false
+
+        return requiredSkills.all { skillName ->
+            skills.find { it.name == skillName }?.level?.let { it >= requiredLevel } == true
         }
     }
 }

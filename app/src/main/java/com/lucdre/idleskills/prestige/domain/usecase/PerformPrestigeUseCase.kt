@@ -11,33 +11,37 @@ import javax.inject.Inject
  * and incrementing the prestige level.
  *
  * @property prestigeRepository The repository for prestige data.
- * @property checkPrestigeRequirementsUseCase Use case to verify prestige requirements.
+ * @property getPrestigeStateUseCase Use case to see the complete state of the prestige.
  * @property resetSkillsUseCase Use case to reset all skills to initial state.
  */
 class PerformPrestigeUseCase @Inject constructor(
     private val prestigeRepository: PrestigeRepositoryInterface,
-    private val checkPrestigeRequirementsUseCase: CheckPrestigeRequirementsUseCase,
+    private val getPrestigeStateUseCase: GetPrestigeStateUseCase,
     private val resetSkillsUseCase: ResetSkillsUseCase
 ){
     /**
      * Performs the prestige operation if requirements are met.
      *
      * Checks if the player can prestige, resets all skills to level 1 with 0 XP,
-     * and increments the prestige level.
+     * cancels all the training and increments the prestige level.
+     *
+     * @param resetTrainingState Resets all the progress of the skills.
      *
      * @return True if prestige was successful, false if requirements weren't met.
      */
-    suspend operator fun invoke(): Boolean {
-        val canPrestige = checkPrestigeRequirementsUseCase()
-        val currentPrestige = prestigeRepository.getPrestige()
+    suspend operator fun invoke(resetTrainingState: () -> Unit = {}): Boolean {
+        val prestigeState = getPrestigeStateUseCase()
 
-        if (!canPrestige) return false
+        if (!prestigeState.canPrestige) return false
+
+        // Reset all training state to fresh start
+        resetTrainingState()
 
         // Reset ALL skills to level 1, 0 XP
         resetSkillsUseCase()
 
         // Increment prestige level
-        prestigeRepository.updatePrestige(currentPrestige.copy(level = currentPrestige.level + 1))
+        prestigeRepository.updatePrestige(prestigeState.copy(level = prestigeState.level + 1))
 
         return true
     }

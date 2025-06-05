@@ -3,7 +3,7 @@ package com.lucdre.idleskills.skills.presentation
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lucdre.idleskills.skills.domain.skill.usecase.GetSkillsUseCase
+import com.lucdre.idleskills.prestige.domain.usecase.GetVisibleSkillsUseCase
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 import com.lucdre.idleskills.skills.domain.training.SkillTrainingManager
@@ -24,14 +24,14 @@ import javax.inject.Inject
  * Manages UI state and business logic for skill list, training methods and tools.
  * Handles user interactions and communicates with domain layer use cases.
  *
- * @property getSkillsUseCase Use case for retrieving available skills
+ * @property getVisibleSkillsUseCase Use case for retrieving available skills at current prestige
  * @property updateSkillUseCase Use case for updating skill data
  * @property getTrainingMethodUseCase Use case for retrieving training methods
  * @property getToolUseCase Use case for retrieving tools
  */
 @HiltViewModel
 class SkillListViewModel @Inject constructor(
-    private val getSkillsUseCase: GetSkillsUseCase,
+    private val getVisibleSkillsUseCase: GetVisibleSkillsUseCase,
     private val updateSkillUseCase: UpdateSkillUseCase,
     private val getTrainingMethodUseCase: GetTrainingMethodUseCase,
     private val getToolUseCase: GetToolUseCase
@@ -93,7 +93,7 @@ class SkillListViewModel @Inject constructor(
         loadSkills()
 
         viewModelScope.launch {
-            getSkillsUseCase.observeSkills().collect { skills ->
+            getVisibleSkillsUseCase.observeVisibleSkills().collect { skills ->
                 Log.d("SkillListViewModel", "Skills updated: ${skills.map { "${it.name}:${it.xp}" }}")
                 _uiState.value = _uiState.value.copy(
                     skills = skills,
@@ -104,14 +104,14 @@ class SkillListViewModel @Inject constructor(
     }
 
     /**
-     * Loads available skills from the repository.
+     * Loads visible skills from the repository based on current prestige.
      * Updates UI state.
      */
     fun loadSkills() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
-                val skills = getSkillsUseCase()
+                val skills = getVisibleSkillsUseCase()
                 _uiState.value = _uiState.value.copy(skills = skills, isLoading = false)
             } catch (e: Exception) {
                 Log.e("SkillListViewModel", "Error loading skills", e)
@@ -254,6 +254,37 @@ class SkillListViewModel @Inject constructor(
         return bestTool != null && bestTool != currentTool
     }
 
+    /**
+     * Resets the training state to initial conditions.
+     * Used when prestiging to provide a fresh start experience.
+     *
+     * - Cancels active training
+     * - Clears selected tools and methods for all skills
+     * - Resets UI state to show no active skill
+     * - Clears progress indicators
+     */
+    fun resetTrainingState() {
+        // Cancel any active training
+        trainingManager.cancelTraining()
+
+        // Clear all selected tools and methods
+        selectedTools.clear()
+        selectedMethods.clear()
+
+        // Clear previous level tracking
+        previousLevels.clear()
+
+        // Reset UI state to fresh start
+        _uiState.value = _uiState.value.copy(
+            activeSkill = null,
+            trainingMethods = emptyList(),
+            activeTrainingMethod = null,
+            tools = emptyList(),
+            activeTool = null,
+            hasBetterToolAvailable = false,
+            trainingProgress = 0f
+        )
+    }
 
     /**
      * Called when the ViewModel is being destroyed.

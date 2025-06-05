@@ -132,9 +132,9 @@ fun MainNavigation() {
         // Switch screens based on selected tab
         when (selectedTabIndex) {
             0 -> {
-                val viewModel: SkillListViewModel = hiltViewModel()
+                val skillViewModel: SkillListViewModel = hiltViewModel()
                 SkillListScreen(
-                    viewModel = viewModel,
+                    skillViewModel = skillViewModel,
                     modifier = Modifier.padding(innerPadding)
                 )
             }
