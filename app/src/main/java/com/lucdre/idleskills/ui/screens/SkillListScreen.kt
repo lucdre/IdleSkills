@@ -139,7 +139,7 @@ private fun SkillListScreenContents(
                         isActive = isActiveSkill,
                         isExpanded = skill.name == expandedSkillName,
                         xpPerHour = if (isActiveSkill)
-                            skillUiState.activeTrainingMethod?.calculateXpPerHour()
+                            skillUiState.activeTrainingMethod?.calculateXpPerHour(skillUiState.activeTool)
                                 ?: 3600 // Fallback to 3600 (1 XP per second)
                         else 0,
                         trainingMethods = if (isActiveSkill) skillUiState.trainingMethods else emptyList(),

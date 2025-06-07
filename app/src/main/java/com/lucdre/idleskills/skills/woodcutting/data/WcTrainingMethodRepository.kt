@@ -16,10 +16,13 @@ class WcTrainingMethodRepository @Inject constructor(): TrainingMethodRepository
 
     private val trainingMethods = mapOf(
         "Woodcutting" to listOf(
-            TrainingMethod("Woodcutting", "Tree", 10, 10000), // 10 XP, 10 seconds, Level 1
-            TrainingMethod("Woodcutting", "Oak Tree", 15, 10000, 5), //15 XP, 10 seconds, Level 5
-            TrainingMethod("Woodcutting", "Willow Tree", 30, 15000, 20),
-            TrainingMethod("Woodcutting", "Cheat Tree", 300, 1000, 1)// Cheat
+            TrainingMethod("Woodcutting", "Tree", 10, 3000), // 10 XP, 3 seconds, Level 1
+            TrainingMethod("Woodcutting", "Oak Tree", 15, 4000, 10), //15 XP, 4 seconds, Level 10
+            TrainingMethod("Woodcutting", "Willow Tree", 22, 5000, 25),
+            TrainingMethod("Woodcutting", "Maple Tree", 40, 8000, 45),
+            TrainingMethod("Woodcutting", "Yew Tree", 80, 12000, 60),
+            TrainingMethod("Woodcutting", "Magic Tree", 100, 20000, 75),
+            TrainingMethod("Woodcutting", "Cheat Tree", 3000000, 1000, 1)// Cheat
         )
     )
 

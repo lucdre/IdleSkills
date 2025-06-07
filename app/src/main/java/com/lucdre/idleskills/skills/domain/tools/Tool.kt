@@ -15,11 +15,4 @@ data class Tool(
     val efficiency: Float = 1.0f,
     val requiredLevel: Int = 1,
     val iconResId: Int? = null
-) {
-    /**
-     * (Placeholder) Calculate bonus XP multiplier based on tool efficiency.
-     */
-    fun getXpMultiplier(): Float {
-        return efficiency
-    }
-}
+)

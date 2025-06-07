@@ -131,7 +131,7 @@ fun WcTrainingMethodsPanel(
                             )
 
                             Text(
-                                text = "${method.xpPerAction} XP | ${method.calculateXpPerHour()} XP/h",
+                                text = "${method.xpPerAction} XP | ${method.calculateXpPerHour(activeTool)} XP/h",
                                 style = MaterialTheme.typography.bodySmall
                             )
 

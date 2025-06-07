@@ -8,6 +8,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.roundToLong
 
 /**
  * Manages the active training process for a specific skill.
@@ -56,23 +57,21 @@ class SkillTrainingManager(
 
             while (true) {
                 val startTime = System.currentTimeMillis()
-                val endTime = startTime + method.actionDurationMs
+                val actionDuration = (method.actionDurationMs / (tool?.efficiency ?: 1f)).roundToLong()
+                val endTime = startTime + actionDuration
 
                 // Loop for progress updates during the action
                 while (System.currentTimeMillis() < endTime) {
                     val currentTime = System.currentTimeMillis()
-                    val progress = (currentTime - startTime).toFloat() / method.actionDurationMs.toFloat()
-                    onProgressUpdate(progress.coerceIn(0f, 1f)) // Ensure progress stays 0-1
+                    val progress = (currentTime - startTime).toFloat() / actionDuration.toFloat()
+                    onProgressUpdate(progress.coerceIn(0f, 1f))
                     delay(PROGRESS_UPDATE_INTERVAL_MS)
                 }
                 onProgressUpdate(1f) // Ensure final progress is 1.0
 
                 // Calculate XP gained for this action
-                val xpGained = if (tool != null) {
-                    (method.xpPerAction * tool.getXpMultiplier()).toInt()
-                } else {
-                    method.xpPerAction
-                }
+                val xpGained = method.xpPerAction
+
 
                 // Apply XP update using the use case
                 try {
