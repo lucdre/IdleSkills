@@ -57,17 +57,28 @@ class SkillTrainingManager(
 
             while (true) {
                 val startTime = System.currentTimeMillis()
-                val actionDuration = (method.actionDurationMs / (tool?.efficiency ?: 1f)).roundToLong()
-                val endTime = startTime + actionDuration
+                val actionDuration = method.getEffectiveActionDuration(tool)
+                val endTime = startTime + actionDuration.toLong()
+
+                Log.d(
+                    "SkillTrainingManager",
+                    "Expected duration: ${actionDuration}ms, Tool efficiency: ${tool?.efficiency ?: "none"}"
+                )
 
                 // Loop for progress updates during the action
                 while (System.currentTimeMillis() < endTime) {
                     val currentTime = System.currentTimeMillis()
-                    val progress = (currentTime - startTime).toFloat() / actionDuration.toFloat()
+                    val progress = (currentTime - startTime).toFloat() / actionDuration
                     onProgressUpdate(progress.coerceIn(0f, 1f))
                     delay(PROGRESS_UPDATE_INTERVAL_MS)
                 }
                 onProgressUpdate(1f) // Ensure final progress is 1.0
+
+                val actualDuration = System.currentTimeMillis() - startTime
+                Log.d(
+                    "SkillTrainingManager",
+                    "Actual duration: ${actualDuration}ms (diff: ${actualDuration - actionDuration.toLong()}ms)"
+                )
 
                 // Calculate XP gained for this action
                 val xpGained = method.xpPerAction

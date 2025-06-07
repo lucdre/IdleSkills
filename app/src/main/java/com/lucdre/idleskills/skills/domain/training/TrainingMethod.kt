@@ -32,8 +32,12 @@ data class TrainingMethod(
      * @return The XP per hour for this training method with tool efficiency applied.
      */
     fun calculateXpPerHour(tool: Tool? = null): Int {
-        val effectiveActionDuration = actionDurationMs / (tool?.efficiency ?: 1f)
+        val effectiveActionDuration = getEffectiveActionDuration(tool)
         val actionsPerHour = (3600 * 1000) / effectiveActionDuration
         return (actionsPerHour * xpPerAction).roundToInt()
+    }
+
+    fun getEffectiveActionDuration(tool: Tool? = null): Float {
+        return actionDurationMs / (tool?.efficiency ?: 1f)
     }
 }
