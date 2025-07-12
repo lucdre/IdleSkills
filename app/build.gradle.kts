@@ -71,8 +71,8 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
 
     // Couroutines
-    implementation (libs.kotlinx.coroutines.core)
-    implementation (libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
 }
 
 // Allow references to generated code
