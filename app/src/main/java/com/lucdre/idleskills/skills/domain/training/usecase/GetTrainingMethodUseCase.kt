@@ -12,7 +12,7 @@ import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryInte
  * - [invoke]: Get all available training methods for a specific skill.
  * - [getBestAvailableMethod]: Returns the best available training method for a skill at the current level. (Placeholder)
  */
-class GetTrainingMethodUseCase (
+class GetTrainingMethodUseCase(
     private val trainingMethodRepository: TrainingMethodRepositoryInterface
 ) {
     operator fun invoke(skillName: String): List<TrainingMethod> {

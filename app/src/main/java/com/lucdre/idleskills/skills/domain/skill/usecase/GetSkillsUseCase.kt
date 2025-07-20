@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
  * - [invoke]: Returns a list of all skills.
  * - [observeSkills]: Returns a flow of skills whenever a skill is updated.
  */
-class GetSkillsUseCase (private val skillRepository: SkillRepositoryInterface) {
+class GetSkillsUseCase(private val skillRepository: SkillRepositoryInterface) {
     suspend operator fun invoke(): List<Skill> {
         return skillRepository.getSkills()
     }

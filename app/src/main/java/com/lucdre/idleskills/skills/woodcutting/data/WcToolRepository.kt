@@ -10,7 +10,7 @@ import javax.inject.Singleton
  * Temporary repository that provides woodcutting tools.
  */
 @Singleton
-class WcToolRepository @Inject constructor(): ToolRepositoryInterface {
+class WcToolRepository @Inject constructor() : ToolRepositoryInterface {
 
     private val tools = mapOf(
         "Woodcutting" to listOf(

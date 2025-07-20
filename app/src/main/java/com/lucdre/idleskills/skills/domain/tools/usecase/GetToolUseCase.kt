@@ -12,7 +12,7 @@ import com.lucdre.idleskills.skills.domain.tools.ToolRepositoryInterface
  * - [invoke]: Get all available tools for a specific skill.
  * - [getBestAvailableTool]: Returns the best available tool for a skill at the current level. (Placeholder)
  */
-class GetToolUseCase (
+class GetToolUseCase(
     private val toolRepository: ToolRepositoryInterface
 ) {
     operator fun invoke(skillName: String): List<Tool> {

@@ -94,10 +94,10 @@ fun ExpandableSkillItem(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { 
+                    .clickable {
                         if (!isExpanded) {
                             // Only trigger the skill click when collapsing to avoid double click issues
-                            onSkillClick(skill) 
+                            onSkillClick(skill)
                         }
                         onToggleExpand()
                     }
@@ -125,16 +125,14 @@ fun ExpandableSkillItem(
                                 style = MaterialTheme.typography.titleMedium,
                                 color = if (isActive) Color(0xFF4CAF50) else MaterialTheme.colorScheme.onSurface
                             )
-                            
                             Spacer(modifier = Modifier.width(8.dp))
-                            
                             // Expansion toggle
-                            IconButton(onClick = { 
+                            IconButton(onClick = {
                                 if (!isExpanded) {
                                     // Only trigger the skill click when collapsing to avoid double click issues
-                                    onSkillClick(skill) 
+                                    onSkillClick(skill)
                                 }
-                                onToggleExpand() 
+                                onToggleExpand()
                             }) {
                                 Icon(
                                     modifier = Modifier.rotate(rotationState),
@@ -179,8 +177,6 @@ fun ExpandableSkillItem(
                     }
                 }
             }
-
-            
             // Expanded content with training methods and extra info
             AnimatedVisibility(
                 modifier = Modifier.wrapContentHeight(unbounded = false),
@@ -194,7 +190,6 @@ fun ExpandableSkillItem(
                         .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
                         .wrapContentHeight()
                 ) {
-
                     // Content box
                     if (trainingMethods.isNotEmpty()) {
                         Box(
@@ -246,7 +241,6 @@ fun ExpandableSkillItemCollapsedPreview() {
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun ExpandableSkillItemExpandedPreview() {
@@ -255,7 +249,6 @@ fun ExpandableSkillItemExpandedPreview() {
         TrainingMethod("Woodcutting", "Oak Tree", 15, 10000, 5),
         TrainingMethod("Woodcutting", "Willow Tree", 30, 15000, 20)
     )
-    
     IdleSkillsTheme {
         ExpandableSkillItem(
             skill = Skill("Woodcutting", 42, 5732),

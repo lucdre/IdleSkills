@@ -2,13 +2,12 @@ package com.lucdre.idleskills.skills.domain.training
 
 import android.util.Log
 import com.lucdre.idleskills.skills.domain.skill.Skill
-import com.lucdre.idleskills.skills.domain.tools.Tool
 import com.lucdre.idleskills.skills.domain.skill.usecase.UpdateSkillUseCase
+import com.lucdre.idleskills.skills.domain.tools.Tool
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.math.roundToLong
 
 /**
  * Manages the active training process for a specific skill.
@@ -83,7 +82,6 @@ class SkillTrainingManager(
                 // Calculate XP gained for this action
                 val xpGained = method.xpPerAction
 
-
                 // Apply XP update using the use case
                 try {
                     val updatedSkill = updateSkillUseCase(currentSkill, xpGained)
@@ -128,7 +126,7 @@ class SkillTrainingManager(
 
                 // Apply XP update
                 try {
-                    //TODO changed for now
+                    // TODO changed for now
                     val updatedSkill = updateSkillUseCase(currentSkill, 300000000)
                     currentSkill = updatedSkill
                     onSkillUpdate(updatedSkill)

@@ -28,7 +28,7 @@ fun QuestsScreen(modifier: Modifier = Modifier) {
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(bottom = 16.dp)
         )
-        
+
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center

@@ -29,6 +29,7 @@ object PrestigeConfig {
             visibleSkills = listOf("Woodcutting", "Mining", "Fishing", "Firemaking", "Smelting", "Cooking"),
         )
     )
+
     // Highest prestige level config as fallback
     private val maxPrestigeConfig = prestigeConfigs.values.maxBy { it.visibleSkills.size }
 

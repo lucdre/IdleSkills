@@ -24,11 +24,11 @@ fun AchievementsScreen(modifier: Modifier = Modifier) {
         modifier = modifier.fillMaxSize().padding(16.dp)
     ) {
         Text(
+            modifier = Modifier.padding(bottom = 16.dp),
             text = "Achievements",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 16.dp)
+            style = MaterialTheme.typography.headlineMedium
         )
-        
+
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center

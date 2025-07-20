@@ -50,7 +50,7 @@ object LevelCalculator {
 
             // Enough XP to level up?
             if (remainingXp >= xpRequired) {
-                //Level up!
+                // Level up!
                 currentLevel++
                 remainingXp -= xpRequired
                 didLevelUp = true
@@ -61,7 +61,7 @@ object LevelCalculator {
         }
 
         // If no level up, return original skill
-        if(!didLevelUp){
+        if (!didLevelUp) {
             return skill
         }
 

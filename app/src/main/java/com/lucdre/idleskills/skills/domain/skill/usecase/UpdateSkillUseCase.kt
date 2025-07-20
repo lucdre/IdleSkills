@@ -30,7 +30,6 @@ class UpdateSkillUseCase(private val skillRepository: SkillRepositoryInterface) 
      * @return The updated skill with the added XP.
      */
     suspend operator fun invoke(skill: Skill, xpAmount: Int): Skill {
-
         var updatedSkill = skill.copy(xp = skill.xp + xpAmount)
         updatedSkill = LevelCalculator.checkForLevelUp(updatedSkill)
 
