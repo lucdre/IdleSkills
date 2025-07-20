@@ -8,7 +8,7 @@ import com.lucdre.idleskills.skills.woodcutting.presentation.WcTrainingMethodsPa
 
 /**
  * Factory to provide skill-specific training method panels.
- * 
+ *
  * Uses a factory pattern to create the appropriate training methods panel
  * based on the skill type, with a default implementation as fallback while more methods are added.
  */

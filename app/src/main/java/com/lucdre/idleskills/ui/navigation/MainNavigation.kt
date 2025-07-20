@@ -1,7 +1,6 @@
 package com.lucdre.idleskills.ui.navigation
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CheckCircle
@@ -11,10 +10,11 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -23,20 +23,23 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.lucdre.idleskills.ui.screens.SkillListScreen
 import com.lucdre.idleskills.skills.presentation.SkillListViewModel
 import com.lucdre.idleskills.ui.screens.AchievementsScreen
+import com.lucdre.idleskills.ui.screens.InitialSkillSelectionScreen
 import com.lucdre.idleskills.ui.screens.QuestsScreen
 import com.lucdre.idleskills.ui.screens.SettingsScreen
+import com.lucdre.idleskills.ui.screens.SkillListScreen
 import com.lucdre.idleskills.ui.screens.ToolsScreen
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
@@ -58,10 +61,58 @@ data class BottomNavigationItem(
 /**
  * Main navigation container that manages bottom navigation screens.
  *
+ * Checks if the game is fresh and shows initial skill selection screen accordingly.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainNavigation() {
+fun MainNavigation(
+    viewModel: MainNavigationViewModel = hiltViewModel(),
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    // Show loading or initial skill selection based on game state
+    when {
+        uiState.isLoading -> {
+            // Loading state - show a simple loading screen
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    CircularProgressIndicator()
+                    Text(
+                        text = "Loading...",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
+            return
+        }
+        uiState.isGameFresh -> {
+            // Fresh game - show initial skill selection
+            InitialSkillSelectionScreen(
+                onSkillSelected = {
+                    viewModel.onInitialSkillSelected()
+                }
+            )
+            return
+        }
+        else -> {
+            // Normal game flow
+            MainNavigationContent()
+        }
+    }
+}
+
+/**
+ * Main navigation content with bottom navigation.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MainNavigationContent() {
     // TODO compose state items to be able to change hasNews
     val items = listOf(
         BottomNavigationItem(
@@ -97,7 +148,7 @@ fun MainNavigation() {
     )
 
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
-    
+
     Scaffold(
         bottomBar = {
             NavigationBar {
@@ -117,9 +168,11 @@ fun MainNavigation() {
                                 }
                             ) {
                                 Icon(
-                                    imageVector = if(index == selectedTabIndex) {
+                                    imageVector = if (index == selectedTabIndex) {
                                         item.selectedIcon
-                                    } else item.unselectedIcon,
+                                    } else {
+                                        item.unselectedIcon
+                                    },
                                     contentDescription = item.title
                                 )
                             }
@@ -156,7 +209,7 @@ fun MainNavigationPreview() {
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(8.dp)
             )
-            
+
             NavigationBar {
                 val items = listOf("Skills", "Tools", "Quests", "Goals", "Settings")
                 val icons = listOf(
@@ -166,7 +219,7 @@ fun MainNavigationPreview() {
                     Icons.Filled.Star,
                     Icons.Filled.Settings
                 )
-                
+
                 items.forEachIndexed { index, item ->
                     NavigationBarItem(
                         selected = index == 2,

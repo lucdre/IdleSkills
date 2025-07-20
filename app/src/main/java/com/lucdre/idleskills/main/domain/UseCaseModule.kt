@@ -5,20 +5,19 @@ import com.lucdre.idleskills.prestige.domain.usecase.CheckPrestigeRequirementsUs
 import com.lucdre.idleskills.prestige.domain.usecase.GetPrestigeStateUseCase
 import com.lucdre.idleskills.prestige.domain.usecase.GetVisibleSkillsUseCase
 import com.lucdre.idleskills.prestige.domain.usecase.PerformPrestigeUseCase
-import com.lucdre.idleskills.skills.domain.skill.usecase.GetSkillsUseCase
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
+import com.lucdre.idleskills.skills.domain.skill.usecase.GetSkillsUseCase
 import com.lucdre.idleskills.skills.domain.skill.usecase.ResetSkillsUseCase
-import com.lucdre.idleskills.skills.domain.training.usecase.GetTrainingMethodUseCase
 import com.lucdre.idleskills.skills.domain.skill.usecase.UpdateSkillUseCase
 import com.lucdre.idleskills.skills.domain.tools.ToolRepositoryInterface
 import com.lucdre.idleskills.skills.domain.tools.usecase.GetToolUseCase
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryInterface
+import com.lucdre.idleskills.skills.domain.training.usecase.GetTrainingMethodUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.scopes.ViewModelScoped
-
 
 /**
  * Dagger/Hilt module providing use case instances.
@@ -156,6 +155,7 @@ object UseCaseModule {
      * resetting skills, and incrementing prestige level.
      *
      * @param prestigeRepository The prestige repository to update prestige state
+     * @param skillRepository The skill repository that provides all skills
      * @param getPrestigeStateUseCase Use case to see the complete state of a prestige
      * @param resetSkillsUseCase Use case to reset all skills during prestige
      * @return A configured [PerformPrestigeUseCase]
@@ -164,10 +164,11 @@ object UseCaseModule {
     @ViewModelScoped
     fun providePerformPrestigeUseCase(
         prestigeRepository: PrestigeRepositoryInterface,
+        skillRepository: SkillRepositoryInterface,
         getPrestigeStateUseCase: GetPrestigeStateUseCase,
         resetSkillsUseCase: ResetSkillsUseCase
     ): PerformPrestigeUseCase {
-        return PerformPrestigeUseCase(prestigeRepository, getPrestigeStateUseCase, resetSkillsUseCase)
+        return PerformPrestigeUseCase(prestigeRepository, skillRepository, getPrestigeStateUseCase, resetSkillsUseCase)
     }
 
     /**

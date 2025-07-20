@@ -1,8 +1,6 @@
 package com.lucdre.idleskills.ui.screens
 
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.lucdre.idleskills.prestige.presentation.PrestigeCard
-import com.lucdre.idleskills.prestige.presentation.PrestigeViewModel
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,8 +16,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.lucdre.idleskills.prestige.domain.Prestige
+import com.lucdre.idleskills.prestige.domain.PrestigePoints
+import com.lucdre.idleskills.prestige.presentation.PrestigeCard
 import com.lucdre.idleskills.prestige.presentation.PrestigeUiState
+import com.lucdre.idleskills.prestige.presentation.PrestigeViewModel
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 import com.lucdre.idleskills.skills.presentation.ExpandableSkillItem
@@ -43,6 +45,7 @@ fun SkillListScreen(
     val skillUiState by skillViewModel.uiState.collectAsState()
     val prestigeUiState by prestigeViewModel.uiState.collectAsState()
     var expandedSkillName by remember { mutableStateOf<String?>(null) }
+    var showSkillTree by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = true) {
         skillViewModel.loadSkills()
@@ -67,8 +70,24 @@ fun SkillListScreen(
                         expandedSkillName = null
                     }
                 )
+            },
+            onSkillTreeClick = {
+                showSkillTree = true
             }
         )
+
+        // Skill Tree Screen as overlay
+        if (showSkillTree) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
+            ) {
+                SkillTreeScreen(
+                    onClose = { showSkillTree = false }
+                )
+            }
+        }
     }
 }
 
@@ -89,6 +108,7 @@ fun SkillListScreen(
  * @param onMethodSelected Callback for when a training method is selected
  * @param onToolSelected Callback for when a better tool is selected
  * @param onPrestigeClick Callback for when the prestige button is selected
+ * @param onSkillTreeClick Callback for when the skill tree button is selected
  */
 @Composable
 private fun SkillListScreenContents(
@@ -100,7 +120,8 @@ private fun SkillListScreenContents(
     onToggleExpand: (String) -> Unit,
     onMethodSelected: (TrainingMethod) -> Unit,
     onToolSelected: () -> Unit,
-    onPrestigeClick: () -> Unit
+    onPrestigeClick: () -> Unit,
+    onSkillTreeClick: () -> Unit
 ) {
     Column(modifier = modifier) {
         if (skillUiState.isLoading) {
@@ -124,11 +145,11 @@ private fun SkillListScreenContents(
                     PrestigeCard(
                         prestige = prestigeUiState.prestige,
                         isPerformingPrestige = prestigeUiState.isPerformingPrestige,
-                        onPrestigeClick = onPrestigeClick
+                        onPrestigeClick = onPrestigeClick,
+                        onSkillTreeClick = onSkillTreeClick
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                 }
-
 
                 // Skill list
                 items(skillUiState.skills) { skill ->
@@ -138,10 +159,12 @@ private fun SkillListScreenContents(
                         skill = skill,
                         isActive = isActiveSkill,
                         isExpanded = skill.name == expandedSkillName,
-                        xpPerHour = if (isActiveSkill)
+                        xpPerHour = if (isActiveSkill) {
                             skillUiState.activeTrainingMethod?.calculateXpPerHour(skillUiState.activeTool)
                                 ?: 3600 // Fallback to 3600 (1 XP per second)
-                        else 0,
+                        } else {
+                            0
+                        },
                         trainingMethods = if (isActiveSkill) skillUiState.trainingMethods else emptyList(),
                         activeMethod = if (isActiveSkill) skillUiState.activeTrainingMethod else null,
                         activeTool = if (isActiveSkill) skillUiState.activeTool else null,
@@ -159,7 +182,6 @@ private fun SkillListScreenContents(
     }
 }
 
-
 @Preview(showBackground = true, showSystemUi = false)
 @Composable
 fun SkillListScreenContentsPreview() {
@@ -175,7 +197,10 @@ fun SkillListScreenContentsPreview() {
         )
 
         val previewPrestigeState = PrestigeUiState(
-            prestige = Prestige(level = 0, canPrestige = false),
+            prestige = Prestige(
+                points = PrestigePoints(availablePrestigePoints = 1, totalPrestigePoints = 3),
+                canPrestige = false
+            ),
             isLoading = false,
             isPerformingPrestige = false
         )
@@ -191,7 +216,8 @@ fun SkillListScreenContentsPreview() {
             onToggleExpand = { name -> expandedSkillName = if (expandedSkillName == name) null else name },
             onMethodSelected = { /* nothing */ },
             onToolSelected = { /* nothing */ },
-            onPrestigeClick = { /* nothing */ }
+            onPrestigeClick = { /* nothing */ },
+            onSkillTreeClick = { /* nothing */ }
         )
     }
 }

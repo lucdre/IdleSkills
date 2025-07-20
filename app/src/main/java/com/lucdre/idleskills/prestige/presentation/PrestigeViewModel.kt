@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lucdre.idleskills.prestige.domain.Prestige
+import com.lucdre.idleskills.prestige.domain.PrestigeRepositoryInterface
 import com.lucdre.idleskills.prestige.domain.usecase.GetPrestigeStateUseCase
 import com.lucdre.idleskills.prestige.domain.usecase.PerformPrestigeUseCase
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
@@ -27,17 +28,28 @@ import javax.inject.Inject
 class PrestigeViewModel @Inject constructor(
     private val getPrestigeStateUseCase: GetPrestigeStateUseCase,
     private val performPrestigeUseCase: PerformPrestigeUseCase,
-    private val skillRepository: SkillRepositoryInterface
+    private val skillRepository: SkillRepositoryInterface,
+    private val prestigeRepository: PrestigeRepositoryInterface,
 ) : ViewModel() {
 
     // private to update the state in the viewModel
     private val _uiState = MutableStateFlow(PrestigeUiState())
+
     // public so that the UI can observe the state but not modify it
     val uiState: StateFlow<PrestigeUiState> = _uiState.asStateFlow()
 
     init {
         loadPrestigeState()
 
+        // Observe prestige changes for real-time updates
+        viewModelScope.launch {
+            prestigeRepository.observePrestige().collect { prestige ->
+                Log.d("PrestigeViewModel", "Prestige changed, updating UI state")
+                _uiState.value = _uiState.value.copy(prestige = prestige)
+            }
+        }
+
+        // Also observe skills for prestige requirement changes
         viewModelScope.launch {
             skillRepository.observeSkills().collect { skills ->
                 Log.d("PrestigeViewModel", "Skills changed, refreshing prestige state")

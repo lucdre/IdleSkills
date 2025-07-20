@@ -5,23 +5,23 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.lucdre.idleskills.skills.domain.training.TrainingMethod
-import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Icon
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
 import com.lucdre.idleskills.R
 import com.lucdre.idleskills.skills.domain.tools.Tool
+import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 import com.lucdre.idleskills.skills.presentation.util.CustomLinearProgressIndicator
+import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
 /**
  * Woodcutting-specific training methods panel.
@@ -67,7 +67,7 @@ fun WcTrainingMethodsPanel(
                     modifier = Modifier.padding(bottom = 8.dp, start = 8.dp, end = 8.dp),
                     text = "Trees",
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color(0xFF2E7D32)// Darker green for woodcutting theme
+                    color = Color(0xFF2E7D32) // Darker green for woodcutting theme
                 )
 
                 // Tool UI
@@ -96,7 +96,7 @@ fun WcTrainingMethodsPanel(
                                     tint = Color(0xFF2E7D32)
                                 )
                             }
-                            
+
                             // Notification bubble when better tool is available
                             if (hasBetterToolAvailable) {
                                 Box(
@@ -115,7 +115,6 @@ fun WcTrainingMethodsPanel(
                         )
                     }
                 }
-
 
                 // Training method info UI
                 activeMethod?.let { method ->
@@ -185,7 +184,7 @@ fun WcMethodIcon(
     onMethodSelected: (TrainingMethod) -> Unit
 ) {
     // Placeholder icons //TODO
-    val imageRes = when(method.name) {
+    val imageRes = when (method.name) {
         "Tree" -> R.drawable.ic_tree
         "Oak Tree" -> R.drawable.ic_tree
         "Willow Tree" -> R.drawable.ic_tree

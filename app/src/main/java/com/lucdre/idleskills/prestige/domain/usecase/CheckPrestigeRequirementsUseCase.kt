@@ -1,6 +1,5 @@
 package com.lucdre.idleskills.prestige.domain.usecase
 
-import com.lucdre.idleskills.prestige.domain.PrestigeConfig
 import com.lucdre.idleskills.prestige.domain.PrestigeRepositoryInterface
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import javax.inject.Inject
@@ -9,7 +8,7 @@ import javax.inject.Inject
  * Use case for checking if the player meets the requirements to prestige.
  *
  * Validates prestige requirements based on current prestige level and skill levels.
- * Requirements vary depending on the current prestige level.
+ * A player can prestige if they have reached 1 skill 99 and earn a Prestige Point with each skill at 99.
  *
  * @property skillRepository The repository for skill data.
  * @property prestigeRepository The repository for prestige data.
@@ -21,24 +20,20 @@ class CheckPrestigeRequirementsUseCase @Inject constructor(
     /**
      * Checks if the player can prestige based on their current state.
      *
-     * Requirements by prestige level: See [PrestigeConfig]
+     * Requirements: At least one skill must be at level 99.
      *
      * @return True if prestige requirements are met, false otherwise.
      */
     suspend operator fun invoke(): Boolean {
-        val currentPrestige = prestigeRepository.getPrestige()
         val skills = skillRepository.getSkills()
+        val currentPrestige = prestigeRepository.getPrestige()
 
-        // Check if this prestige level exists in config
-        val requiredSkills = PrestigeConfig.getRequiredSkills(currentPrestige.level)
-        val requiredLevel = PrestigeConfig.getRequiredLevel(currentPrestige.level)
+        // Get currently unlocked skills based on skill tree progress
+        val unlockedSkills = currentPrestige.skillTreeProgress.getUnlockedSkills()
 
-        // If no required skills, can't prestige further (no next level defined)
-        // Will need more checks when more conditions have to be met
-        if (requiredSkills.isEmpty()) return false
-
-        return requiredSkills.all { skillName ->
-            skills.find { it.name == skillName }?.level?.let { it >= requiredLevel } == true
+        // Check if any unlocked skill has reached level 99
+        return skills.any { skill ->
+            unlockedSkills.contains(skill.name) && skill.level >= 99
         }
     }
 }

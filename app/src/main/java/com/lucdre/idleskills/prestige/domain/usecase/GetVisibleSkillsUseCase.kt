@@ -1,6 +1,5 @@
 package com.lucdre.idleskills.prestige.domain.usecase
 
-import com.lucdre.idleskills.prestige.domain.PrestigeConfig
 import com.lucdre.idleskills.prestige.domain.PrestigeRepositoryInterface
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
@@ -11,8 +10,10 @@ import javax.inject.Inject
 /**
  * Use case for retrieving skills that should be visible to the player.
  *
- * Filters the complete skill list based on the player's current prestige level.
- * Controls the progressive unlocking of skills through the prestige system.
+ * Visible skills are determined by:
+ * - The initial skill selected at game start
+ * - Skills unlocked through the skill tree progression
+ * - If no initial skill is selected, returns empty list (game needs initial selection)
  *
  * @property skillRepository The repository for skill data.
  * @property prestigeRepository The repository for prestige data.
@@ -20,24 +21,27 @@ import javax.inject.Inject
 class GetVisibleSkillsUseCase @Inject constructor(
     private val skillRepository: SkillRepositoryInterface,
     private val prestigeRepository: PrestigeRepositoryInterface
-){
+) {
     /**
-     * Returns the list of skills that should be visible based on prestige level.
+     * Returns the list of skills that should be visible based on skill tree progress.
      *
-     * Requirements by prestige level: See [PrestigeConfig]
-     *
-     * @return A filtered list of skills appropriate for the current prestige level.
+     * @return A filtered list of skills unlocked through the skill tree.
      */
     suspend operator fun invoke(): List<Skill> {
         val skills = skillRepository.getSkills()
         val prestige = prestigeRepository.getPrestige()
-        val visibleSkillNames = PrestigeConfig.getVisibleSkills(prestige.level)
+        val unlockedSkillNames = prestige.skillTreeProgress.getUnlockedSkills()
 
-        return skills.filter { it.name in visibleSkillNames }
+        // If no skills are unlocked, return empty list (indicates need for initial selection)
+        if (unlockedSkillNames.isEmpty()) {
+            return emptyList()
+        }
+
+        return skills.filter { it.name in unlockedSkillNames }
     }
 
     /**
-     * Observes the list of skills that should be visible based on prestige level.
+     * Observes the list of skills that should be visible based on skill tree progress.
      *
      * @return A Flow of filtered skills that updates when skills or prestige changes.
      */
@@ -45,8 +49,14 @@ class GetVisibleSkillsUseCase @Inject constructor(
         return skillRepository.observeSkills().combine(
             prestigeRepository.observePrestige()
         ) { skills, prestige ->
-            val visibleSkillNames = PrestigeConfig.getVisibleSkills(prestige.level)
-            skills.filter { it.name in visibleSkillNames }
+            val unlockedSkillNames = prestige.skillTreeProgress.getUnlockedSkills()
+
+            // If no skills are unlocked, return empty list
+            if (unlockedSkillNames.isEmpty()) {
+                emptyList()
+            } else {
+                skills.filter { it.name in unlockedSkillNames }
+            }
         }
     }
 }

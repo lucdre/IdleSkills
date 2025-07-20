@@ -5,12 +5,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lucdre.idleskills.prestige.domain.usecase.GetVisibleSkillsUseCase
 import com.lucdre.idleskills.skills.domain.skill.Skill
-import com.lucdre.idleskills.skills.domain.training.TrainingMethod
-import com.lucdre.idleskills.skills.domain.training.SkillTrainingManager
-import com.lucdre.idleskills.skills.domain.tools.usecase.GetToolUseCase
-import com.lucdre.idleskills.skills.domain.training.usecase.GetTrainingMethodUseCase
 import com.lucdre.idleskills.skills.domain.skill.usecase.UpdateSkillUseCase
 import com.lucdre.idleskills.skills.domain.tools.Tool
+import com.lucdre.idleskills.skills.domain.tools.usecase.GetToolUseCase
+import com.lucdre.idleskills.skills.domain.training.SkillTrainingManager
+import com.lucdre.idleskills.skills.domain.training.TrainingMethod
+import com.lucdre.idleskills.skills.domain.training.usecase.GetTrainingMethodUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -42,10 +42,10 @@ class SkillListViewModel @Inject constructor(
 
     // Track previous levels to detect level ups
     private val previousLevels = mutableMapOf<String, Int>()
-    
+
     // Track selected tools per skill to maintain selection across skill switches
     private val selectedTools = mutableMapOf<String, Tool>()
-    
+
     // Track selected training methods per skill to maintain selection across skill switches
     private val selectedMethods = mutableMapOf<String, TrainingMethod>()
 
@@ -59,7 +59,10 @@ class SkillListViewModel @Inject constructor(
             viewModelScope.launch {
                 // Get the level before update to check for level up
                 val previousLevel = previousLevels[updatedSkill.name] ?: updatedSkill.level
-                Log.d("SkillListViewModel", "Level check for ${updatedSkill.name}: ${updatedSkill.level} > $previousLevel = ${updatedSkill.level > previousLevel}")
+                Log.d(
+                    "SkillListViewModel",
+                    "Level check for ${updatedSkill.name}: ${updatedSkill.level} > $previousLevel = ${updatedSkill.level > previousLevel}"
+                )
 
                 // Update the stored level for next time
                 previousLevels[updatedSkill.name] = updatedSkill.level
@@ -72,8 +75,11 @@ class SkillListViewModel @Inject constructor(
                     val (updatedMethods, updatedTools) = getUpdatedMethodsAndTools(updatedSkill)
 
                     // Check if there's a better tool available now
-                    val hasBetterTool = checkForBetterTool(updatedSkill.name, updatedSkill.level, _uiState.value.activeTool)
-
+                    val hasBetterTool = checkForBetterTool(
+                        updatedSkill.name,
+                        updatedSkill.level,
+                        _uiState.value.activeTool
+                    )
 
                     _uiState.value = _uiState.value.copy(
                         trainingMethods = updatedMethods,
@@ -151,7 +157,7 @@ class SkillListViewModel @Inject constructor(
 
         // Use previously selected tool for this skill, or default to basic tool if first time
         val selectedTool = selectedTools[skill.name] ?: tools.minByOrNull { it.requiredLevel }
-        
+
         // Find best available tool to check if there's a better one than the selected tool
         val hasBetterTool = checkForBetterTool(skill.name, skill.level, selectedTool)
 
@@ -193,7 +199,8 @@ class SkillListViewModel @Inject constructor(
 
         _uiState.value = _uiState.value.copy(
             activeTrainingMethod = method,
-            trainingProgress = 0f)
+            trainingProgress = 0f
+        )
 
         // Find the current skill and start training with the new method
         val currentSkill = _uiState.value.skills.find { it.name == _uiState.value.activeSkill }
@@ -218,7 +225,7 @@ class SkillListViewModel @Inject constructor(
             if (bestTool != null && bestTool != _uiState.value.activeTool) {
                 // Save the selected tool for this skill
                 selectedTools[skillName] = bestTool
-                
+
                 _uiState.value = _uiState.value.copy(
                     activeTool = bestTool,
                     hasBetterToolAvailable = false // Reset the flag since we just equipped the better tool
