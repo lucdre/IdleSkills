@@ -126,7 +126,7 @@ class SkillTrainingManager(
 
                 // Apply XP update
                 try {
-                    // TODO changed for now
+                    // TODO changed XP for now
                     val updatedSkill = updateSkillUseCase(currentSkill, 300000000)
                     currentSkill = updatedSkill
                     onSkillUpdate(updatedSkill)

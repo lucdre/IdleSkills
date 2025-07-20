@@ -1,14 +1,12 @@
 package com.lucdre.idleskills.ui.screens
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -23,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.lucdre.idleskills.prestige.domain.skilltree.SkillTreeNodeType
 import com.lucdre.idleskills.prestige.presentation.skilltree.SkillTreeViewModel
+import com.lucdre.idleskills.prestige.domain.usecase.GetAvailableSkillTreeNodesUseCase.NodeAvailability
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
 /**
@@ -64,7 +63,7 @@ fun SkillTreeScreen(
 private fun SkillTreeContent(
     availablePoints: Int,
     nodes:
-    Map<String, com.lucdre.idleskills.prestige.domain.usecase.GetAvailableSkillTreeNodesUseCase.NodeAvailability>,
+    Map<String, NodeAvailability>,
     isLoading: Boolean,
     errorMessage: String?,
     onNodeClick: (String) -> Unit,
@@ -191,7 +190,7 @@ private fun SkillTreeContent(
 @Composable
 private fun SkillTreeNodeItem(
     modifier: Modifier = Modifier,
-    nodeAvailability: com.lucdre.idleskills.prestige.domain.usecase.GetAvailableSkillTreeNodesUseCase.NodeAvailability,
+    nodeAvailability: NodeAvailability,
     onClick: () -> Unit
 ) {
     val node = nodeAvailability.node
@@ -307,8 +306,9 @@ private fun SkillTreeNodeItem(
  */
 private fun List<String>.joinString(): String {
     return this.joinToString(", ") { nodeId ->
-        // Convert node ID to readable name (simplified)
-        nodeId.replace("unlock_", "").replace("_", " ").capitalize()
+        nodeId.replace("unlock_", "")
+            .replace("_", " ")
+            .replaceFirstChar { it.uppercase() }
     }
 }
 
