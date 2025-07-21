@@ -17,6 +17,7 @@ import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
 /**
  * Default panel for displaying training methods and related information for a skill.
+ * This is intended as a fallback if no custom panel is provided.
  *
  * @param modifier Modifier
  * @param methods List of training methods to display
