@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.lucdre.idleskills.skills.domain.tools.Tool
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
+import com.lucdre.idleskills.skills.mining.presentation.MiningTrainingMethodsPanel
 import com.lucdre.idleskills.skills.woodcutting.presentation.WcTrainingMethodsPanel
 
 /**
@@ -41,6 +42,16 @@ object TrainingMethodsPanelFactory {
     ) {
         when (skillName.lowercase()) {
             "woodcutting" -> WcTrainingMethodsPanel(
+                modifier = modifier,
+                methods = methods,
+                activeMethod = activeMethod,
+                trainingProgress = trainingProgress,
+                activeTool = activeTool,
+                hasBetterToolAvailable = hasBetterToolAvailable,
+                onMethodSelected = onMethodSelected,
+                onToolSelected = { onToolSelected() }
+            )
+            "mining" -> MiningTrainingMethodsPanel(
                 modifier = modifier,
                 methods = methods,
                 activeMethod = activeMethod,

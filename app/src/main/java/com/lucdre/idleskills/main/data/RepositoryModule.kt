@@ -6,10 +6,10 @@ import com.lucdre.idleskills.prestige.domain.PrestigeRepositoryInterface
 import com.lucdre.idleskills.prestige.data.MockPrestigeRepository
 import com.lucdre.idleskills.skills.data.MockSkillRepository
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
+import com.lucdre.idleskills.skills.domain.tools.ToolRepositoryDispatcher
 import com.lucdre.idleskills.skills.domain.tools.ToolRepositoryInterface
-import com.lucdre.idleskills.skills.woodcutting.data.WcTrainingMethodRepository
+import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryDispatcher
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryInterface
-import com.lucdre.idleskills.skills.woodcutting.data.WcToolRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -25,8 +25,8 @@ import javax.inject.Singleton
  * These repository bindings are requested by the use case module.
  *
  * ## Bindings:
- * - [TrainingMethodRepositoryInterface] to [WcTrainingMethodRepository]
- * - [ToolRepositoryInterface] to [WcToolRepository]
+ * - [TrainingMethodRepositoryInterface] to [TrainingMethodRepositoryDispatcher]
+ * - [ToolRepositoryInterface] to [ToolRepositoryDispatcher]
  * - [SkillRepositoryInterface] to [MockSkillRepository]
  * - [PrestigeRepositoryInterface] to [MockPrestigeRepository]
  */
@@ -36,14 +36,14 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindTrainingMethodRepository(
-        repository: WcTrainingMethodRepository
+    abstract fun bindTrainingMethodRepositoryDispatcher(
+        dispatcher: TrainingMethodRepositoryDispatcher
     ): TrainingMethodRepositoryInterface
 
     @Binds
     @Singleton
-    abstract fun bindToolRepository(
-        repository: WcToolRepository
+    abstract fun bindToolRepositoryDispatcher(
+        dispatcher: ToolRepositoryDispatcher
     ): ToolRepositoryInterface
 
     @Binds
