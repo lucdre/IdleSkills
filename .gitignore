@@ -15,4 +15,5 @@
 local.properties
 *Test.kt
 /.idea/Ch*
+/.idea/Fi*
 detekt*

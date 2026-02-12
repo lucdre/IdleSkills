@@ -23,8 +23,6 @@ import com.lucdre.idleskills.skills.presentation.util.CustomLinearProgressIndica
 
 /**
  * A base composable for displaying a skill's training methods (and tools) panel.
- * This panel is designed to be reusable across different skills by customizing
- * its appearance and the rendering of individual method icons.
  *
  * @param panelTitle The title text to display for the panel (e.g., "Trees", "Rocks").
  * @param panelBackgroundColor The background color of the main content area of the panel.

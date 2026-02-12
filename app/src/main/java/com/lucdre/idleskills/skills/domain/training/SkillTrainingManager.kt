@@ -98,7 +98,7 @@ class SkillTrainingManager(
     }
 
     /**
-     * (Placeholder while there are not enough training methods))
+     * (Placeholder while there are not enough training methods)
      * Starts a basic training loop for a skill, granting 1 XP per second.
      *
      * @param skill The [Skill] to start basic training for.

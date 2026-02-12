@@ -26,7 +26,6 @@ import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 
 /**
  * A reusable composable for displaying a styled icon representing a skill training method.
- * This component defines the common structure, while styling (colors, image) is provided via parameters.
  *
  * @param method The training method data to display.
  * @param isSelected Whether this method is currently selected.
