@@ -6,4 +6,7 @@ plugins {
 
     // Hilt
     alias(libs.plugins.hiltAndroid) apply false
+
+    // KSP
+    alias(libs.plugins.kotlin.ksp) apply false
 }
