@@ -32,43 +32,55 @@ object LevelCalculator {
     }
 
     /**
-     * Checks if you can level up based on your XP.
+     * Calculates the skill level based on total XP.
      *
-     * Multiple level ups are possible and surplus XP is kept after all level ups are processed.
-     *
-     * @param skill The skill to check for level up.
-     * @return The updated skill with the potentially new level and adjusted XP, or the original skill in case of no level up.
+     * @param totalXp The total accumulated XP.
+     * @return The current level based on total XP.
      */
-    fun checkForLevelUp(skill: Skill): Skill {
-        var currentLevel = skill.level
-        var remainingXp = skill.xp
-        var didLevelUp = false
+    fun calculateLevelFromTotalXp(totalXp: Int): Int {
+        var level = 1
+        var xpAccumulated = 0
 
-        // Check for level ups until no more are possible
         while (true) {
-            val xpRequired = xpForNextLevel(currentLevel)
-
-            // Enough XP to level up?
-            if (remainingXp >= xpRequired) {
-                // Level up!
-                currentLevel++
-                remainingXp -= xpRequired
-                didLevelUp = true
+            val xpForNext = xpForNextLevel(level)
+            if (xpAccumulated + xpForNext <= totalXp) {
+                xpAccumulated += xpForNext
+                level++
             } else {
-                // No more level ups
                 break
             }
         }
+        return level
+    }
 
-        // If no level up, return original skill
-        if (!didLevelUp) {
-            return skill
+    /**
+     * Calculates XP required to reach the next level from current total XP.
+     *
+     * @param currentTotalXp The total accumulated XP.
+     * @param currentLevel The current level.
+     * @return XP needed to reach the next level (how much more XP is needed beyond current total).
+     */
+    fun xpToNextLevelFromTotal(currentTotalXp: Int, currentLevel: Int): Int {
+        val totalXpForNextLevel = totalXpForLevel(currentLevel + 1)
+        return totalXpForNextLevel - currentTotalXp
+    }
+
+    /**
+     * Checks if the skill level should be updated based on total XP.
+     *
+     *
+     * @param skill The skill to check for level up.
+     * @return The updated skill with the potentially new level, or the original skill in case of no level change.
+     */
+    fun checkForLevelUp(skill: Skill): Skill {
+        val calculatedLevel = calculateLevelFromTotalXp(skill.xp)
+
+        // If level changed, return updated skill
+        return if (calculatedLevel != skill.level) {
+            skill.copy(level = calculatedLevel)
+        } else {
+            skill
         }
-
-        return skill.copy(
-            level = currentLevel,
-            xp = remainingXp
-        )
     }
 
     /**

@@ -20,6 +20,7 @@ import com.lucdre.idleskills.R
 import com.lucdre.idleskills.skills.domain.tools.Tool
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 import com.lucdre.idleskills.skills.presentation.util.CustomLinearProgressIndicator
+import com.lucdre.idleskills.skills.presentation.util.formatNumber
 
 /**
  * A base composable for displaying a skill's training methods (and tools) panel.
@@ -136,7 +137,7 @@ fun SkillTrainingPanel(
                                 color = primaryThemeColor
                             )
                             Text(
-                                text = "${method.xpPerAction} XP | ${method.calculateXpPerHour(activeTool)} XP/h",
+                                text = "${method.xpPerAction.formatNumber()} XP | ${method.calculateXpPerHour(activeTool).formatNumber()} XP/h",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = primaryThemeColor.copy(alpha = 0.7f) // Slightly muted
                             )

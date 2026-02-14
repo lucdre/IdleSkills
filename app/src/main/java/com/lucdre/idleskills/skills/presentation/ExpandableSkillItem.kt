@@ -37,6 +37,7 @@ import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.tools.Tool
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 import com.lucdre.idleskills.skills.presentation.util.CustomLinearProgressIndicator
+import com.lucdre.idleskills.skills.presentation.util.formatNumber
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
 /**
@@ -76,8 +77,13 @@ fun ExpandableSkillItem(
     onMethodSelected: (TrainingMethod) -> Unit,
     onToolSelected: () -> Unit
 ) {
-    val xpRequired = LevelCalculator.xpForNextLevel(skill.level)
-    val progress = skill.xp.toFloat() / xpRequired.toFloat()
+    // Calculate XP progress using
+    val totalXpForCurrentLevel = LevelCalculator.totalXpForLevel(skill.level)
+    val xpIntoCurrentLevel = skill.xp - totalXpForCurrentLevel
+    val xpRequiredForNextLevel = LevelCalculator.xpForNextLevel(skill.level)
+    val progress = xpIntoCurrentLevel.toFloat() / xpRequiredForNextLevel.toFloat()
+    // XP text shows total XP accumulated toward next level milestone
+    val totalXpForNextLevel = LevelCalculator.totalXpForLevel(skill.level + 1)
     val rotationState by animateFloatAsState(if (isExpanded) 180f else 0f, label = "rotate")
 
     Card(
@@ -163,13 +169,13 @@ fun ExpandableSkillItem(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = "XP: ${skill.xp}/${xpRequired}",
+                            text = "XP: ${skill.xp.formatNumber()}/${totalXpForNextLevel.formatNumber()}",
                             style = MaterialTheme.typography.bodyMedium
                         )
 
                         if (isActive) {
                             Text(
-                                text = "XP/h: ${xpPerHour}",
+                                text = "XP/h: ${xpPerHour.formatNumber()}",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = Color(0xFF4CAF50)
                             )
@@ -251,7 +257,7 @@ fun ExpandableSkillItemExpandedPreview() {
     )
     IdleSkillsTheme {
         ExpandableSkillItem(
-            skill = Skill("Woodcutting", 42, 5732),
+            skill = Skill("Woodcutting", 43, 5732),
             isActive = true,
             isExpanded = true,
             xpPerHour = 3600,

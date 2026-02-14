@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
+import com.lucdre.idleskills.skills.presentation.util.formatNumber
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
 /**
@@ -109,12 +110,12 @@ fun CompactTrainingMethodItem(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "${method.xpPerAction} XP",
+                text = "${method.xpPerAction.formatNumber()} XP",
                 style = MaterialTheme.typography.bodyMedium
             )
 
             Text(
-                text = "${method.calculateXpPerHour()} XP/h",
+                text = "${method.calculateXpPerHour().formatNumber()} XP/h",
                 style = MaterialTheme.typography.bodySmall
             )
 

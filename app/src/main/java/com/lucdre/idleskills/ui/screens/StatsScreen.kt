@@ -27,8 +27,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.presentation.SkillListViewModel
+import com.lucdre.idleskills.skills.presentation.util.formatNumber
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
 /**
@@ -122,6 +124,8 @@ private fun StatsScreenContent(
 
 @Composable
 fun SkillDetailSheetContent(skill: Skill) {
+    val xpToNextLevel = LevelCalculator.xpToNextLevelFromTotal(skill.xp, skill.level)
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -149,9 +153,16 @@ fun SkillDetailSheetContent(skill: Skill) {
             )
             DetailItem(
                 label = "Total XP",
-                value = skill.xp.toString()
+                value = skill.xp.formatNumber()
             )
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        DetailItem(
+            label = "XP remaining",
+            value = xpToNextLevel.formatNumber()
+        )
     }
 }
 
@@ -197,7 +208,7 @@ fun StatsScreenPreview() {
 fun SkillDetailSheetPreview() {
     IdleSkillsTheme {
         SkillDetailSheetContent(
-            skill = Skill("Woodcutting", level = 42, xp = 5500)
+            skill = Skill("Woodcutting", level = 42, xp = 4500)
         )
     }
 }
