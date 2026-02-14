@@ -7,7 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -16,7 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.lucdre.idleskills.prestige.domain.Prestige
 import com.lucdre.idleskills.prestige.domain.PrestigePoints
 import com.lucdre.idleskills.prestige.presentation.PrestigeCard
@@ -42,8 +42,8 @@ fun SkillListScreen(
     skillViewModel: SkillListViewModel,
     prestigeViewModel: PrestigeViewModel = hiltViewModel()
 ) {
-    val skillUiState by skillViewModel.uiState.collectAsState()
-    val prestigeUiState by prestigeViewModel.uiState.collectAsState()
+    val skillUiState by skillViewModel.uiState.collectAsStateWithLifecycle()
+    val prestigeUiState by prestigeViewModel.uiState.collectAsStateWithLifecycle()
     var expandedSkillName by remember { mutableStateOf<String?>(null) }
     var showSkillTree by remember { mutableStateOf(false) }
 

@@ -2,12 +2,12 @@ package com.lucdre.idleskills.ui.navigation
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.Build
+import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
@@ -34,13 +34,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lucdre.idleskills.skills.presentation.SkillListViewModel
 import com.lucdre.idleskills.ui.screens.AchievementsScreen
 import com.lucdre.idleskills.ui.screens.InitialSkillSelectionScreen
 import com.lucdre.idleskills.ui.screens.QuestsScreen
 import com.lucdre.idleskills.ui.screens.SettingsScreen
 import com.lucdre.idleskills.ui.screens.SkillListScreen
-import com.lucdre.idleskills.ui.screens.ToolsScreen
+import com.lucdre.idleskills.ui.screens.StatsScreen
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
 /**
@@ -68,7 +69,7 @@ data class BottomNavigationItem(
 fun MainNavigation(
     viewModel: MainNavigationViewModel = hiltViewModel(),
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     // Show loading or initial skill selection based on game state
     when {
@@ -122,9 +123,9 @@ private fun MainNavigationContent() {
             false
         ),
         BottomNavigationItem(
-            "Tools",
-            Icons.Filled.Build,
-            Icons.Outlined.Build,
+            "Stats",
+            Icons.Filled.BarChart,
+            Icons.Outlined.BarChart,
             false
         ),
         BottomNavigationItem(
@@ -191,7 +192,7 @@ private fun MainNavigationContent() {
                     modifier = Modifier.padding(innerPadding)
                 )
             }
-            1 -> ToolsScreen(modifier = Modifier.padding(innerPadding))
+            1 -> StatsScreen(modifier = Modifier.padding(innerPadding))
             2 -> QuestsScreen(modifier = Modifier.padding(innerPadding))
             3 -> AchievementsScreen(modifier = Modifier.padding(innerPadding))
             4 -> SettingsScreen(modifier = Modifier.padding(innerPadding))
@@ -211,10 +212,10 @@ fun MainNavigationPreview() {
             )
 
             NavigationBar {
-                val items = listOf("Skills", "Tools", "Quests", "Goals", "Settings")
+                val items = listOf("Skills", "Stats", "Quests", "Goals", "Settings")
                 val icons = listOf(
                     Icons.Filled.Home,
-                    Icons.Filled.Build,
+                    Icons.Filled.BarChart,
                     Icons.Filled.CheckCircle,
                     Icons.Filled.Star,
                     Icons.Filled.Settings

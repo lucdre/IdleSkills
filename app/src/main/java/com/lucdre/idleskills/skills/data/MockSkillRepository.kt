@@ -17,10 +17,9 @@ class MockSkillRepository @Inject constructor() : SkillRepositoryInterface {
 
     private val _skills = MutableStateFlow(
         listOf(
-            Skill("Woodcutting", level = 9, xp = 0),
-            Skill("Mining", level = 99, xp = 0),
-            Skill("Fishing", level = 99, xp = 0),
-            Skill("Firemaking"),
+            Skill("Woodcutting", level = 1, xp = 0),
+            Skill("Mining", level = 1, xp = 0),
+            Skill("Fishing", level = 1, xp = 0),
             Skill("Smelting"),
             Skill("Cooking"),
             Skill("Smithing")

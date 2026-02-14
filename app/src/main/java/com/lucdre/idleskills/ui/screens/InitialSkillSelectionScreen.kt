@@ -11,10 +11,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.lucdre.idleskills.prestige.domain.InitialSkillConfig
 import com.lucdre.idleskills.prestige.presentation.InitialSkillSelectionViewModel
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 /**
  * Screen for selecting the initial skill when starting a fresh game.
@@ -29,7 +30,7 @@ fun InitialSkillSelectionScreen(
     onSkillSelected: () -> Unit,
     viewModel: InitialSkillSelectionViewModel = hiltViewModel(),
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(uiState.isSkillSelected) {
         if (uiState.isSkillSelected) {

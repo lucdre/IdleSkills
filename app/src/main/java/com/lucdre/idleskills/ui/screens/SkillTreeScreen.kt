@@ -18,7 +18,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lucdre.idleskills.prestige.domain.skilltree.SkillTreeNode
 import com.lucdre.idleskills.prestige.domain.skilltree.SkillTreeNodeType
 import com.lucdre.idleskills.prestige.presentation.skilltree.SkillTreeViewModel
 import com.lucdre.idleskills.prestige.domain.usecase.GetAvailableSkillTreeNodesUseCase.NodeAvailability
@@ -37,7 +39,7 @@ fun SkillTreeScreen(
     onClose: () -> Unit,
     viewModel: SkillTreeViewModel = hiltViewModel(),
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.loadSkillTree()
@@ -61,14 +63,13 @@ fun SkillTreeScreen(
 @Composable
 // todo clean
 private fun SkillTreeContent(
+    modifier: Modifier = Modifier,
     availablePoints: Int,
-    nodes:
-    Map<String, NodeAvailability>,
+    nodes: Map<String, NodeAvailability>,
     isLoading: Boolean,
     errorMessage: String?,
     onNodeClick: (String) -> Unit,
-    onClose: () -> Unit,
-    modifier: Modifier = Modifier,
+    onClose: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -317,8 +318,46 @@ private fun List<String>.joinString(): String {
 fun SkillTreeScreenPreview() {
     IdleSkillsTheme {
         SkillTreeContent(
-            availablePoints = 5,
-            nodes = emptyMap(),
+            availablePoints = 15,
+            nodes = mapOf(
+                "1" to NodeAvailability(
+                    node = SkillTreeNode(
+                        id = "1",
+                        name = "Farming",
+                        description = "Unlock the Farming skill",
+                        cost = 5,
+                        type = SkillTreeNodeType.SkillUnlock("Farming")
+                    ),
+                    isUnlocked = true,
+                    canPurchase = false,
+                    hasPrerequisites = true
+                ),
+                "2" to NodeAvailability(
+                    node = SkillTreeNode(
+                        id = "2",
+                        name = "Mining",
+                        description = "Unlock the Mining skill",
+                        cost = 10,
+                        type = SkillTreeNodeType.SkillUnlock("Mining")
+                    ),
+                    isUnlocked = false,
+                    canPurchase = true,
+                    hasPrerequisites = true
+                ),
+                "3" to NodeAvailability(
+                    node = SkillTreeNode(
+                        id = "3",
+                        name = "Efficiency Bonus",
+                        description = "Increase action speed by 10%",
+                        cost = 20,
+                        prerequisites = listOf("Test"),
+                        type = SkillTreeNodeType.SpeedBonus(1.1)
+                    ),
+                    isUnlocked = false,
+                    canPurchase = false,
+                    hasPrerequisites = false
+                )
+            ),
             isLoading = false,
             errorMessage = null,
             onNodeClick = { },

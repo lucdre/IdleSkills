@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * ViewModel for the skill list screen.
+ * ViewModel for the [com.lucdre.idleskills.ui.screens.SkillListScreen].
  *
  * Manages UI state and business logic for skill list, training methods and tools.
  * Handles user interactions and communicates with domain layer use cases.
