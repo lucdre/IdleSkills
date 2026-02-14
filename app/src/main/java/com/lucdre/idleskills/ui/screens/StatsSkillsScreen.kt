@@ -1,6 +1,7 @@
 package com.lucdre.idleskills.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -39,11 +40,13 @@ import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 @Composable
 fun StatsSkillsScreen(
     modifier: Modifier = Modifier,
-    skills: List<Skill>
+    skills: List<Skill>,
+    onSkillSelect: (Skill) -> Unit
 ) {
     StatsSkillsContent(
         modifier = modifier,
-        skills = skills
+        skills = skills,
+        onSkillSelect = onSkillSelect
     )
 }
 
@@ -56,7 +59,8 @@ fun StatsSkillsScreen(
 @Composable
 fun StatsSkillsContent(
     modifier: Modifier = Modifier,
-    skills: List<Skill>
+    skills: List<Skill>,
+    onSkillSelect: (Skill) -> Unit
 ) {
     LazyVerticalGrid(
         modifier = modifier.fillMaxSize(),
@@ -72,7 +76,8 @@ fun StatsSkillsContent(
             SkillItem(
                 name = skill.name,
                 level = skill.level,
-                iconResId = R.drawable.ic_tree // todo fix this for when there are more
+                iconResId = R.drawable.ic_tree, // todo fix this for when there are more
+                onClick = { onSkillSelect(skill) }
             )
         }
     }
@@ -87,16 +92,19 @@ fun StatsSkillsContent(
  */
 @Composable
 fun SkillItem(
+    modifier: Modifier = Modifier,
     name: String,
     level: Int,
-    iconResId: Int
+    iconResId: Int,
+    onClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(50.dp)
             .background(Color(0xFF4A4A4A), RoundedCornerShape(4.dp))
-            .clip(RoundedCornerShape(4.dp)),
+            .clip(RoundedCornerShape(4.dp))
+            .clickable { onClick() },
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Skill
@@ -149,7 +157,8 @@ fun StatsSkillsScreenPreview() {
         )
         StatsSkillsScreen(
             modifier = Modifier.fillMaxSize(),
-            skills = previewSkills
+            skills = previewSkills,
+            onSkillSelect = {}
         )
     }
 }
@@ -161,7 +170,8 @@ fun SkillItemPreview() {
         SkillItem(
             name = "Woodcutting",
             level = 42,
-            iconResId = R.drawable.ic_tree
+            iconResId = R.drawable.ic_tree,
+            onClick = {}
         )
     }
 }
