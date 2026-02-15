@@ -19,7 +19,7 @@ object NumberFormatter {
 }
 
 /**
- * Extension function to format numbers
+ * Extension function to format numbers.
  */
 fun Number.formatNumber(): String {
     return NumberFormatter.formatNumber(this)
