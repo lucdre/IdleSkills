@@ -1,4 +1,4 @@
-package com.lucdre.idleskills.skills.mining.presentation
+package com.lucdre.idleskills.skills.fishing.presentation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -12,19 +12,19 @@ import com.lucdre.idleskills.skills.presentation.SkillTrainingPanel
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
 /**
- * Mining-specific training methods panel. Uses [SkillTrainingPanel] and [SkillMethodIcon].
+ * Fishing-specific training methods panel. Uses [SkillTrainingPanel] and [SkillMethodIcon].
  *
  * @param modifier Modifier
- * @param methods List of available Mining training methods
+ * @param methods List of available Fishing training methods
  * @param activeMethod Currently selected training method
- * @param activeTool Currently selected Mining tool
+ * @param activeTool Currently selected Fishing tool
  * @param hasBetterToolAvailable Whether a better tool is available
- * @param trainingProgress Progress of the current Mining action (0-1)
+ * @param trainingProgress Progress of the current Fishing action (0-1)
  * @param onMethodSelected Callback for when a training method is selected by the user
  * @param onToolSelected Callback for when a tool is selected by the user
  */
 @Composable
-fun MiningTrainingMethodsPanel(
+fun FishingTrainingMethodsPanel(
     modifier: Modifier = Modifier,
     methods: List<TrainingMethod>,
     activeMethod: TrainingMethod?,
@@ -34,18 +34,18 @@ fun MiningTrainingMethodsPanel(
     onMethodSelected: (TrainingMethod) -> Unit,
     onToolSelected: (Tool) -> Unit,
 ) {
-    // Define Mining-specific visual parameters
-    val miningPrimaryColor = Color(0xFF37474F)
-    val miningSelectedBgColor = Color(0xFFECEFF1)
-    val miningIndicatorColor = Color(0xFF455A64)
-    val miningUnselectedIconTint = Color(0xFF78909C)
-    val miningPanelBackgroundColor = Color(0x1A37474F)
+    // Define fishing-specific visual parameters
+    val fishingPrimaryColor = Color(0xFF0277BD)
+    val fishingSelectedBgColor = Color(0xFFE1F5FE)
+    val fishingIndicatorColor = Color(0xFF0288D1)
+    val fishingUnselectedIconTint = Color(0xFF81D4FA)
+    val fishingPanelBackgroundColor = Color(0x1A0277BD)
 
     SkillTrainingPanel(
         modifier = modifier,
-        panelTitle = "Rocks",
-        panelBackgroundColor = miningPanelBackgroundColor,
-        primaryThemeColor = miningPrimaryColor,
+        panelTitle = "Fish",
+        panelBackgroundColor = fishingPanelBackgroundColor,
+        primaryThemeColor = fishingPrimaryColor,
         defaultToolIconRes = R.drawable.ic_tree, // TODO: Replace
         methods = methods,
         activeMethod = activeMethod,
@@ -56,8 +56,8 @@ fun MiningTrainingMethodsPanel(
         onToolSelected = onToolSelected,
         methodItemContent = { method, isSelected, onMethodClicked ->
             val imageRes = when (method.name) {
-                "Copper Rock" -> R.drawable.ic_tree // TODO: Replace
-                "Tin Rock" -> R.drawable.ic_tree       // TODO: Replace
+                "Swordfish" -> R.drawable.ic_tree // TODO: Replace
+                "Shark" -> R.drawable.ic_tree       // TODO: Replace
                 else -> R.drawable.ic_tree        // TODO: Replace
             }
             SkillMethodIcon(
@@ -65,10 +65,10 @@ fun MiningTrainingMethodsPanel(
                 isSelected = isSelected,
                 onMethodSelected = onMethodClicked,
                 imageRes = imageRes,
-                selectedBackgroundColor = miningSelectedBgColor,
-                selectedIconTint = miningPrimaryColor,
-                unselectedIconTint = miningUnselectedIconTint,
-                selectionIndicatorColor = miningIndicatorColor
+                selectedBackgroundColor = fishingSelectedBgColor,
+                selectedIconTint = fishingPrimaryColor,
+                unselectedIconTint = fishingUnselectedIconTint,
+                selectionIndicatorColor = fishingIndicatorColor
             )
         }
     )
@@ -76,20 +76,20 @@ fun MiningTrainingMethodsPanel(
 
 @Preview(showBackground = true)
 @Composable
-fun MiningTrainingMethodsPanelPreview() {
+fun FishingTrainingMethodsPanelPreview() {
     IdleSkillsTheme {
         val methods = listOf(
-            TrainingMethod("Mining", "Copper Rock", 10, 10000),
-            TrainingMethod("Mining", "Tin Rock", 15, 10000, 5),
-            TrainingMethod("Mining", "Iron Rock", 30, 15000, 20),
-            TrainingMethod("Mining", "Coal Rock", 30, 15000, 20),
-            TrainingMethod("Mining", "Mithril Rock 2", 30, 15000, 20),
-            TrainingMethod("Mining", "Adamant Rock 3", 30, 15000, 20)
+            TrainingMethod("Fishing", "Sardine", 10, 10000),
+            TrainingMethod("Fishing", "Anchovy", 15, 10000, 5),
+            TrainingMethod("Fishing", "Tuna", 30, 15000, 20),
+            TrainingMethod("Fishing", "Lobster", 30, 15000, 20),
+            TrainingMethod("Fishing", "Swordfish", 30, 15000, 20),
+            TrainingMethod("Fishing", "Shark", 30, 15000, 20)
         )
 
-        val tool = Tool("Mining", "Iron Pickaxe", 1.2f, 5, R.drawable.ic_tree)
+        val tool = Tool("Fishing", "Harpoon", 1.2f, 5, R.drawable.ic_tree)
 
-        MiningTrainingMethodsPanel(
+        FishingTrainingMethodsPanel(
             methods = methods,
             activeMethod = methods[2],
             activeTool = tool,

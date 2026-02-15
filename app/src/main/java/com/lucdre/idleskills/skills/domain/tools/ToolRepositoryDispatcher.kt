@@ -1,5 +1,6 @@
 package com.lucdre.idleskills.skills.domain.tools
 
+import com.lucdre.idleskills.skills.fishing.data.FishingToolRepository
 import com.lucdre.idleskills.skills.mining.data.MiningToolRepository
 import com.lucdre.idleskills.skills.woodcutting.data.WcToolRepository
 import javax.inject.Inject
@@ -17,7 +18,8 @@ import javax.inject.Singleton
 @Singleton
 class ToolRepositoryDispatcher @Inject constructor(
     private val wcRepo: WcToolRepository,
-    private val miningRepo: MiningToolRepository
+    private val miningRepo: MiningToolRepository,
+    private val fishingRepo: FishingToolRepository
 ) : ToolRepositoryInterface {
 
     /**
@@ -34,6 +36,7 @@ class ToolRepositoryDispatcher @Inject constructor(
     override fun getToolsForSkill(skillName: String): List<Tool> = when (skillName) {
         "Woodcutting" -> wcRepo.getToolsForSkill(skillName)
         "Mining" -> miningRepo.getToolsForSkill(skillName)
+        "Fishing"-> fishingRepo.getToolsForSkill(skillName)
         // TODO add more as needed
         else -> emptyList()
     }

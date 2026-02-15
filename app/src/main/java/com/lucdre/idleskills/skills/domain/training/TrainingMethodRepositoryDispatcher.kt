@@ -1,5 +1,6 @@
 package com.lucdre.idleskills.skills.domain.training
 
+import com.lucdre.idleskills.skills.fishing.data.FishingTrainingMethodRepository
 import com.lucdre.idleskills.skills.mining.data.MiningTrainingMethodRepository
 import com.lucdre.idleskills.skills.woodcutting.data.WcTrainingMethodRepository
 import javax.inject.Inject
@@ -18,7 +19,8 @@ import javax.inject.Singleton
 @Singleton
 class TrainingMethodRepositoryDispatcher @Inject constructor(
     private val wcRepo: WcTrainingMethodRepository,
-    private val miningRepo: MiningTrainingMethodRepository
+    private val miningRepo: MiningTrainingMethodRepository,
+    private val fishingRepo: FishingTrainingMethodRepository
 ) : TrainingMethodRepositoryInterface {
 
     /**
@@ -35,6 +37,7 @@ class TrainingMethodRepositoryDispatcher @Inject constructor(
     override fun getTrainingMethodsForSkill(skillName: String): List<TrainingMethod> = when (skillName) {
         "Woodcutting" -> wcRepo.getTrainingMethodsForSkill(skillName)
         "Mining" -> miningRepo.getTrainingMethodsForSkill(skillName)
+        "Fishing" -> fishingRepo.getTrainingMethodsForSkill(skillName)
         // TODO add more as more skills come
         else -> emptyList()
     }
