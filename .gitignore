@@ -17,3 +17,5 @@ local.properties
 /.idea/Ch*
 /.idea/Fi*
 detekt*
+/.kotlin/errors/*
+/TODO
