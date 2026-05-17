@@ -1,5 +1,6 @@
 package com.lucdre.idleskills.skills.fishing.data
 
+import com.lucdre.idleskills.cards.domain.CardType
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryInterface
 import javax.inject.Inject
@@ -16,15 +17,15 @@ class FishingTrainingMethodRepository @Inject constructor() : TrainingMethodRepo
 
     private val trainingMethods = mapOf(
         "Fishing" to listOf(
-            TrainingMethod("Fishing", "Sardine", 10, 3000), // 10 XP, 3 seconds, Level 1
-            TrainingMethod("Fishing", "Anchovy", 10, 3000),
-            TrainingMethod("Fishing", "Trout", 20, 4000, 5),
-            TrainingMethod("Fishing", "Salmon", 40, 5000, 15),
-            TrainingMethod("Fishing", "Tuna", 80, 10000, 25),
-            TrainingMethod("Fishing", "Lobster", 100, 15000, 45),
-            TrainingMethod("Fishing", "Swordfish", 250, 20000, 60),
-            TrainingMethod("Fishing", "Shark", 350, 30000, 80),
-            TrainingMethod("Fishing", "Cheat Fish", 3000000, 1000, 1) // Cheat
+            TrainingMethod("Fishing", "Sardine", 10, 3000, requiredCardType = CardType.FISHING_NET), // 10 XP, 3 seconds, Level 1
+            TrainingMethod("Fishing", "Anchovy", 10, 3000, requiredCardType = CardType.FISHING_NET),
+            TrainingMethod("Fishing", "Trout", 20, 4000, 5, requiredCardType = CardType.FISHING_ROD),
+            TrainingMethod("Fishing", "Salmon", 40, 5000, 15, requiredCardType = CardType.FISHING_ROD),
+            TrainingMethod("Fishing", "Tuna", 80, 10000, 25, requiredCardType = CardType.FISHING_HARPOON),
+            TrainingMethod("Fishing", "Lobster", 100, 15000, 45, requiredCardType = CardType.FISHING_LOBSTER_CAGE),
+            TrainingMethod("Fishing", "Swordfish", 250, 20000, 60, requiredCardType = CardType.FISHING_HARPOON),
+            TrainingMethod("Fishing", "Shark", 350, 30000, 80, requiredCardType = CardType.FISHING_HARPOON),
+            TrainingMethod("Fishing", "Cheat Fish", 3000000, 1000, 1, requiredCardType = CardType.FISHING_ROD) // Cheat
         )
     )
 

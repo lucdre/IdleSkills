@@ -1,6 +1,7 @@
 package com.lucdre.idleskills.skills.domain.training
 
 import com.lucdre.idleskills.cards.domain.Card
+import com.lucdre.idleskills.cards.domain.CardType
 import kotlin.math.roundToInt
 
 /**
@@ -11,13 +12,15 @@ import kotlin.math.roundToInt
  * @property xpPerAction The XP you get per action.
  * @property actionDurationMs The time the action takes to complete in milliseconds.
  * @property requiredLevel The required level to use the training method, defaults to 1.
+ * @property requiredCardType The type of card required to train with this method, if any.
  */
 data class TrainingMethod(
     val skillName: String,
     val name: String,
     val xpPerAction: Int,
     val actionDurationMs: Long,
-    val requiredLevel: Int = 1
+    val requiredLevel: Int = 1,
+    val requiredCardType: CardType? = null
 ) {
     /**
      * @return The XP per hour for this training method.

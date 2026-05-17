@@ -2,7 +2,6 @@ package com.lucdre.idleskills.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -15,7 +14,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -117,40 +115,54 @@ fun CardDetailScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(26.dp))
 
             // Stats Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = "Current Bonus",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Color.Gray
-                    )
-                    Text(
-                        text = "+${(card.efficiencyBonus * 100).toInt()}% Skill Efficiency",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Color(0xFF4CAF50),
-                        fontWeight = FontWeight.Bold
-                    )
-                    
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.DarkGray)
-                    
-                    Text(
-                        text = "Next Level Bonus",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Color.Gray
-                    )
-                    Text(
-                        text = "+${((card.efficiencyBonus + 0.05f) * 100).toInt()}% Skill Efficiency",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Color.White.copy(alpha = 0.7f)
-                    )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    contentAlignment = Alignment.Center
+                ){
+                    Row(modifier = Modifier.padding(16.dp)) {
+                        Icon(
+                            painter = painterResource(id = card.iconResId), //TODO PH Icon
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = skillColor
+                        )
+                        Text(
+                            text = "+${(card.efficiencyBonus * 100).toInt()}% ",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White.copy(alpha = 0.7f),
+                            fontWeight = FontWeight.Bold
+                        )
+                        Icon(
+                            painter = painterResource(R.drawable.bootstrap_arrow_right_circle), //TODO PH Icon
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = skillColor
+                        )
+                        Icon(
+                            painter = painterResource(id = card.iconResId), //TODO PH Icon
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = skillColor
+                        )
+                        Text(
+                            text = "+${((card.efficiencyBonus + 0.05f) * 100).toInt()}%", //TODO actual efficiency
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color(0xFF4CAF50),
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
+
             }
 
             //Spacer(modifier = Modifier.weight(1f))
@@ -165,14 +177,6 @@ fun CardDetailScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = "Upgrade Requirements",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Color.White
-                )
-                
-                Spacer(modifier = Modifier.height(12.dp))
-                
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -217,7 +221,7 @@ fun CardDetailScreen(
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
-                        text = if (canUpgrade) "UPGRADE CARD" else "NEED MORE CARDS",
+                        text = if (canUpgrade) "UPGRADE" else "NEED MORE CARDS",
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 1.sp
                     )

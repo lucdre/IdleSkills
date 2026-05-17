@@ -4,6 +4,7 @@ import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import kotlinx.coroutines.flow.Flow
 
+//TODO maybe not needed
 /**
  * Use case for retrieving skills from the repository.
  *

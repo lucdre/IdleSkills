@@ -1,169 +1,181 @@
 package com.lucdre.idleskills.ui.screens
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.lucdre.idleskills.prestige.domain.InitialSkillConfig
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lucdre.idleskills.prestige.presentation.InitialSkillSelectionViewModel
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 /**
- * Screen for selecting the initial skill when starting a fresh game.
- *
- * @param modifier Modifier for styling
- * @param onSkillSelected Callback when a skill is successfully selected
- * @param viewModel ViewModel handling the skill selection logic
+ * Screen for initial setup: entering username and selecting a favorite skill.
  */
 @Composable
 fun InitialSkillSelectionScreen(
     modifier: Modifier = Modifier,
-    onSkillSelected: () -> Unit,
+    onSetupComplete: () -> Unit,
     viewModel: InitialSkillSelectionViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var username by remember { mutableStateOf("") }
+    var selectedFavorite by remember { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(uiState.isSkillSelected) {
-        if (uiState.isSkillSelected) {
-            onSkillSelected()
+    LaunchedEffect(uiState.isProfileSetupComplete) {
+        if (uiState.isProfileSetupComplete) {
+            onSetupComplete()
         }
     }
 
-    InitialSkillSelectionContent(
-        modifier = modifier,
-        availableSkills = InitialSkillConfig.availableStartingSkills,
-        isLoading = uiState.isLoading,
-        errorMessage = uiState.errorMessage,
-        onSkillClick = { skillName ->
-            viewModel.selectSkill(skillName)
-        }
-    )
+    Box(modifier = modifier.fillMaxSize()) {
+        InitialSkillSelectionContent(
+            username = username,
+            onUsernameChange = { username = it },
+            skills = listOf("Woodcutting", "Mining", "Fishing"),
+            selectedFavorite = selectedFavorite,
+            onSkillSelected = { selectedFavorite = it },
+            onStartClick = {
+                selectedFavorite?.let { fav ->
+                    viewModel.setupProfile(username, fav)
+                }
+            },
+            isLoading = uiState.isLoading,
+            errorMessage = uiState.errorMessage
+        )
+    }
 }
 
-/**
- * Content for the initial skill selection screen.
- */
 @Composable
 private fun InitialSkillSelectionContent(
     modifier: Modifier = Modifier,
-    availableSkills: List<String>,
+    username: String,
+    onUsernameChange: (String) -> Unit,
+    skills: List<String>,
+    selectedFavorite: String?,
+    onSkillSelected: (String) -> Unit,
+    onStartClick: () -> Unit,
     isLoading: Boolean,
-    errorMessage: String?,
-    onSkillClick: (String) -> Unit
+    errorMessage: String?
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(24.dp)
+            .verticalScroll(rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        // Welcome header
         Text(
             text = "Welcome to Idle Skills!",
-            style = MaterialTheme.typography.headlineMedium,
+            style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
+            modifier = Modifier.padding(bottom = 16.dp)
         )
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Choose your starting skill to begin your journey:",
+            text = "Enter your username to begin:",
             style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            modifier = Modifier.padding(bottom = 8.dp)
         )
+
+        OutlinedTextField(
+            value = username,
+            onValueChange = onUsernameChange,
+            label = { Text("Username") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            isError = username.isBlank()
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = "Choose your favorite starting skill:",
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            skills.forEach { skill ->
+                SkillSelectionCard(
+                    modifier = Modifier.weight(1f),
+                    skillName = skill,
+                    isSelected = selectedFavorite == skill,
+                    onClick = { onSkillSelected(skill) }
+                )
+            }
+        }
+
+        if (errorMessage != null) {
+            Text(
+                text = errorMessage,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = 16.dp)
+            )
+        }
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Error message
-        if (errorMessage != null) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.errorContainer
-                )
-            ) {
-                Text(
-                    modifier = Modifier.padding(16.dp),
-                    text = errorMessage,
-                    color = MaterialTheme.colorScheme.onErrorContainer
-                )
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-
-        // Skill selection buttons
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+        Button(
+            onClick = onStartClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            enabled = !isLoading && username.isNotBlank() && selectedFavorite != null
         ) {
-            items(availableSkills) { skillName ->
-                SkillSelectionCard(
-                    skillName = skillName,
-                    isEnabled = !isLoading,
-                    onClick = { onSkillClick(skillName) }
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    strokeWidth = 2.dp
                 )
+            } else {
+                Text("START JOURNEY", fontWeight = FontWeight.Bold)
             }
         }
     }
 }
 
-/**
- * Card for selecting a skill.
- */
 @Composable
 private fun SkillSelectionCard(
     modifier: Modifier = Modifier,
     skillName: String,
-    isEnabled: Boolean,
+    isSelected: Boolean,
     onClick: () -> Unit
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(),
-        onClick = onClick,
-        enabled = isEnabled,
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        modifier = modifier
+            .aspectRatio(1f)
+            .clickable { onClick() },
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
+        ),
+        border = if (isSelected) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null
     ) {
-        Column(
-            modifier = Modifier.padding(20.dp),
-            horizontalAlignment = Alignment.Start
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
             Text(
                 text = skillName,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Medium
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = getSkillDescription(skillName),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-    }
-}
-
-/**
- * Get description for each skill.
- */
-private fun getSkillDescription(skillName: String): String {
-    return when (skillName) {
-        "Woodcutting" -> "WC_PH_DESC"
-        "Mining" -> "MINING_PH_DESC"
-        "Fishing" -> "FISHING_PH_DESC"
-        else -> "ELSE_PH_DESC"
     }
 }
 
@@ -172,10 +184,14 @@ private fun getSkillDescription(skillName: String): String {
 fun InitialSkillSelectionScreenPreview() {
     IdleSkillsTheme {
         InitialSkillSelectionContent(
-            availableSkills = InitialSkillConfig.availableStartingSkills,
+            username = "Player One",
+            onUsernameChange = {},
+            skills = listOf("Woodcutting", "Mining", "Fishing"),
+            selectedFavorite = "Mining",
+            onSkillSelected = {},
+            onStartClick = {},
             isLoading = false,
-            errorMessage = null,
-            onSkillClick = { }
+            errorMessage = null
         )
     }
 }

@@ -7,6 +7,8 @@ import com.lucdre.idleskills.prestige.domain.usecase.CheckPrestigeRequirementsUs
 import com.lucdre.idleskills.prestige.domain.usecase.GetPrestigeStateUseCase
 import com.lucdre.idleskills.prestige.domain.usecase.GetVisibleSkillsUseCase
 import com.lucdre.idleskills.prestige.domain.usecase.PerformPrestigeUseCase
+import com.lucdre.idleskills.profile.domain.usecase.GetPlayerProfileUseCase
+import com.lucdre.idleskills.profile.domain.usecase.SetupPlayerProfileUseCase
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import com.lucdre.idleskills.skills.domain.skill.usecase.GetSkillsUseCase
 import com.lucdre.idleskills.skills.domain.skill.usecase.ResetSkillsUseCase
@@ -83,12 +85,35 @@ object UseCaseModule {
      * Provides a [GetActiveCardsUseCase] instance.
      *
      * @param repository The card repository
+     * @param trainingMethodRepository The training method repository
      * @return A configured [GetActiveCardsUseCase]
      */
     @Provides
     @ViewModelScoped
-    fun provideGetActiveCardsUseCase(repository: CardRepositoryInterface): GetActiveCardsUseCase {
-        return GetActiveCardsUseCase(repository)
+    fun provideGetActiveCardsUseCase(
+        repository: CardRepositoryInterface,
+        trainingMethodRepository: TrainingMethodRepositoryInterface
+    ): GetActiveCardsUseCase {
+        return GetActiveCardsUseCase(repository, trainingMethodRepository)
+    }
+
+    /**
+     * Provides a [SetupPlayerProfileUseCase] instance.
+     *
+     * @param repository The prestige repository
+     * @return A configured [SetupPlayerProfileUseCase]
+     */
+    @Provides
+    @ViewModelScoped
+    fun provideSetupPlayerProfileUseCase(repository: PrestigeRepositoryInterface): SetupPlayerProfileUseCase {
+        return SetupPlayerProfileUseCase(repository)
+    }
+
+    //TODO comment
+    @Provides
+    @ViewModelScoped
+    fun provideGetPlayerProfileUseCase(repository: PrestigeRepositoryInterface): GetPlayerProfileUseCase {
+        return GetPlayerProfileUseCase(repository)
     }
 
     /**
@@ -107,6 +132,7 @@ object UseCaseModule {
     ): ResetSkillsUseCase {
         return ResetSkillsUseCase(skillRepository)
     }
+
 
     /**
      * Provides a [CheckPrestigeRequirementsUseCase] instance.

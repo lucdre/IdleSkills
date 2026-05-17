@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
 import com.lucdre.idleskills.prestige.domain.usecase.GetVisibleSkillsUseCase
+import com.lucdre.idleskills.profile.domain.usecase.GetPlayerProfileUseCase
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.usecase.UpdateSkillUseCase
 import com.lucdre.idleskills.skills.domain.training.SkillTrainingManager
@@ -29,13 +30,15 @@ import javax.inject.Inject
  * @property updateSkillUseCase Use case for updating skill data
  * @property getTrainingMethodUseCase Use case for retrieving training methods
  * @property getActiveCardsUseCase Use case for retrieving active cards
+ * @property getPlayerProfileUseCase Use case for retrieving player profile
  */
 @HiltViewModel
 class SkillListViewModel @Inject constructor(
     private val getVisibleSkillsUseCase: GetVisibleSkillsUseCase,
     private val updateSkillUseCase: UpdateSkillUseCase,
     private val getTrainingMethodUseCase: GetTrainingMethodUseCase,
-    private val getActiveCardsUseCase: GetActiveCardsUseCase
+    private val getActiveCardsUseCase: GetActiveCardsUseCase,
+    private val getPlayerProfileUseCase: GetPlayerProfileUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SkillListUiState(isLoading = true))
@@ -90,6 +93,14 @@ class SkillListViewModel @Inject constructor(
                         skills = skills,
                         isLoading = false
                     )
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            getPlayerProfileUseCase.observeProfile().collect { profile ->
+                _uiState.update { state ->
+                    state.copy(playerProfile = profile)
                 }
             }
         }

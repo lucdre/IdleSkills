@@ -137,7 +137,7 @@ private fun SkillListScreenContents(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 contentPadding = PaddingValues(vertical = 16.dp)
             ) {
-                // Prestige Card
+                /* Hide Prestige Card for now, end-game content
                 item {
                     PrestigeCard(
                         prestige = prestigeUiState.prestige,
@@ -147,6 +147,7 @@ private fun SkillListScreenContents(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                 }
+                */
 
                 // Skill list
                 items(skillUiState.skills) { skill ->

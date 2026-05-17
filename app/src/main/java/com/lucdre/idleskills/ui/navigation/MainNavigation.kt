@@ -94,7 +94,7 @@ fun MainNavigation(
         uiState.isGameFresh -> {
             // Fresh game - show initial skill selection
             InitialSkillSelectionScreen(
-                onSkillSelected = {
+                onSetupComplete = {
                     viewModel.onInitialSkillSelected()
                 }
             )

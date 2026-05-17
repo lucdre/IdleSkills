@@ -2,7 +2,7 @@ package com.lucdre.idleskills.prestige.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lucdre.idleskills.prestige.domain.usecase.SelectInitialSkillUseCase
+import com.lucdre.idleskills.profile.domain.usecase.SetupPlayerProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,38 +11,44 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * ViewModel for handling initial skill selection.
+ * ViewModel for handling initial skill selection and profile setup.
  *
- * @property selectInitialSkillUseCase Use case for selecting the initial skill.
+ * @property setupPlayerProfileUseCase Use case for setting up the player profile.
  */
 @HiltViewModel
 class InitialSkillSelectionViewModel @Inject constructor(
-    private val selectInitialSkillUseCase: SelectInitialSkillUseCase,
+    private val setupPlayerProfileUseCase: SetupPlayerProfileUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(InitialSkillSelectionUiState())
     val uiState: StateFlow<InitialSkillSelectionUiState> = _uiState.asStateFlow()
 
     /**
-     * Attempts to select an initial skill.
+     * Attempts to setup the player profile.
      *
-     * @param skillName The name of the skill to select.
+     * @param username The player's chosen username.
+     * @param favoriteSkill The name of the skill to select as the favorite.
      */
-    fun selectSkill(skillName: String) {
+    fun setupProfile(username: String, favoriteSkill: String) {
+        if (username.isBlank()) {
+            _uiState.value = _uiState.value.copy(errorMessage = "Username cannot be empty.")
+            return
+        }
+
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
-            val success = selectInitialSkillUseCase(skillName)
+            val success = setupPlayerProfileUseCase(username, favoriteSkill)
 
             if (success) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    isSkillSelected = true
+                    isProfileSetupComplete = true
                 )
             } else {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = "Failed to select skill. Please try again."
+                    errorMessage = "Failed to setup profile. Please try again."
                 )
             }
         }
@@ -52,12 +58,12 @@ class InitialSkillSelectionViewModel @Inject constructor(
 /**
  * UI state for initial skill selection screen.
  *
- * @property isLoading Whether a skill selection is in progress.
- * @property isSkillSelected Whether a skill has been successfully selected.
+ * @property isLoading Whether profile setup is in progress.
+ * @property isProfileSetupComplete Whether the profile has been successfully setup.
  * @property errorMessage Error message to display, if any.
  */
 data class InitialSkillSelectionUiState(
     val isLoading: Boolean = false,
-    val isSkillSelected: Boolean = false,
+    val isProfileSetupComplete: Boolean = false,
     val errorMessage: String? = null,
 )

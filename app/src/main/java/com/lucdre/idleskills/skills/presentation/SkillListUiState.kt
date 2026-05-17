@@ -1,6 +1,7 @@
 package com.lucdre.idleskills.skills.presentation
 
 import com.lucdre.idleskills.cards.domain.Card
+import com.lucdre.idleskills.profile.domain.PlayerProfile
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 
@@ -35,5 +36,6 @@ data class SkillListUiState(
     val trainingMethods: List<TrainingMethod> = emptyList(),
     val activeTrainingMethod: TrainingMethod? = null,
     val activeCards: List<Card> = emptyList(),
-    val trainingProgress: Float = 0f // Progress from 0 to 1.0
+    val trainingProgress: Float = 0f, // Progress from 0 to 1.0
+    val playerProfile: PlayerProfile = PlayerProfile()
 )

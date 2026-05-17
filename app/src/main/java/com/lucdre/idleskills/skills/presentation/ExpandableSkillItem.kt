@@ -34,11 +34,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lucdre.idleskills.cards.domain.Card
-import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
 import com.lucdre.idleskills.skills.domain.skill.Skill
+import com.lucdre.idleskills.skills.domain.skill.SkillMetadata
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
-import com.lucdre.idleskills.skills.presentation.util.CustomLinearProgressIndicator
-import com.lucdre.idleskills.skills.presentation.util.formatNumber
+import com.lucdre.idleskills.skills.presentation.components.SkillXpBar
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
 /**
@@ -74,14 +73,9 @@ fun ExpandableSkillItem(
     onToggleExpand: () -> Unit,
     onMethodSelected: (TrainingMethod) -> Unit
 ) {
-    // Calculate XP progress using
-    val totalXpForCurrentLevel = LevelCalculator.totalXpForLevel(skill.level)
-    val xpIntoCurrentLevel = skill.xp - totalXpForCurrentLevel
-    val xpRequiredForNextLevel = LevelCalculator.xpForNextLevel(skill.level)
-    val progress = xpIntoCurrentLevel.toFloat() / xpRequiredForNextLevel.toFloat()
-    // XP text shows total XP accumulated toward next level milestone
-    val totalXpForNextLevel = LevelCalculator.totalXpForLevel(skill.level + 1)
     val rotationState by animateFloatAsState(if (isExpanded) 180f else 0f, label = "rotate")
+    val theme = SkillMetadata.getTheme(skill.name)
+    val activeColor = theme.primaryColor
 
     Card(
         modifier = Modifier
@@ -91,7 +85,7 @@ fun ExpandableSkillItem(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(if (isActive) Color(0x1A4CAF50) else Color.Transparent)
+                .background(if (isActive) activeColor.copy(alpha = 0.1f) else Color.Transparent)
         ) {
             // Main skill row (always visible)
             Row(
@@ -126,7 +120,7 @@ fun ExpandableSkillItem(
                             Text(
                                 text = "Level ${skill.level}",
                                 style = MaterialTheme.typography.titleMedium,
-                                color = if (isActive) Color(0xFF4CAF50) else MaterialTheme.colorScheme.onSurface
+                                color = if (isActive) activeColor else MaterialTheme.colorScheme.onSurface
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             // Expansion toggle
@@ -149,35 +143,13 @@ fun ExpandableSkillItem(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     // XP Progress bar
-                    CustomLinearProgressIndicator(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(8.dp),
-                        progress = progress,
-                        progressColor = if (isActive) Color(0xFF4CAF50) else MaterialTheme.colorScheme.primary,
-                        backgroundColor = MaterialTheme.colorScheme.surfaceVariant
+                    SkillXpBar(
+                        level = skill.level,
+                        xp = skill.xp,
+                        isActive = isActive,
+                        xpPerHour = xpPerHour,
+                        activeColor = activeColor
                     )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    // XP Counter
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = "XP: ${skill.xp.formatNumber()}/${totalXpForNextLevel.formatNumber()}",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-
-                        if (isActive) {
-                            Text(
-                                text = "XP/h: ${xpPerHour.formatNumber()}",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color(0xFF4CAF50)
-                            )
-                        }
-                    }
                 }
             }
             // Expanded content with training methods and extra info
@@ -258,12 +230,12 @@ fun ExpandableSkillItemCollapsedPreview() {
 @Composable
 fun ExpandableSkillItemExpandedPreview() {
     val methods = listOf(
-        TrainingMethod("Woodcutting", "Tree", 10, 10000),
-        TrainingMethod("Woodcutting", "Oak Tree", 15, 10000, 5),
-        TrainingMethod("Woodcutting", "Willow Tree", 30, 15000, 20),
-        TrainingMethod("Woodcutting", "Willow Tree", 30, 15000, 20),
-        TrainingMethod("Woodcutting", "Willow Tree", 30, 15000, 20),
-        TrainingMethod("Woodcutting", "Willow Tree", 30, 15000, 20)
+        TrainingMethod("Woodcutting", "Tree", 10, 10000, requiredCardType = com.lucdre.idleskills.cards.domain.CardType.WOODCUTTING_AXE),
+        TrainingMethod("Woodcutting", "Oak Tree", 15, 10000, 5, requiredCardType = com.lucdre.idleskills.cards.domain.CardType.WOODCUTTING_AXE),
+        TrainingMethod("Woodcutting", "Willow Tree", 30, 15000, 20, requiredCardType = com.lucdre.idleskills.cards.domain.CardType.WOODCUTTING_AXE),
+        TrainingMethod("Woodcutting", "Willow Tree", 30, 15000, 20, requiredCardType = com.lucdre.idleskills.cards.domain.CardType.WOODCUTTING_AXE),
+        TrainingMethod("Woodcutting", "Willow Tree", 30, 15000, 20, requiredCardType = com.lucdre.idleskills.cards.domain.CardType.WOODCUTTING_AXE),
+        TrainingMethod("Woodcutting", "Willow Tree", 30, 15000, 20, requiredCardType = com.lucdre.idleskills.cards.domain.CardType.WOODCUTTING_AXE)
 
     )
     val activeCards = listOf(

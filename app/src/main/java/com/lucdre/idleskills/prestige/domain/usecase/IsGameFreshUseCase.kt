@@ -18,6 +18,6 @@ class IsGameFreshUseCase @Inject constructor(
      */
     suspend operator fun invoke(): Boolean {
         val prestige = prestigeRepository.getPrestige()
-        return prestige.skillTreeProgress.selectedInitialSkill == null
+        return prestige.playerProfile.username.isEmpty()
     }
 }
