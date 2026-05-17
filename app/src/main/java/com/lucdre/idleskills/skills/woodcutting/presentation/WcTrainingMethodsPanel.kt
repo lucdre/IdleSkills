@@ -5,7 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.lucdre.idleskills.R
-import com.lucdre.idleskills.skills.domain.tools.Tool
+import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 import com.lucdre.idleskills.skills.presentation.SkillMethodIcon
 import com.lucdre.idleskills.skills.presentation.SkillTrainingPanel
@@ -17,22 +17,18 @@ import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
  * @param modifier Modifier
  * @param methods List of available woodcutting training methods
  * @param activeMethod Currently selected training method
- * @param activeTool Currently selected woodcutting tool
- * @param hasBetterToolAvailable Whether a better tool is available
+ * @param activeCards Currently active cards for woodcutting
  * @param trainingProgress Progress of the current woodcutting action (0-1)
  * @param onMethodSelected Callback for when a training method is selected by the user
- * @param onToolSelected Callback for when a tool is selected by the user
  */
 @Composable
 fun WcTrainingMethodsPanel(
     modifier: Modifier = Modifier,
     methods: List<TrainingMethod>,
     activeMethod: TrainingMethod?,
-    activeTool: Tool?,
-    hasBetterToolAvailable: Boolean = false,
+    activeCards: List<Card> = emptyList(),
     trainingProgress: Float = 0f,
-    onMethodSelected: (TrainingMethod) -> Unit,
-    onToolSelected: (Tool) -> Unit
+    onMethodSelected: (TrainingMethod) -> Unit
 ) {
     // Define Woodcutting-specific visual parameters
     val wcPrimaryColor = Color(0xFF2E7D32)
@@ -47,14 +43,11 @@ fun WcTrainingMethodsPanel(
         panelTitle = "Trees",
         panelBackgroundColor = wcPanelBackgroundColor,
         primaryThemeColor = wcPrimaryColor,
-        defaultToolIconRes = R.drawable.ic_tree, // TODO: Replace
         methods = methods,
         activeMethod = activeMethod,
-        activeTool = activeTool,
-        hasBetterToolAvailable = hasBetterToolAvailable,
+        activeCards = activeCards,
         trainingProgress = trainingProgress,
         onMethodSelected = onMethodSelected,
-        onToolSelected = onToolSelected,
         methodItemContent = { method, isSelected, onMethodClicked ->
             val imageRes = when (method.name) {
                 "Tree" -> R.drawable.ic_tree // TODO: Replace
@@ -91,15 +84,10 @@ fun WcTrainingMethodsPanelPreview() {
             TrainingMethod("Woodcutting", "Willow 3", 30, 15000, 20)
         )
 
-        val tool = Tool("Woodcutting", "Iron Axe", 1.2f, 5, R.drawable.ic_tree)
-
         WcTrainingMethodsPanel(
             methods = methods,
             activeMethod = methods[3],
-            activeTool = tool,
-            hasBetterToolAvailable = true,
-            onMethodSelected = {},
-            onToolSelected = {}
+            onMethodSelected = {}
         )
     }
 }

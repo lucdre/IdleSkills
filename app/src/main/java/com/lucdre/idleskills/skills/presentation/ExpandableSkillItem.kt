@@ -30,11 +30,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
 import com.lucdre.idleskills.skills.domain.skill.Skill
-import com.lucdre.idleskills.skills.domain.tools.Tool
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 import com.lucdre.idleskills.skills.presentation.util.CustomLinearProgressIndicator
 import com.lucdre.idleskills.skills.presentation.util.formatNumber
@@ -53,13 +54,11 @@ import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
  * @param xpPerHour Current XP gain rate when active
  * @param trainingMethods List of available training methods for this skill
  * @param activeMethod Currently selected training method
- * @param activeTool Currently selected tool
- * @param hasBetterToolAvailable Whether a better tool is available for this skill
+ * @param activeCards Currently active cards for this skill/method
  * @param trainingProgress Progress of the current training action (0-1)
  * @param onSkillClick Callback for when this skill is clicked
  * @param onToggleExpand Callback for when expansion state should change
  * @param onMethodSelected Callback for when a training method is selected
- * @param onToolSelected Callback for when a better tool is selected
  */
 @Composable
 fun ExpandableSkillItem(
@@ -69,13 +68,11 @@ fun ExpandableSkillItem(
     xpPerHour: Int = 0,
     trainingMethods: List<TrainingMethod> = emptyList(),
     activeMethod: TrainingMethod? = null,
-    activeTool: Tool? = null,
-    hasBetterToolAvailable: Boolean = false,
+    activeCards: List<Card> = emptyList(),
     trainingProgress: Float = 0f,
     onSkillClick: (Skill) -> Unit,
     onToggleExpand: () -> Unit,
-    onMethodSelected: (TrainingMethod) -> Unit,
-    onToolSelected: () -> Unit
+    onMethodSelected: (TrainingMethod) -> Unit
 ) {
     // Calculate XP progress using
     val totalXpForCurrentLevel = LevelCalculator.totalXpForLevel(skill.level)
@@ -201,7 +198,7 @@ fun ExpandableSkillItem(
                         Box(
                             modifier = Modifier
                                 .padding(top = 8.dp)
-                                .height(240.dp)
+                                .fillMaxWidth()
                         ) {
                             TrainingMethodsPanelFactory.CreateTrainingMethodsPanel(
                                 modifier = Modifier
@@ -211,10 +208,21 @@ fun ExpandableSkillItem(
                                 methods = trainingMethods,
                                 activeMethod = activeMethod,
                                 trainingProgress = trainingProgress,
-                                activeTool = activeTool,
-                                hasBetterToolAvailable = hasBetterToolAvailable,
-                                onMethodSelected = onMethodSelected,
-                                onToolSelected = onToolSelected
+                                activeCards = activeCards,
+                                onMethodSelected = onMethodSelected
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        val totalBonus = activeCards.sumOf { it.efficiencyBonus.toDouble() }.toFloat()
+                        if (totalBonus > 0) {
+                            Text(
+                                text = "Total Card Bonus: +${(totalBonus * 100).toInt()}% Efficiency",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color(0xFF4CAF50),
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(top = 8.dp)
                             )
                         }
                     } else {
@@ -241,8 +249,7 @@ fun ExpandableSkillItemCollapsedPreview() {
             xpPerHour = 0,
             onSkillClick = { },
             onToggleExpand = { },
-            onMethodSelected = { },
-            onToolSelected = {}
+            onMethodSelected = { }
         )
     }
 }
@@ -253,7 +260,14 @@ fun ExpandableSkillItemExpandedPreview() {
     val methods = listOf(
         TrainingMethod("Woodcutting", "Tree", 10, 10000),
         TrainingMethod("Woodcutting", "Oak Tree", 15, 10000, 5),
+        TrainingMethod("Woodcutting", "Willow Tree", 30, 15000, 20),
+        TrainingMethod("Woodcutting", "Willow Tree", 30, 15000, 20),
+        TrainingMethod("Woodcutting", "Willow Tree", 30, 15000, 20),
         TrainingMethod("Woodcutting", "Willow Tree", 30, 15000, 20)
+
+    )
+    val activeCards = listOf(
+        Card("Bronze Axe", com.lucdre.idleskills.cards.domain.CardType.WOODCUTTING_AXE, 2, 1, 0.05f)
     )
     IdleSkillsTheme {
         ExpandableSkillItem(
@@ -263,13 +277,11 @@ fun ExpandableSkillItemExpandedPreview() {
             xpPerHour = 3600,
             trainingMethods = methods,
             activeMethod = methods[1],
-            activeTool = Tool("Woodcutting", "Iron Axe", 1.2f, 5, null),
-            hasBetterToolAvailable = true,
+            activeCards = activeCards,
             trainingProgress = 0.35f,
             onSkillClick = { },
             onToggleExpand = { },
-            onMethodSelected = { },
-            onToolSelected = {}
+            onMethodSelected = { }
         )
     }
 }

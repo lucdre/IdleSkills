@@ -62,7 +62,6 @@ fun SkillListScreen(
                 expandedSkillName = if (expandedSkillName == skillName) null else skillName
             },
             onMethodSelected = { skillViewModel.selectTrainingMethod(it) },
-            onToolSelected = { skillUiState.activeSkill?.let { skillViewModel.selectBetterTool(it) } },
             onPrestigeClick = {
                 prestigeViewModel.prestige(
                     resetTrainingState = {
@@ -106,7 +105,6 @@ fun SkillListScreen(
  * @param onSkillClick Callback for when a skill is clicked
  * @param onToggleExpand Callback for when a skill's expansion state should toggle
  * @param onMethodSelected Callback for when a training method is selected
- * @param onToolSelected Callback for when a better tool is selected
  * @param onPrestigeClick Callback for when the prestige button is selected
  * @param onSkillTreeClick Callback for when the skill tree button is selected
  */
@@ -119,7 +117,6 @@ private fun SkillListScreenContents(
     onSkillClick: (Skill) -> Unit,
     onToggleExpand: (String) -> Unit,
     onMethodSelected: (TrainingMethod) -> Unit,
-    onToolSelected: () -> Unit,
     onPrestigeClick: () -> Unit,
     onSkillTreeClick: () -> Unit
 ) {
@@ -160,20 +157,18 @@ private fun SkillListScreenContents(
                         isActive = isActiveSkill,
                         isExpanded = skill.name == expandedSkillName,
                         xpPerHour = if (isActiveSkill) {
-                            skillUiState.activeTrainingMethod?.calculateXpPerHour(skillUiState.activeTool)
+                            skillUiState.activeTrainingMethod?.calculateXpPerHour(skillUiState.activeCards)
                                 ?: 3600 // Fallback to 3600 (1 XP per second)
                         } else {
                             0
                         },
                         trainingMethods = if (isActiveSkill) skillUiState.trainingMethods else emptyList(),
                         activeMethod = if (isActiveSkill) skillUiState.activeTrainingMethod else null,
-                        activeTool = if (isActiveSkill) skillUiState.activeTool else null,
-                        hasBetterToolAvailable = if (isActiveSkill) skillUiState.hasBetterToolAvailable else false,
+                        activeCards = if (isActiveSkill) skillUiState.activeCards else emptyList(),
                         trainingProgress = if (isActiveSkill) skillUiState.trainingProgress else 0f,
                         onSkillClick = onSkillClick,
                         onToggleExpand = { onToggleExpand(skill.name) },
-                        onMethodSelected = onMethodSelected,
-                        onToolSelected = onToolSelected
+                        onMethodSelected = onMethodSelected
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                 }
@@ -215,7 +210,6 @@ fun SkillListScreenContentsPreview() {
             onSkillClick = { /* nothing */ },
             onToggleExpand = { name -> expandedSkillName = if (expandedSkillName == name) null else name },
             onMethodSelected = { /* nothing */ },
-            onToolSelected = { /* nothing */ },
             onPrestigeClick = { /* nothing */ },
             onSkillTreeClick = { /* nothing */ }
         )

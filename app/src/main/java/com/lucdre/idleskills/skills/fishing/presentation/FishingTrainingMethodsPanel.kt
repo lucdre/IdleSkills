@@ -5,7 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.lucdre.idleskills.R
-import com.lucdre.idleskills.skills.domain.tools.Tool
+import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 import com.lucdre.idleskills.skills.presentation.SkillMethodIcon
 import com.lucdre.idleskills.skills.presentation.SkillTrainingPanel
@@ -17,22 +17,18 @@ import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
  * @param modifier Modifier
  * @param methods List of available Fishing training methods
  * @param activeMethod Currently selected training method
- * @param activeTool Currently selected Fishing tool
- * @param hasBetterToolAvailable Whether a better tool is available
+ * @param activeCards Currently active cards for Fishing
  * @param trainingProgress Progress of the current Fishing action (0-1)
  * @param onMethodSelected Callback for when a training method is selected by the user
- * @param onToolSelected Callback for when a tool is selected by the user
  */
 @Composable
 fun FishingTrainingMethodsPanel(
     modifier: Modifier = Modifier,
     methods: List<TrainingMethod>,
     activeMethod: TrainingMethod?,
-    activeTool: Tool?,
-    hasBetterToolAvailable: Boolean = false,
+    activeCards: List<Card> = emptyList(),
     trainingProgress: Float = 0f,
-    onMethodSelected: (TrainingMethod) -> Unit,
-    onToolSelected: (Tool) -> Unit,
+    onMethodSelected: (TrainingMethod) -> Unit
 ) {
     // Define fishing-specific visual parameters
     val fishingPrimaryColor = Color(0xFF0277BD)
@@ -46,14 +42,11 @@ fun FishingTrainingMethodsPanel(
         panelTitle = "Fish",
         panelBackgroundColor = fishingPanelBackgroundColor,
         primaryThemeColor = fishingPrimaryColor,
-        defaultToolIconRes = R.drawable.ic_tree, // TODO: Replace
         methods = methods,
         activeMethod = activeMethod,
-        activeTool = activeTool,
-        hasBetterToolAvailable = hasBetterToolAvailable,
+        activeCards = activeCards,
         trainingProgress = trainingProgress,
         onMethodSelected = onMethodSelected,
-        onToolSelected = onToolSelected,
         methodItemContent = { method, isSelected, onMethodClicked ->
             val imageRes = when (method.name) {
                 "Swordfish" -> R.drawable.ic_tree // TODO: Replace
@@ -87,15 +80,10 @@ fun FishingTrainingMethodsPanelPreview() {
             TrainingMethod("Fishing", "Shark", 30, 15000, 20)
         )
 
-        val tool = Tool("Fishing", "Harpoon", 1.2f, 5, R.drawable.ic_tree)
-
         FishingTrainingMethodsPanel(
             methods = methods,
             activeMethod = methods[2],
-            activeTool = tool,
-            hasBetterToolAvailable = true,
-            onMethodSelected = {},
-            onToolSelected = {}
+            onMethodSelected = {}
         )
     }
 }

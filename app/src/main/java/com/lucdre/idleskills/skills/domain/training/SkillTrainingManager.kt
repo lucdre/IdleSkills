@@ -1,9 +1,9 @@
 package com.lucdre.idleskills.skills.domain.training
 
 import android.util.Log
+import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.usecase.UpdateSkillUseCase
-import com.lucdre.idleskills.skills.domain.tools.Tool
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -40,13 +40,13 @@ class SkillTrainingManager(
     }
 
     /**
-     * Starts training a skill using a specific [TrainingMethod] and an optional [Tool].
+     * Starts training a skill using a specific [TrainingMethod] and a list of [Card]s.
      *
      * @param skill The [Skill] to start training.
      * @param method The [TrainingMethod] defining the action duration and base XP.
-     * @param tool The [Tool] used to modify XP gains. (Placeholder: Remove null, in the future very skill will have a basic tool)
+     * @param cards The list of [Card]s used to modify action duration.
      */
-    fun startTraining(skill: Skill, method: TrainingMethod, tool: Tool? = null) {
+    fun startTraining(skill: Skill, method: TrainingMethod, cards: List<Card> = emptyList()) {
         cancelTraining() // Cancel previous job if any
         activeSkillName = skill.name
         Log.d("SkillTrainingManager", "Starting training for ${skill.name} with ${method.name}")
@@ -56,12 +56,12 @@ class SkillTrainingManager(
 
             while (true) {
                 val startTime = System.currentTimeMillis()
-                val actionDuration = method.getEffectiveActionDuration(tool)
+                val actionDuration = method.getEffectiveActionDuration(cards)
                 val endTime = startTime + actionDuration.toLong()
 
                 Log.d(
                     "SkillTrainingManager",
-                    "Expected duration: ${actionDuration}ms, Tool efficiency: ${tool?.efficiency ?: "none"}"
+                    "Expected duration: ${actionDuration}ms, Cards applied: ${cards.size}"
                 )
 
                 // Loop for progress updates during the action

@@ -1,8 +1,17 @@
 package com.lucdre.idleskills.skills.presentation
 
+import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.skills.domain.skill.Skill
-import com.lucdre.idleskills.skills.domain.tools.Tool
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
+
+/**
+ * Container for skill unlockables (methods and cards) after a level up.
+ *
+ * @property trainingMethods Available training methods for the skill level
+ */
+data class SkillUnlockables(
+    val trainingMethods: List<TrainingMethod>
+)
 
 /**
  * UI state for the skill list screen.
@@ -15,10 +24,8 @@ import com.lucdre.idleskills.skills.domain.training.TrainingMethod
  * @property activeSkill Name of the currently selected/active skill
  * @property trainingMethods List of available training methods for the active skill
  * @property activeTrainingMethod Currently selected training method
- * @property tools List of available tools for the active skill
- * @property activeTool Currently selected tool
+ * @property activeCards Cards that are relevant to the active skill and training method
  * @property trainingProgress Progress of the current training action (0-1)
- * @property hasBetterToolAvailable Whether a better tool is available than the currently selected one
  */
 data class SkillListUiState(
     val skills: List<Skill> = emptyList(),
@@ -27,8 +34,6 @@ data class SkillListUiState(
     val activeSkill: String? = null,
     val trainingMethods: List<TrainingMethod> = emptyList(),
     val activeTrainingMethod: TrainingMethod? = null,
-    val tools: List<Tool> = emptyList(),
-    val activeTool: Tool? = null,
-    val trainingProgress: Float = 0f, // Progress from 0 to 1.0
-    val hasBetterToolAvailable: Boolean = false
+    val activeCards: List<Card> = emptyList(),
+    val trainingProgress: Float = 0f // Progress from 0 to 1.0
 )

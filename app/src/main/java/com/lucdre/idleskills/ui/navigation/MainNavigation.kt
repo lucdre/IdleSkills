@@ -23,7 +23,6 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -36,7 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lucdre.idleskills.skills.presentation.SkillListViewModel
-import com.lucdre.idleskills.ui.screens.AchievementsScreen
+import com.lucdre.idleskills.ui.screens.CardsScreen
 import com.lucdre.idleskills.ui.screens.InitialSkillSelectionScreen
 import com.lucdre.idleskills.ui.screens.QuestsScreen
 import com.lucdre.idleskills.ui.screens.SettingsScreen
@@ -103,7 +102,8 @@ fun MainNavigation(
         }
         else -> {
             // Normal game flow
-            MainNavigationContent()
+            val skillListViewModel: SkillListViewModel = hiltViewModel()
+            MainNavigationContent(skillListViewModel = skillListViewModel)
         }
     }
 }
@@ -113,7 +113,9 @@ fun MainNavigation(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun MainNavigationContent() {
+private fun MainNavigationContent(
+    skillListViewModel: SkillListViewModel
+) {
     // TODO compose state items to be able to change hasNews
     val items = listOf(
         BottomNavigationItem(
@@ -135,7 +137,7 @@ private fun MainNavigationContent() {
             false
         ),
         BottomNavigationItem(
-            "Goals",
+            "Cards",
             Icons.Filled.Star,
             Icons.Outlined.Star,
             false
@@ -186,15 +188,17 @@ private fun MainNavigationContent() {
         // Switch screens based on selected tab
         when (selectedTabIndex) {
             0 -> {
-                val skillViewModel: SkillListViewModel = hiltViewModel()
                 SkillListScreen(
-                    skillViewModel = skillViewModel,
+                    skillViewModel = skillListViewModel,
                     modifier = Modifier.padding(innerPadding)
                 )
             }
-            1 -> StatsScreen(modifier = Modifier.padding(innerPadding))
+            1 -> StatsScreen(
+                modifier = Modifier.padding(innerPadding),
+                skillViewModel = skillListViewModel
+            )
             2 -> QuestsScreen(modifier = Modifier.padding(innerPadding))
-            3 -> AchievementsScreen(modifier = Modifier.padding(innerPadding))
+            3 -> CardsScreen(modifier = Modifier.padding(innerPadding))
             4 -> SettingsScreen(modifier = Modifier.padding(innerPadding))
         }
     }
@@ -212,7 +216,7 @@ fun MainNavigationPreview() {
             )
 
             NavigationBar {
-                val items = listOf("Skills", "Stats", "Quests", "Goals", "Settings")
+                val items = listOf("Skills", "Stats", "Quests", "Cards", "Settings")
                 val icons = listOf(
                     Icons.Filled.Home,
                     Icons.Filled.BarChart,

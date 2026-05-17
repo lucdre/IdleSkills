@@ -1,5 +1,7 @@
 package com.lucdre.idleskills.main.domain
 
+import com.lucdre.idleskills.cards.domain.CardRepositoryInterface
+import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
 import com.lucdre.idleskills.prestige.domain.PrestigeRepositoryInterface
 import com.lucdre.idleskills.prestige.domain.usecase.CheckPrestigeRequirementsUseCase
 import com.lucdre.idleskills.prestige.domain.usecase.GetPrestigeStateUseCase
@@ -9,8 +11,6 @@ import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import com.lucdre.idleskills.skills.domain.skill.usecase.GetSkillsUseCase
 import com.lucdre.idleskills.skills.domain.skill.usecase.ResetSkillsUseCase
 import com.lucdre.idleskills.skills.domain.skill.usecase.UpdateSkillUseCase
-import com.lucdre.idleskills.skills.domain.tools.ToolRepositoryInterface
-import com.lucdre.idleskills.skills.domain.tools.usecase.GetToolUseCase
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryInterface
 import com.lucdre.idleskills.skills.domain.training.usecase.GetTrainingMethodUseCase
 import dagger.Module
@@ -80,17 +80,15 @@ object UseCaseModule {
     }
 
     /**
-     * Provides a [GetToolUseCase] instance.
+     * Provides a [GetActiveCardsUseCase] instance.
      *
-     * This use case retrieves available tools for skills, which enhance training efficiency.
-     *
-     * @param repository The tool repository that provides the tools
-     * @return A configured [GetToolUseCase]
+     * @param repository The card repository
+     * @return A configured [GetActiveCardsUseCase]
      */
     @Provides
     @ViewModelScoped
-    fun provideGetToolUseCase(repository: ToolRepositoryInterface): GetToolUseCase {
-        return GetToolUseCase(repository)
+    fun provideGetActiveCardsUseCase(repository: CardRepositoryInterface): GetActiveCardsUseCase {
+        return GetActiveCardsUseCase(repository)
     }
 
     /**

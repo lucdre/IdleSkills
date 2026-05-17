@@ -2,7 +2,7 @@ package com.lucdre.idleskills.skills.presentation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.lucdre.idleskills.skills.domain.tools.Tool
+import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 import com.lucdre.idleskills.skills.fishing.presentation.FishingTrainingMethodsPanel
 import com.lucdre.idleskills.skills.mining.presentation.MiningTrainingMethodsPanel
@@ -24,10 +24,8 @@ object TrainingMethodsPanelFactory {
      * @param methods List of training methods available for the skill
      * @param activeMethod Currently selected training method
      * @param trainingProgress Progress of the current training action (0-1)
-     * @param activeTool Currently selected tool
-     * @param hasBetterToolAvailable Whether a better tool is available for the skill
+     * @param activeCards Currently active cards for the skill
      * @param onMethodSelected Callback for when a training method is selected
-     * @param onToolSelected Callback for when a better tool is selected
      */
     @Composable
     fun CreateTrainingMethodsPanel(
@@ -36,10 +34,8 @@ object TrainingMethodsPanelFactory {
         methods: List<TrainingMethod>,
         activeMethod: TrainingMethod?,
         trainingProgress: Float = 0f,
-        activeTool: Tool?,
-        hasBetterToolAvailable: Boolean = false,
-        onMethodSelected: (TrainingMethod) -> Unit,
-        onToolSelected: () -> Unit
+        activeCards: List<Card> = emptyList(),
+        onMethodSelected: (TrainingMethod) -> Unit
     ) {
         when (skillName.lowercase()) {
             "woodcutting" -> WcTrainingMethodsPanel(
@@ -47,30 +43,24 @@ object TrainingMethodsPanelFactory {
                 methods = methods,
                 activeMethod = activeMethod,
                 trainingProgress = trainingProgress,
-                activeTool = activeTool,
-                hasBetterToolAvailable = hasBetterToolAvailable,
-                onMethodSelected = onMethodSelected,
-                onToolSelected = { onToolSelected() }
+                activeCards = activeCards,
+                onMethodSelected = onMethodSelected
             )
             "mining" -> MiningTrainingMethodsPanel(
                 modifier = modifier,
                 methods = methods,
                 activeMethod = activeMethod,
                 trainingProgress = trainingProgress,
-                activeTool = activeTool,
-                hasBetterToolAvailable = hasBetterToolAvailable,
-                onMethodSelected = onMethodSelected,
-                onToolSelected = { onToolSelected() }
+                activeCards = activeCards,
+                onMethodSelected = onMethodSelected
             )
             "fishing" -> FishingTrainingMethodsPanel(
                 modifier = modifier,
                 methods = methods,
                 activeMethod = activeMethod,
                 trainingProgress = trainingProgress,
-                activeTool = activeTool,
-                hasBetterToolAvailable = hasBetterToolAvailable,
-                onMethodSelected = onMethodSelected,
-                onToolSelected = { onToolSelected() }
+                activeCards = activeCards,
+                onMethodSelected = onMethodSelected
             )
             // Add cases for other skills as they're implemented //TODO
 

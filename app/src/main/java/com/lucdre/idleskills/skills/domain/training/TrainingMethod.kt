@@ -1,6 +1,6 @@
 package com.lucdre.idleskills.skills.domain.training
 
-import com.lucdre.idleskills.skills.domain.tools.Tool
+import com.lucdre.idleskills.cards.domain.Card
 import kotlin.math.roundToInt
 
 /**
@@ -28,16 +28,17 @@ data class TrainingMethod(
     }
 
     /**
-     * @param tool Optional tool that affects action speed through efficiency
-     * @return The XP per hour for this training method with tool efficiency applied.
+     * @param cards List of cards that affect action speed through efficiency bonuses
+     * @return The XP per hour for this training method with card bonuses applied.
      */
-    fun calculateXpPerHour(tool: Tool? = null): Int {
-        val effectiveActionDuration = getEffectiveActionDuration(tool)
+    fun calculateXpPerHour(cards: List<Card> = emptyList()): Int {
+        val effectiveActionDuration = getEffectiveActionDuration(cards)
         val actionsPerHour = (3600 * 1000) / effectiveActionDuration
         return (actionsPerHour * xpPerAction).roundToInt()
     }
 
-    fun getEffectiveActionDuration(tool: Tool? = null): Float {
-        return actionDurationMs / (tool?.efficiency ?: 1f)
+    fun getEffectiveActionDuration(cards: List<Card> = emptyList()): Float {
+        val totalEfficiency = 1.0f + cards.sumOf { it.efficiencyBonus.toDouble() }.toFloat()
+        return actionDurationMs / totalEfficiency
     }
 }
