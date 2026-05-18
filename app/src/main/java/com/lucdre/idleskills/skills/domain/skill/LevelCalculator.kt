@@ -10,7 +10,7 @@ import kotlin.math.pow
 object LevelCalculator {
 
     /**
-     * (Placeholder)
+     * (Placeholder) //TODO
      * Base XP required from level 1 to level 2.
      */
     private const val BASE_XP = 10

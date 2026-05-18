@@ -5,7 +5,7 @@ import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
 import com.lucdre.idleskills.prestige.domain.PrestigeRepositoryInterface
 import com.lucdre.idleskills.prestige.domain.usecase.CheckPrestigeRequirementsUseCase
 import com.lucdre.idleskills.prestige.domain.usecase.GetPrestigeStateUseCase
-import com.lucdre.idleskills.prestige.domain.usecase.GetVisibleSkillsUseCase
+import com.lucdre.idleskills.region.domain.usecase.GetVisibleSkillsUseCase
 import com.lucdre.idleskills.prestige.domain.usecase.PerformPrestigeUseCase
 import com.lucdre.idleskills.profile.domain.ProfileRepositoryInterface
 import com.lucdre.idleskills.profile.domain.usecase.GetPlayerProfileUseCase

@@ -1,4 +1,4 @@
-package com.lucdre.idleskills.prestige.domain.usecase
+package com.lucdre.idleskills.region.domain.usecase
 
 import com.lucdre.idleskills.profile.domain.ProfileRepositoryInterface
 import com.lucdre.idleskills.region.domain.RegionConfig

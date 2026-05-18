@@ -1,4 +1,4 @@
-package com.lucdre.idleskills.prestige.presentation
+package com.lucdre.idleskills.profile.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

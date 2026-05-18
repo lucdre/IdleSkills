@@ -16,7 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.lucdre.idleskills.prestige.presentation.InitialSkillSelectionViewModel
+import com.lucdre.idleskills.profile.presentation.InitialSkillSelectionViewModel
 import com.lucdre.idleskills.skills.domain.skill.SkillMetadata
 import com.lucdre.idleskills.skills.domain.skill.SkillTheme
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
