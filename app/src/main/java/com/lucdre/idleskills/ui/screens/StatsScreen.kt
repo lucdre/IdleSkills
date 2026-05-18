@@ -62,7 +62,7 @@ fun StatsScreen(
             modifier = Modifier.fillMaxSize(),
             skills = skillUiState.skills,
             onSkillClick = { skill ->
-                selectedSkillName = skill.name
+                selectedSkillName = skill.name //it is read
                 isSheetOpen = true
             }
         )

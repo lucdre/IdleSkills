@@ -9,7 +9,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.lucdre.idleskills.R
 import com.lucdre.idleskills.cards.domain.Card as GameCard
 import com.lucdre.idleskills.cards.domain.CardType
+import com.lucdre.idleskills.skills.domain.skill.SkillMetadata
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
 /**
@@ -39,12 +39,8 @@ fun TradingCardItem(
     card: GameCard,
     onClick: () -> Unit
 ) {
-    val cardColor = when (card.type.skillName) {
-        "Woodcutting" -> Color(0xFF2E7D32)
-        "Mining" -> Color(0xFF455A64)
-        "Fishing" -> Color(0xFF0277BD)
-        else -> MaterialTheme.colorScheme.primary
-    }
+    val skillTheme = SkillMetadata.getTheme(card.type.skillName)
+    val cardColor = skillTheme.primaryColor
 
     Card(
         modifier = modifier

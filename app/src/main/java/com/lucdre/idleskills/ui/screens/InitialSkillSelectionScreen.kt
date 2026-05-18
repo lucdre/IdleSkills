@@ -3,18 +3,22 @@ package com.lucdre.idleskills.ui.screens
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lucdre.idleskills.prestige.presentation.InitialSkillSelectionViewModel
+import com.lucdre.idleskills.skills.domain.skill.SkillMetadata
+import com.lucdre.idleskills.skills.domain.skill.SkillTheme
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
 /**
@@ -75,7 +79,7 @@ private fun InitialSkillSelectionContent(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Welcome to Idle Skills!",
+            text = "Welcome to IdleSkills!",
             style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 16.dp)
@@ -109,8 +113,10 @@ private fun InitialSkillSelectionContent(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             skills.forEach { skill ->
+                val theme = SkillMetadata.getTheme(skill)
                 SkillSelectionCard(
                     modifier = Modifier.weight(1f),
+                    skillTheme = theme,
                     skillName = skill,
                     isSelected = selectedFavorite == skill,
                     onClick = { onSkillSelected(skill) }
@@ -151,6 +157,7 @@ private fun InitialSkillSelectionContent(
 @Composable
 private fun SkillSelectionCard(
     modifier: Modifier = Modifier,
+    skillTheme: SkillTheme,
     skillName: String,
     isSelected: Boolean,
     onClick: () -> Unit
@@ -168,12 +175,17 @@ private fun SkillSelectionCard(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = skillName,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Column(
+                modifier = Modifier.fillMaxHeight(),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    modifier = Modifier.size(64.dp),
+                    painter = painterResource(id = skillTheme.iconResId),
+                    contentDescription = skillName,
+                    tint = skillTheme.primaryColor
+                )
+            }
         }
     }
 }
@@ -186,7 +198,7 @@ fun InitialSkillSelectionScreenPreview() {
             username = "Player One",
             onUsernameChange = {},
             skills = listOf("Woodcutting", "Mining", "Fishing"),
-            selectedFavorite = "Mining",
+            selectedFavorite = "Fishing",
             onSkillSelected = {},
             onStartClick = {},
             isLoading = false,
