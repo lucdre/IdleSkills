@@ -1,5 +1,7 @@
 package com.lucdre.idleskills.profile.domain
 
+import com.lucdre.idleskills.region.domain.Region
+
 /**
  * Represents the player's basic profile.
  *
@@ -10,5 +12,5 @@ package com.lucdre.idleskills.profile.domain
 data class PlayerProfile(
     val username: String = "",
     val favoriteSkill: String = "",
-    val currentRegion: String = "First Region"
+    val currentRegion: Region = Region.FIRST_REGION
 )

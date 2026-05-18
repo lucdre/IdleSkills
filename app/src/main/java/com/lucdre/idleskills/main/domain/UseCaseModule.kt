@@ -75,12 +75,16 @@ object UseCaseModule {
      * This use case retrieves available training methods for skills.
      *
      * @param repository The training method repository that provides the methods
+     * @param profileRepository The profile repository to check current region
      * @return A configured [GetTrainingMethodUseCase]
      */
     @Provides
     @ViewModelScoped
-    fun provideGetTrainingMethodUseCase(repository: TrainingMethodRepositoryInterface): GetTrainingMethodUseCase {
-        return GetTrainingMethodUseCase(repository)
+    fun provideGetTrainingMethodUseCase(
+        repository: TrainingMethodRepositoryInterface,
+        profileRepository: ProfileRepositoryInterface
+    ): GetTrainingMethodUseCase {
+        return GetTrainingMethodUseCase(repository, profileRepository)
     }
 
     /**
@@ -88,15 +92,17 @@ object UseCaseModule {
      *
      * @param repository The card repository
      * @param trainingMethodRepository The training method repository
+     * @param profileRepository The profile repository
      * @return A configured [GetActiveCardsUseCase]
      */
     @Provides
     @ViewModelScoped
     fun provideGetActiveCardsUseCase(
         repository: CardRepositoryInterface,
-        trainingMethodRepository: TrainingMethodRepositoryInterface
+        trainingMethodRepository: TrainingMethodRepositoryInterface,
+        profileRepository: ProfileRepositoryInterface
     ): GetActiveCardsUseCase {
-        return GetActiveCardsUseCase(repository, trainingMethodRepository)
+        return GetActiveCardsUseCase(repository, trainingMethodRepository, profileRepository)
     }
 
     /**

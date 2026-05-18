@@ -68,11 +68,13 @@ class SkillListViewModel @Inject constructor(
                 if (updatedSkill.level > previousLevel) {
                     Log.d("SkillListViewModel", "🎉 ${updatedSkill.name} leveled up to ${updatedSkill.level}!")
 
-                    val updatedMethods = getTrainingMethodUseCase(updatedSkill.name)
-                        .filter { it.requiredLevel <= updatedSkill.level }
+                    viewModelScope.launch {
+                        val updatedMethods = getTrainingMethodUseCase(updatedSkill.name)
+                            .filter { it.requiredLevel <= updatedSkill.level }
 
-                    _uiState.update { state ->
-                        state.copy(trainingMethods = updatedMethods)
+                        _uiState.update { state ->
+                            state.copy(trainingMethods = updatedMethods)
+                        }
                     }
                 }
             }
@@ -140,14 +142,14 @@ class SkillListViewModel @Inject constructor(
 
         previousLevels[skill.name] = skill.level
 
-        // Fetch training methods for this skill
-        val methods = getTrainingMethodUseCase(skill.name)
-            .filter { it.requiredLevel <= skill.level }
-
-        // Use previously selected method for this skill, or default to basic method if first time
-        val selectedMethod = selectedMethods[skill.name] ?: methods.minByOrNull { it.requiredLevel }
-
         viewModelScope.launch {
+            // Fetch training methods for this skill
+            val methods = getTrainingMethodUseCase(skill.name)
+                .filter { it.requiredLevel <= skill.level }
+
+            // Use previously selected method for this skill, or default to basic method if first time
+            val selectedMethod = selectedMethods[skill.name] ?: methods.minByOrNull { it.requiredLevel }
+
             // Fetch active cards for this skill and method
             val activeCards = getActiveCardsUseCase(skill.name, selectedMethod?.name).first()
 

@@ -1,5 +1,6 @@
 package com.lucdre.idleskills.skills.domain.training
 
+import com.lucdre.idleskills.region.domain.Region
 import com.lucdre.idleskills.skills.fishing.data.FishingTrainingMethodRepository
 import com.lucdre.idleskills.skills.mining.data.MiningTrainingMethodRepository
 import com.lucdre.idleskills.skills.woodcutting.data.WcTrainingMethodRepository
@@ -24,20 +25,21 @@ class TrainingMethodRepositoryDispatcher @Inject constructor(
 ) : TrainingMethodRepositoryInterface {
 
     /**
-     * Retrieves a list of available [TrainingMethod]s for a given skill.
+     * Retrieves a list of available [TrainingMethod]s for a given skill in a specific region.
      *
      * Based on the provided [skillName], this method routes the request to the
      * corresponding skill-specific repository.
      *
      * @param skillName The name of the skill for which to fetch training methods.
+     * @param region The region for which to fetch training methods.
      *
-     * @return A list of [TrainingMethod] objects available for the specified skill.
+     * @return A list of [TrainingMethod] objects available for the specified skill and region.
      *         Returns an empty list if the [skillName] is not supported.
      */
-    override fun getTrainingMethodsForSkill(skillName: String): List<TrainingMethod> = when (skillName) {
-        "Woodcutting" -> wcRepo.getTrainingMethodsForSkill(skillName)
-        "Mining" -> miningRepo.getTrainingMethodsForSkill(skillName)
-        "Fishing" -> fishingRepo.getTrainingMethodsForSkill(skillName)
+    override fun getTrainingMethodsForSkill(skillName: String, region: Region): List<TrainingMethod> = when (skillName) {
+        "Woodcutting" -> wcRepo.getTrainingMethodsForSkill(skillName, region)
+        "Mining" -> miningRepo.getTrainingMethodsForSkill(skillName, region)
+        "Fishing" -> fishingRepo.getTrainingMethodsForSkill(skillName, region)
         // TODO add more as more skills come
         else -> emptyList()
     }

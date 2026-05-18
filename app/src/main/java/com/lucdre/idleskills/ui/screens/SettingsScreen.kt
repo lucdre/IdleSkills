@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lucdre.idleskills.profile.domain.PlayerProfile
+import com.lucdre.idleskills.region.domain.Region
 import com.lucdre.idleskills.skills.presentation.SkillListViewModel
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
@@ -40,7 +41,7 @@ fun SettingsScreenPreview() {
         SettingsScreenContent(
             playerProfile = PlayerProfile(
                 username = "IdleMaster",
-                currentRegion = "First Region"
+                currentRegion = Region.FIRST_REGION
             )
         )
     }
@@ -97,7 +98,7 @@ fun SettingsScreenContent(
                 ) {
                     Text(text = "Current Region", style = MaterialTheme.typography.bodyLarge)
                     Text(
-                        text = playerProfile.currentRegion,
+                        text = playerProfile.currentRegion.displayName,
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Bold
                     )

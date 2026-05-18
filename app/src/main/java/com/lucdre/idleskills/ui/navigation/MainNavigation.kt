@@ -187,16 +187,14 @@ private fun MainNavigationContent(
     ) { innerPadding ->
         // Switch screens based on selected tab
         when (selectedTabIndex) {
-            0 -> {
-                SkillListScreen(
-                    skillViewModel = skillListViewModel,
-                    modifier = Modifier.padding(innerPadding)
+            0 -> SkillListScreen(
+                    modifier = Modifier.padding(innerPadding),
+                    skillViewModel = skillListViewModel
                 )
-            }
             1 -> StatsScreen(
-                modifier = Modifier.padding(innerPadding),
-                skillViewModel = skillListViewModel
-            )
+                    modifier = Modifier.padding(innerPadding),
+                    skillViewModel = skillListViewModel
+                )
             2 -> QuestsScreen(modifier = Modifier.padding(innerPadding))
             3 -> CardsScreen(modifier = Modifier.padding(innerPadding))
             4 -> SettingsScreen(modifier = Modifier.padding(innerPadding))

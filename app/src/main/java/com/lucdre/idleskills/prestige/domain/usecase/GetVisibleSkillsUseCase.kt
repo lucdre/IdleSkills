@@ -1,7 +1,7 @@
 package com.lucdre.idleskills.prestige.domain.usecase
 
 import com.lucdre.idleskills.profile.domain.ProfileRepositoryInterface
-import com.lucdre.idleskills.profile.domain.RegionConfig
+import com.lucdre.idleskills.region.domain.RegionConfig
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import kotlinx.coroutines.flow.Flow
