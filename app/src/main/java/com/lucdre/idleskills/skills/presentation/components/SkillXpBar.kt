@@ -19,20 +19,20 @@ import com.lucdre.idleskills.skills.presentation.util.formatNumber
 /**
  * A reusable component that displays a skill's XP progress and levels.
  *
+ * @param modifier Modifier for the root layout.
  * @param level Current skill level.
  * @param xp Current skill XP.
  * @param isActive Whether the skill is currently being trained.
  * @param xpPerHour XP per hour rate, shown when active.
- * @param modifier Modifier for the root layout.
  * @param activeColor Color to use for the progress bar when active.
  */
 @Composable
 fun SkillXpBar(
+    modifier: Modifier = Modifier,
     level: Int,
     xp: Int,
     isActive: Boolean,
     xpPerHour: Int = 0,
-    modifier: Modifier = Modifier,
     activeColor: Color = Color(0xFF4CAF50)
 ) {
     val totalXpForCurrentLevel = LevelCalculator.totalXpForLevel(level)

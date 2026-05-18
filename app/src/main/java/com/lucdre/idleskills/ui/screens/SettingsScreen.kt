@@ -9,14 +9,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lucdre.idleskills.profile.domain.PlayerProfile
-import com.lucdre.idleskills.skills.presentation.SkillListUiState
 import com.lucdre.idleskills.skills.presentation.SkillListViewModel
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 
 /**
  * Screen displaying settings and player profile.

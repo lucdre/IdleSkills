@@ -3,7 +3,6 @@ package com.lucdre.idleskills.prestige.domain.usecase
 import com.lucdre.idleskills.prestige.domain.PrestigeRepositoryInterface
 import com.lucdre.idleskills.prestige.domain.skilltree.SkillTreeConfig
 import com.lucdre.idleskills.prestige.domain.skilltree.SkillTreeNode
-import com.lucdre.idleskills.prestige.domain.skilltree.SkillTreeNodeType
 import javax.inject.Inject
 
 /**
