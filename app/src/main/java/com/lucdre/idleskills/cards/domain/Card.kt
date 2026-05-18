@@ -24,6 +24,27 @@ data class Card(
      * @return The number of cards required to upgrade to the next level.
      */
     fun getUpgradeRequirement(): Int {
-        return level * 10 // PLACEHOLDER
+        return level * 10 //TODO Placeholder
+    }
+
+    /**
+     * @return True if the card can be upgraded based on current quantity.
+     */
+    fun canUpgrade(): Boolean {
+        return quantity >= getUpgradeRequirement()
+    }
+
+    /**
+     * Creates an upgraded version of this card.
+     * Reduces quantity by the upgrade requirement and increases level/bonus.
+     *
+     * @return A new Card instance with upgraded stats.
+     */
+    fun createUpgrade(): Card {
+        return copy(
+            level = level + 1,
+            quantity = quantity - getUpgradeRequirement(),
+            efficiencyBonus = efficiencyBonus + 0.05f
+        )
     }
 }

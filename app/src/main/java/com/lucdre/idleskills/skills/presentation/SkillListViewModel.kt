@@ -12,10 +12,10 @@ import com.lucdre.idleskills.skills.domain.training.SkillTrainingManager
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 import com.lucdre.idleskills.skills.domain.training.usecase.GetTrainingMethodUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -50,6 +50,9 @@ class SkillListViewModel @Inject constructor(
     // Track selected training methods per skill to maintain selection across skill switches
     private val selectedMethods = mutableMapOf<String, TrainingMethod>()
 
+    // Job for observing active cards reactive updates
+    private var activeCardsJob: Job? = null
+
     private val trainingManager = SkillTrainingManager(
         updateSkillUseCase = updateSkillUseCase,
         coroutineScope = viewModelScope,
@@ -68,13 +71,11 @@ class SkillListViewModel @Inject constructor(
                 if (updatedSkill.level > previousLevel) {
                     Log.d("SkillListViewModel", "🎉 ${updatedSkill.name} leveled up to ${updatedSkill.level}!")
 
-                    viewModelScope.launch {
-                        val updatedMethods = getTrainingMethodUseCase(updatedSkill.name)
-                            .filter { it.requiredLevel <= updatedSkill.level }
+                    val updatedMethods = getTrainingMethodUseCase(updatedSkill.name)
+                        .filter { it.requiredLevel <= updatedSkill.level }
 
-                        _uiState.update { state ->
-                            state.copy(trainingMethods = updatedMethods)
-                        }
+                    _uiState.update { state ->
+                        state.copy(trainingMethods = updatedMethods)
                     }
                 }
             }
@@ -150,25 +151,18 @@ class SkillListViewModel @Inject constructor(
             // Use previously selected method for this skill, or default to basic method if first time
             val selectedMethod = selectedMethods[skill.name] ?: methods.minByOrNull { it.requiredLevel }
 
-            // Fetch active cards for this skill and method
-            val activeCards = getActiveCardsUseCase(skill.name, selectedMethod?.name).first()
-
+            // Update UI state with skill and methods immediately
             _uiState.update { state ->
                 state.copy(
                     activeSkill = skill.name,
                     trainingMethods = methods,
                     activeTrainingMethod = selectedMethod,
-                    activeCards = activeCards,
                     trainingProgress = 0f
                 )
             }
 
-            // Start training with selected method and active cards
-            if (selectedMethod != null) {
-                trainingManager.startTraining(skill, selectedMethod, activeCards)
-            } else {
-                trainingManager.startBasicTraining(skill)
-            }
+            // Start observing active cards for this skill and method
+            observeActiveCards(skill, selectedMethod)
         }
     }
 
@@ -193,21 +187,42 @@ class SkillListViewModel @Inject constructor(
 
         val currentSkill = _uiState.value.skills.find { it.name == _uiState.value.activeSkill }
 
-        viewModelScope.launch {
-            // Fetch active cards for the new method
-            val activeCards = getActiveCardsUseCase(method.skillName, method.name).first()
-
+        currentSkill?.let { skill ->
             _uiState.update { state ->
                 state.copy(
                     activeTrainingMethod = method,
-                    activeCards = activeCards,
                     trainingProgress = 0f
                 )
             }
 
-            // Start training with the new method and active cards
-            currentSkill?.let {
-                trainingManager.startTraining(it, method, activeCards)
+            // Cancel current training to ensure progress resets when switching methods
+            trainingManager.cancelTraining()
+
+            // Start observing active cards for the new method (this will trigger startTraining)
+            observeActiveCards(skill, method)
+        }
+    }
+
+    /**
+     * Observes active cards for the specified skill and method and updates the training manager.
+     */
+    private fun observeActiveCards(skill: Skill, method: TrainingMethod?) {
+        activeCardsJob?.cancel()
+        activeCardsJob = viewModelScope.launch {
+            getActiveCardsUseCase(skill.name, method?.name).collect { cards ->
+                _uiState.update { it.copy(activeCards = cards) }
+                
+                if (trainingManager.isTraining(skill.name)) {
+                    // If already training, update the cards
+                    trainingManager.updateCards(cards)
+                } else {
+                    // If not training (initial start or method switch), start the training loop
+                    if (method != null) {
+                        trainingManager.startTraining(skill, method, cards)
+                    } else {
+                        trainingManager.startBasicTraining(skill)
+                    }
+                }
             }
         }
     }

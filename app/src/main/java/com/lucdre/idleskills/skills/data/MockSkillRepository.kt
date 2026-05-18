@@ -39,13 +39,8 @@ class MockSkillRepository @Inject constructor() : SkillRepositoryInterface {
         val index = currentSkills.indexOfFirst { it.name == skill.name }
 
         if (index != -1) {
-            val oldXp = currentSkills[index].xp
-            Log.d("MockSkillRepository", "Changing XP from $oldXp to ${skill.xp}")
-
             currentSkills[index] = skill
             _skills.value = currentSkills
-
-            Log.d("MockSkillRepository", "Updated skill list. New XP: ${_skills.value[index].xp}")
         }
 
         return skill

@@ -2,6 +2,7 @@ package com.lucdre.idleskills.main.domain
 
 import com.lucdre.idleskills.cards.domain.CardRepositoryInterface
 import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
+import com.lucdre.idleskills.cards.domain.usecase.UpgradeCardUseCase
 import com.lucdre.idleskills.prestige.domain.PrestigeRepositoryInterface
 import com.lucdre.idleskills.prestige.domain.usecase.CheckPrestigeRequirementsUseCase
 import com.lucdre.idleskills.prestige.domain.usecase.GetPrestigeStateUseCase
@@ -103,6 +104,20 @@ object UseCaseModule {
         profileRepository: ProfileRepositoryInterface
     ): GetActiveCardsUseCase {
         return GetActiveCardsUseCase(repository, trainingMethodRepository, profileRepository)
+    }
+
+    /**
+     * Provides an [UpgradeCardUseCase] instance.
+     *
+     * @param repository The card repository
+     * @return A configured [UpgradeCardUseCase]
+     */
+    @Provides
+    @ViewModelScoped
+    fun provideUpgradeCardUseCase(
+        repository: CardRepositoryInterface
+    ): UpgradeCardUseCase {
+        return UpgradeCardUseCase(repository)
     }
 
     /**

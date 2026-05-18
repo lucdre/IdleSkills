@@ -15,4 +15,11 @@ interface CardRepositoryInterface {
      * Retrieves cards owned by the player for a specific skill.
      */
     fun getCardsForSkill(skillName: String): Flow<List<Card>>
+
+    /**
+     * Updates a specific card in the player's collection.
+     *
+     * @param card The card with updated data.
+     */
+    suspend fun updateCard(card: Card)
 }

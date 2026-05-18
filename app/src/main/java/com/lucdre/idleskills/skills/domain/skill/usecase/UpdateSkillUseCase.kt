@@ -1,6 +1,5 @@
 package com.lucdre.idleskills.skills.domain.skill.usecase
 
-import android.util.Log
 import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
@@ -32,10 +31,6 @@ class UpdateSkillUseCase(private val skillRepository: SkillRepositoryInterface) 
     suspend operator fun invoke(skill: Skill, xpAmount: Int): Skill {
         var updatedSkill = skill.copy(xp = skill.xp + xpAmount)
         updatedSkill = LevelCalculator.checkForLevelUp(updatedSkill)
-
-        if (updatedSkill.level > skill.level) {
-            Log.d("UpdateSkillUseCase", "🎉 ${skill.name} leveled up to ${updatedSkill.level}!")
-        }
 
         return skillRepository.updateSkill(updatedSkill)
     }

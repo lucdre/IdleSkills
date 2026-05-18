@@ -150,7 +150,7 @@ private fun SkillListScreenContents(
                 */
 
                 // Skill list
-                items(skillUiState.skills) { skill ->
+                items(skillUiState.skills, key = { it.name }) { skill ->
                     val isActiveSkill = skill.name == skillUiState.activeSkill
 
                     ExpandableSkillItem(

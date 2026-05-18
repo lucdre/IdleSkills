@@ -35,9 +35,13 @@ fun CardsScreen(
     var selectedCard by remember { mutableStateOf<Card?>(null) }
 
     if (selectedCard != null) {
+        val cards = uiState.cardsBySkill.values.flatten()
+        val currentCard = cards.find { it.name == selectedCard!!.name && it.type == selectedCard!!.type } ?: selectedCard!!
+        
         CardDetailScreen(
-            card = selectedCard!!,
-            onBack = { selectedCard = null }
+            card = currentCard,
+            onBack = { selectedCard = null },
+            onUpgrade = { viewModel.upgradeCard(it) }
         )
     } else {
         CardsScreenContent(

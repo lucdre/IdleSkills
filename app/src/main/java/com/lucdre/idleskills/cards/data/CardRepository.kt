@@ -21,12 +21,12 @@ class CardRepository @Inject constructor() : CardRepositoryInterface {
     // Initial set of cards the player starts with
     private val _ownedCards = MutableStateFlow(
         listOf(
-            Card("Bronze Axe", CardType.WOODCUTTING_AXE, 1, 5, 0.05f, R.drawable.ic_tree),
-            Card("Bronze Pickaxe", CardType.MINING_PICKAXE, 1, 2, 0.05f, R.drawable.ic_tree),
-            Card("Small Fishing Net", CardType.FISHING_NET, 1, 10, 0.05f, R.drawable.ic_tree),
-            Card("Fishing Rod", CardType.FISHING_ROD, 1, 1, 0.05f, R.drawable.ic_tree),
-            Card("Harpoon", CardType.FISHING_HARPOON, 1, 0, 0.05f, R.drawable.ic_tree),
-            Card("Lobster Cage", CardType.FISHING_LOBSTER_CAGE, 1, 0, 0.05f, R.drawable.ic_tree)
+            Card("Bronze Axe", CardType.WOODCUTTING_AXE, 1, 5, 0.00f, R.drawable.ic_tree),
+            Card("Bronze Pickaxe", CardType.MINING_PICKAXE, 1, 2, 0.00f, R.drawable.ic_tree),
+            Card("Small Fishing Net", CardType.FISHING_NET, 1, 10, 0.00f, R.drawable.ic_tree),
+            Card("Fishing Rod", CardType.FISHING_ROD, 1, 1, 0.00f, R.drawable.ic_tree),
+            Card("Harpoon", CardType.FISHING_HARPOON, 1, 0, 0.00f, R.drawable.ic_tree),
+            Card("Lobster Cage", CardType.FISHING_LOBSTER_CAGE, 1, 0, 0.00f, R.drawable.ic_tree)
         )
     )
 
@@ -35,6 +35,16 @@ class CardRepository @Inject constructor() : CardRepositoryInterface {
     override fun getCardsForSkill(skillName: String): Flow<List<Card>> {
         return _ownedCards.map { cards ->
             cards.filter { it.type.skillName == skillName }
+        }
+    }
+
+    override suspend fun updateCard(card: Card) {
+        val currentCards = _ownedCards.value.toMutableList()
+        val index = currentCards.indexOfFirst { it.type == card.type && it.name == card.name }
+
+        if (index != -1) {
+            currentCards[index] = card
+            _ownedCards.value = currentCards
         }
     }
 }

@@ -33,9 +33,15 @@ class SkillTrainingManager(
     // Training coroutine job
     private var trainingJob: Job? = null
 
+    // Active training method
+    private var activeMethod: TrainingMethod? = null
+
+    // Active cards providing bonuses
+    private var activeCards: List<Card> = emptyList()
+
     // Constants for time
     private companion object {
-        const val PROGRESS_UPDATE_INTERVAL_MS = 100L
+        const val PROGRESS_UPDATE_INTERVAL_MS = 33L // ~30 FPS
         const val BASIC_TRAINING_DURATION_MS = 1000L
     }
 
@@ -49,6 +55,8 @@ class SkillTrainingManager(
     fun startTraining(skill: Skill, method: TrainingMethod, cards: List<Card> = emptyList()) {
         cancelTraining() // Cancel previous job if any
         activeSkillName = skill.name
+        activeMethod = method
+        activeCards = cards
         Log.d("SkillTrainingManager", "Starting training for ${skill.name} with ${method.name}")
 
         trainingJob = coroutineScope.launch {
@@ -56,31 +64,30 @@ class SkillTrainingManager(
 
             while (true) {
                 val startTime = System.currentTimeMillis()
-                val actionDuration = method.getEffectiveActionDuration(cards)
+                
+                // Use the dynamically updatable method and cards
+                val method = activeMethod ?: break
+                val actionDuration = method.getEffectiveActionDuration(activeCards)
                 val endTime = startTime + actionDuration.toLong()
 
-                Log.d(
-                    "SkillTrainingManager",
-                    "Expected duration: ${actionDuration}ms, Cards applied: ${cards.size}"
-                )
-
                 // Loop for progress updates during the action
-                while (System.currentTimeMillis() < endTime) {
+                while (true) {
                     val currentTime = System.currentTimeMillis()
-                    val progress = (currentTime - startTime).toFloat() / actionDuration
+                    if (currentTime >= endTime) break
+
+                    // Re-calculate based on current state (method or cards might have changed)
+                    val currentMethod = activeMethod ?: break
+                    val currentDuration = currentMethod.getEffectiveActionDuration(activeCards)
+                    val progress = (currentTime - startTime).toFloat() / currentDuration
                     onProgressUpdate(progress.coerceIn(0f, 1f))
+                    
                     delay(PROGRESS_UPDATE_INTERVAL_MS)
                 }
-                onProgressUpdate(1f) // Ensure final progress is 1.0
 
-                val actualDuration = System.currentTimeMillis() - startTime
-                Log.d(
-                    "SkillTrainingManager",
-                    "Actual duration: ${actualDuration}ms (diff: ${actualDuration - actionDuration.toLong()}ms)"
-                )
+                onProgressUpdate(1f) // Action complete
 
-                // Calculate XP gained for this action
-                val xpGained = method.xpPerAction
+                // Calculate XP gained using current method state
+                val xpGained = activeMethod?.xpPerAction ?: 0
 
                 // Apply XP update using the use case
                 try {
@@ -89,7 +96,6 @@ class SkillTrainingManager(
                     onSkillUpdate(updatedSkill) // Notify listener
                 } catch (e: Exception) {
                     Log.e("SkillTrainingManager", "Error updating skill during training", e)
-                    // TODO maybe add onError callback
                     cancelTraining()
                     break
                 }
@@ -137,6 +143,24 @@ class SkillTrainingManager(
                 }
             }
         }
+    }
+
+    /**
+     * Updates the cards providing bonuses for the current training.
+     *
+     * @param newCards The new list of active cards.
+     */
+    fun updateCards(newCards: List<Card>) {
+        this.activeCards = newCards
+    }
+
+    /**
+     * Updates the training method for the current training loop.
+     *
+     * @param method The new training method to apply.
+     */
+    fun updateMethod(method: TrainingMethod) {
+        this.activeMethod = method
     }
 
     /**

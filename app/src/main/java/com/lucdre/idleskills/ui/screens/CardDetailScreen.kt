@@ -30,7 +30,8 @@ import com.lucdre.idleskills.skills.presentation.util.CustomLinearProgressIndica
 @Composable
 fun CardDetailScreen(
     card: Card,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onUpgrade: (Card) -> Unit = {}
 ) {
     val skillColor = when (card.type.skillName) {
         "Woodcutting" -> Color(0xFF2E7D32)
@@ -209,7 +210,7 @@ fun CardDetailScreen(
                 Spacer(modifier = Modifier.height(24.dp))
                 
                 Button(
-                    onClick = { /* TODO: Implement Upgrade */ },
+                    onClick = { onUpgrade(card) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
@@ -222,6 +223,7 @@ fun CardDetailScreen(
                 ) {
                     Text(
                         text = if (canUpgrade) "UPGRADE" else "NEED MORE CARDS",
+                        color = if (canUpgrade) Color.White else Color.White.copy(alpha = 0.5f),
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 1.sp
                     )

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.cards.domain.CardRepositoryInterface
+import com.lucdre.idleskills.cards.domain.usecase.UpgradeCardUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -24,10 +25,12 @@ data class CardUiState(
  * ViewModel for handling skill tree interactions.
  *
  * @property cardRepository Repository for card data.
+ * @property upgradeCardUseCase Use case for upgrading cards.
  */
 @HiltViewModel
 class CardViewModel @Inject constructor(
-    private val cardRepository: CardRepositoryInterface
+    private val cardRepository: CardRepositoryInterface,
+    private val upgradeCardUseCase: UpgradeCardUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CardUiState(isLoading = true))
@@ -41,6 +44,20 @@ class CardViewModel @Inject constructor(
                     cardsBySkill = grouped,
                     isLoading = false
                 ) }
+            }
+        }
+    }
+
+    /**
+     * Attempts to upgrade a card.
+     *
+     * @param card The card to upgrade.
+     */
+    fun upgradeCard(card: Card) {
+        viewModelScope.launch {
+            upgradeCardUseCase(card).onFailure { error ->
+                // TODO: Handle error in UI (e.g., show a Snackbar)
+                android.util.Log.e("CardViewModel", "Failed to upgrade card: ${error.message}")
             }
         }
     }
