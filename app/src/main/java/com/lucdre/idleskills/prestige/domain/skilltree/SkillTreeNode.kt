@@ -24,11 +24,6 @@ data class SkillTreeNode(
  */
 sealed class SkillTreeNodeType {
     /**
-     * Unlocks a new skill for training.
-     */
-    data class SkillUnlock(val skillName: String) : SkillTreeNodeType()
-
-    /**
      * Unlocks a new tool for a specific skill.
      */
     data class ToolUnlock(val toolId: String, val skillName: String) : SkillTreeNodeType()

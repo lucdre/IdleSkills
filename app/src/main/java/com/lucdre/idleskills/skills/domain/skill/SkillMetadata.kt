@@ -3,6 +3,8 @@ package com.lucdre.idleskills.skills.domain.skill
 import androidx.compose.ui.graphics.Color
 import com.lucdre.idleskills.R
 
+import java.util.Locale
+
 /**
  * Visual configuration for a skill's UI elements.
  */
@@ -59,7 +61,9 @@ object SkillMetadata {
      * Gets the visual theme for a given skill.
      */
     fun getTheme(skillName: String): SkillTheme {
-        return themes[skillName] ?: themes[skillName.capitalize()] ?: defaultTheme
+        return themes[skillName] ?: themes[skillName.replaceFirstChar {
+            if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString()
+        }] ?: defaultTheme
     }
 
     /**

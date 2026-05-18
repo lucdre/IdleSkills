@@ -173,7 +173,7 @@ fun PrestigeCardPreview() {
             // Fresh start
             PrestigeCard(
                 prestige = Prestige(
-                    skillTreeProgress = SkillTreeProgress(selectedInitialSkill = "Woodcutting")
+                    skillTreeProgress = SkillTreeProgress()
                 ),
                 isPerformingPrestige = false,
                 onPrestigeClick = { },

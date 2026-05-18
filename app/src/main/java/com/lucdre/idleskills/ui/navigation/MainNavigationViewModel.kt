@@ -2,7 +2,7 @@ package com.lucdre.idleskills.ui.navigation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lucdre.idleskills.prestige.domain.usecase.IsGameFreshUseCase
+import com.lucdre.idleskills.profile.domain.usecase.IsGameFreshUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

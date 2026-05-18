@@ -4,8 +4,10 @@ package com.lucdre.idleskills.main.data
 
 import com.lucdre.idleskills.cards.data.CardRepository
 import com.lucdre.idleskills.cards.domain.CardRepositoryInterface
-import com.lucdre.idleskills.prestige.domain.PrestigeRepositoryInterface
 import com.lucdre.idleskills.prestige.data.MockPrestigeRepository
+import com.lucdre.idleskills.prestige.domain.PrestigeRepositoryInterface
+import com.lucdre.idleskills.profile.data.ProfileRepository
+import com.lucdre.idleskills.profile.domain.ProfileRepositoryInterface
 import com.lucdre.idleskills.skills.data.MockSkillRepository
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryDispatcher
@@ -51,6 +53,12 @@ abstract class RepositoryModule {
     abstract fun bindSkillRepository(
         repository: MockSkillRepository
     ): SkillRepositoryInterface
+
+    @Binds
+    @Singleton
+    abstract fun bindProfileRepository(
+        repository: ProfileRepository
+    ): ProfileRepositoryInterface
 
     @Binds
     abstract fun bindPrestigeRepository(

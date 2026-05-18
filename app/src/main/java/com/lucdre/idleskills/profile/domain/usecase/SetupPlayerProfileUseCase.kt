@@ -1,15 +1,15 @@
 package com.lucdre.idleskills.profile.domain.usecase
 
-import com.lucdre.idleskills.prestige.domain.PrestigeRepositoryInterface
+import com.lucdre.idleskills.profile.domain.ProfileRepositoryInterface
 import javax.inject.Inject
 
 /**
  * Use case for setting up the player profile at the start of the game.
  *
- * @property prestigeRepository The repository for prestige data (which stores profile for now).
+ * @property profileRepository The repository for player profile data.
  */
 class SetupPlayerProfileUseCase @Inject constructor(
-    private val prestigeRepository: PrestigeRepositoryInterface,
+    private val profileRepository: ProfileRepositoryInterface,
 ) {
     /**
      * Sets up the player profile with a username and favorite skill.
@@ -21,18 +21,14 @@ class SetupPlayerProfileUseCase @Inject constructor(
     suspend operator fun invoke(username: String, favoriteSkill: String): Boolean {
         if (username.isBlank() || favoriteSkill.isBlank()) return false
 
-        val currentPrestige = prestigeRepository.getPrestige()
-        
-        val updatedProfile = currentPrestige.playerProfile.copy(
+        // Update Profile
+        val currentProfile = profileRepository.getProfile()
+        val updatedProfile = currentProfile.copy(
             username = username,
             favoriteSkill = favoriteSkill
         )
+        profileRepository.updateProfile(updatedProfile)
 
-        val updatedPrestige = currentPrestige.copy(
-            playerProfile = updatedProfile
-        )
-
-        prestigeRepository.updatePrestige(updatedPrestige)
         return true
     }
 }

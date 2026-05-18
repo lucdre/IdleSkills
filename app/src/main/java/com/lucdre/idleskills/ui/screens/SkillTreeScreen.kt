@@ -142,43 +142,20 @@ private fun SkillTreeContent(
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Group nodes by type for better organization
-                val skillUnlocks =
-                    nodes.values.filter { it.node.type is SkillTreeNodeType.SkillUnlock }
-                val bonuses = nodes.values.filter { it.node.type !is SkillTreeNodeType.SkillUnlock }
-
-                if (skillUnlocks.isNotEmpty()) {
-                    item {
-                        Text(
-                            modifier = Modifier.padding(vertical = 8.dp),
-                            text = "Skill Unlocks",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    items(skillUnlocks) { nodeAvailability ->
-                        SkillTreeNodeItem(
-                            nodeAvailability = nodeAvailability,
-                            onClick = { onNodeClick(nodeAvailability.node.id) }
-                        )
-                    }
+                item {
+                    Text(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        text = "Permanent Upgrades",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
-
-                if (bonuses.isNotEmpty()) {
-                    item {
-                        Text(
-                            modifier = Modifier.padding(vertical = 8.dp),
-                            text = "Permanent Bonuses",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    items(bonuses) { nodeAvailability ->
-                        SkillTreeNodeItem(
-                            nodeAvailability = nodeAvailability,
-                            onClick = { onNodeClick(nodeAvailability.node.id) }
-                        )
-                    }
+                
+                items(nodes.values.toList()) { nodeAvailability ->
+                    SkillTreeNodeItem(
+                        nodeAvailability = nodeAvailability,
+                        onClick = { onNodeClick(nodeAvailability.node.id) }
+                    )
                 }
             }
         }
@@ -323,10 +300,10 @@ fun SkillTreeScreenPreview() {
                 "1" to NodeAvailability(
                     node = SkillTreeNode(
                         id = "1",
-                        name = "Farming",
-                        description = "Unlock the Farming skill",
+                        name = "Efficiency I",
+                        description = "Increase action speed by 10%",
                         cost = 5,
-                        type = SkillTreeNodeType.SkillUnlock("Farming")
+                        type = SkillTreeNodeType.SpeedBonus(1.1)
                     ),
                     isUnlocked = true,
                     canPurchase = false,
@@ -335,27 +312,14 @@ fun SkillTreeScreenPreview() {
                 "2" to NodeAvailability(
                     node = SkillTreeNode(
                         id = "2",
-                        name = "Mining",
-                        description = "Unlock the Mining skill",
+                        name = "Learning I",
+                        description = "Increase XP gain by 10%",
                         cost = 10,
-                        type = SkillTreeNodeType.SkillUnlock("Mining")
+                        type = SkillTreeNodeType.ExperienceBonus(1.1)
                     ),
                     isUnlocked = false,
                     canPurchase = true,
                     hasPrerequisites = true
-                ),
-                "3" to NodeAvailability(
-                    node = SkillTreeNode(
-                        id = "3",
-                        name = "Efficiency Bonus",
-                        description = "Increase action speed by 10%",
-                        cost = 20,
-                        prerequisites = listOf("Test"),
-                        type = SkillTreeNodeType.SpeedBonus(1.1)
-                    ),
-                    isUnlocked = false,
-                    canPurchase = false,
-                    hasPrerequisites = false
                 )
             ),
             isLoading = false,

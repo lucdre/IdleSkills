@@ -65,15 +65,10 @@ class PerformPrestigeUseCase @Inject constructor(
     }
 
     /**
-     * Count how many unlocked skills are at level 99.
+     * Count how many skills are at level 99.
      */
     private suspend fun countSkillsAtMaxLevel(): Int {
         val skills = skillRepository.getSkills()
-        val prestigeState = getPrestigeStateUseCase()
-        val unlockedSkills = prestigeState.skillTreeProgress.getUnlockedSkills()
-
-        return skills.count { skill ->
-            unlockedSkills.contains(skill.name) && skill.level >= 99
-        }
+        return skills.count { it.level >= 99 }
     }
 }

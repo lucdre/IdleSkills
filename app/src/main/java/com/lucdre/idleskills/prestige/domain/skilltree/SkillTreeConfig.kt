@@ -9,54 +9,6 @@ object SkillTreeConfig {
      * All available skill tree nodes.
      */
     val allNodes = listOf(
-        // First tier - Additional base skills
-        SkillTreeNode(
-            id = "unlock_mining",
-            name = "Mining",
-            description = "Unlock the Mining skill",
-            cost = 1,
-            type = SkillTreeNodeType.SkillUnlock("Mining")
-        ),
-        SkillTreeNode(
-            id = "unlock_fishing",
-            name = "Fishing",
-            description = "Unlock the Fishing skill",
-            cost = 1,
-            type = SkillTreeNodeType.SkillUnlock("Fishing")
-        ),
-        SkillTreeNode(
-            id = "unlock_woodcutting",
-            name = "Woodcutting",
-            description = "Unlock the Woodcutting skill",
-            cost = 1,
-            type = SkillTreeNodeType.SkillUnlock("Woodcutting")
-        ),
-
-        // Second tier - Processing skills
-        SkillTreeNode(
-            id = "unlock_smelting",
-            name = "Smelting",
-            description = "Unlock the Smelting skill",
-            cost = 2,
-            prerequisites = listOf("unlock_woodcutting", "unlock_mining"),
-            type = SkillTreeNodeType.SkillUnlock("Smelting")
-        ),
-        SkillTreeNode(
-            id = "unlock_cooking",
-            name = "Cooking",
-            description = "Unlock the Cooking skill",
-            cost = 2,
-            prerequisites = listOf("unlock_fishing"),
-            type = SkillTreeNodeType.SkillUnlock("Cooking")
-        ),
-        SkillTreeNode(
-            id = "unlock_smithing",
-            name = "Smithing",
-            description = "Unlock the Smithing skill",
-            cost = 5,
-            prerequisites = listOf("unlock_smelting"),
-            type = SkillTreeNodeType.SkillUnlock("Smithing")
-        ),
         // Global bonuses
         SkillTreeNode(
             id = "global_exp_bonus_1",

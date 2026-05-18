@@ -29,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lucdre.idleskills.R
 import com.lucdre.idleskills.skills.domain.skill.Skill
+import com.lucdre.idleskills.skills.domain.skill.SkillMetadata
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
 /**
@@ -73,10 +74,11 @@ fun StatsSkillsContent(
             items = skills,
             key = { it.name }
         ) { skill ->
+            val iconResId = SkillMetadata.getTheme(skill.name).iconResId
             SkillItem(
                 name = skill.name,
                 level = skill.level,
-                iconResId = R.drawable.ic_tree, // todo fix this for when there are more
+                iconResId = iconResId,
                 onClick = { onSkillSelect(skill) }
             )
         }

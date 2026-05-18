@@ -25,11 +25,7 @@ class GetAvailableSkillTreeNodesUseCase @Inject constructor(
         val availablePoints = prestige.points.availablePrestigePoints
 
         return SkillTreeConfig.allNodes.associate { node ->
-            val isUnlocked = progress.isNodeUnlocked(node.id) ||
-                (
-                    node.type is SkillTreeNodeType.SkillUnlock &&
-                        progress.isInitialSkill(node.type.skillName)
-                    )
+            val isUnlocked = progress.isNodeUnlocked(node.id)
 
             val canUnlock = progress.canUnlockNode(node.id)
             val canPurchase = !isUnlocked && canUnlock && (availablePoints >= node.cost)

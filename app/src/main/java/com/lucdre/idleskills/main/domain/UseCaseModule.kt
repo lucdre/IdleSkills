@@ -7,7 +7,9 @@ import com.lucdre.idleskills.prestige.domain.usecase.CheckPrestigeRequirementsUs
 import com.lucdre.idleskills.prestige.domain.usecase.GetPrestigeStateUseCase
 import com.lucdre.idleskills.prestige.domain.usecase.GetVisibleSkillsUseCase
 import com.lucdre.idleskills.prestige.domain.usecase.PerformPrestigeUseCase
+import com.lucdre.idleskills.profile.domain.ProfileRepositoryInterface
 import com.lucdre.idleskills.profile.domain.usecase.GetPlayerProfileUseCase
+import com.lucdre.idleskills.profile.domain.usecase.IsGameFreshUseCase
 import com.lucdre.idleskills.profile.domain.usecase.SetupPlayerProfileUseCase
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import com.lucdre.idleskills.skills.domain.skill.usecase.GetSkillsUseCase
@@ -100,19 +102,39 @@ object UseCaseModule {
     /**
      * Provides a [SetupPlayerProfileUseCase] instance.
      *
-     * @param repository The prestige repository
+     * @param profileRepository The profile repository
+     * @param prestigeRepository The prestige repository
      * @return A configured [SetupPlayerProfileUseCase]
      */
     @Provides
     @ViewModelScoped
-    fun provideSetupPlayerProfileUseCase(repository: PrestigeRepositoryInterface): SetupPlayerProfileUseCase {
-        return SetupPlayerProfileUseCase(repository)
+    fun provideSetupPlayerProfileUseCase(
+        profileRepository: ProfileRepositoryInterface
+    ): SetupPlayerProfileUseCase {
+        return SetupPlayerProfileUseCase(profileRepository)
     }
 
-    //TODO comment
+    /**
+     * Provides an [IsGameFreshUseCase] instance.
+     *
+     * @param repository The profile repository
+     * @return A configured [IsGameFreshUseCase]
+     */
     @Provides
     @ViewModelScoped
-    fun provideGetPlayerProfileUseCase(repository: PrestigeRepositoryInterface): GetPlayerProfileUseCase {
+    fun provideIsGameFreshUseCase(repository: ProfileRepositoryInterface): IsGameFreshUseCase {
+        return IsGameFreshUseCase(repository)
+    }
+
+    /**
+     * Provides a [GetPlayerProfileUseCase] instance.
+     *
+     * @param repository The profile repository
+     * @return A configured [GetPlayerProfileUseCase]
+     */
+    @Provides
+    @ViewModelScoped
+    fun provideGetPlayerProfileUseCase(repository: ProfileRepositoryInterface): GetPlayerProfileUseCase {
         return GetPlayerProfileUseCase(repository)
     }
 
@@ -147,10 +169,9 @@ object UseCaseModule {
     @Provides
     @ViewModelScoped
     fun provideCheckPrestigeRequirementsUseCase(
-        skillRepository: SkillRepositoryInterface,
-        prestigeRepository: PrestigeRepositoryInterface
+        skillRepository: SkillRepositoryInterface
     ): CheckPrestigeRequirementsUseCase {
-        return CheckPrestigeRequirementsUseCase(skillRepository, prestigeRepository)
+        return CheckPrestigeRequirementsUseCase(skillRepository)
     }
 
     /**
@@ -161,15 +182,16 @@ object UseCaseModule {
      *
      * @param skillRepository The skill repository that provides all skills
      * @param prestigeRepository The prestige repository to check visibility rules
+     * @param profileRepository The profile repository to check current region
      * @return A configured [GetVisibleSkillsUseCase]
      */
     @Provides
     @ViewModelScoped
     fun provideGetVisibleSkillsUseCase(
         skillRepository: SkillRepositoryInterface,
-        prestigeRepository: PrestigeRepositoryInterface
+        profileRepository: ProfileRepositoryInterface
     ): GetVisibleSkillsUseCase {
-        return GetVisibleSkillsUseCase(skillRepository, prestigeRepository)
+        return GetVisibleSkillsUseCase(skillRepository, profileRepository)
     }
 
     /**

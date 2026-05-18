@@ -132,7 +132,7 @@ class SkillTrainingManager(
                     onSkillUpdate(updatedSkill)
                 } catch (e: Exception) {
                     Log.e("SkillTrainingManager", "Error updating skill during basic training", e)
-                    cancelTraining() //
+                    cancelTraining()
                     break
                 }
             }
