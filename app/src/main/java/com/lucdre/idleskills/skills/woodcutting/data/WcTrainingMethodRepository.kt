@@ -2,8 +2,8 @@ package com.lucdre.idleskills.skills.woodcutting.data
 
 import com.lucdre.idleskills.cards.domain.CardType
 import com.lucdre.idleskills.region.domain.Region
+import com.lucdre.idleskills.skills.domain.training.BaseTrainingMethodRepository
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
-import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryInterface
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -14,9 +14,9 @@ import javax.inject.Singleton
  * with XP amount, action durations, and level requirements.
  */
 @Singleton
-class WcTrainingMethodRepository @Inject constructor() : TrainingMethodRepositoryInterface {
+class WcTrainingMethodRepository @Inject constructor() : BaseTrainingMethodRepository() {
 
-    private val trainingMethods = mapOf(
+    override val trainingMethods = mapOf(
         "Woodcutting" to listOf(
             TrainingMethod("Woodcutting", "Tree", 10, 3000, requiredCardType = CardType.WOODCUTTING_AXE, availableRegions = listOf(Region.FIRST_REGION)), // 10 XP, 3 seconds, Level 1
             TrainingMethod("Woodcutting", "Oak Tree", 15, 4000, 10, requiredCardType = CardType.WOODCUTTING_AXE, availableRegions = listOf(Region.FIRST_REGION)), // 15 XP, 4 seconds, Level 10
@@ -27,17 +27,4 @@ class WcTrainingMethodRepository @Inject constructor() : TrainingMethodRepositor
             TrainingMethod("Woodcutting", "Cheat Tree", 3000000, 1000, 1, requiredCardType = CardType.WOODCUTTING_AXE, availableRegions = listOf(Region.FIRST_REGION)) // Cheat
         )
     )
-
-    /**
-     * Retrieves training methods available for the specified skill in a given region.
-     *
-     * @param skillName The name of the skill to get training methods for
-     * @param region The region for which to fetch training methods
-     * @return List of training methods available for the skill and region, or empty list if not found
-     */
-    override fun getTrainingMethodsForSkill(skillName: String, region: Region): List<TrainingMethod> {
-        return (trainingMethods[skillName] ?: emptyList()).filter { 
-            it.availableRegions.isEmpty() || region in it.availableRegions 
-        }
-    }
 }

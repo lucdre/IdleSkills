@@ -2,8 +2,8 @@ package com.lucdre.idleskills.skills.mining.data
 
 import com.lucdre.idleskills.cards.domain.CardType
 import com.lucdre.idleskills.region.domain.Region
+import com.lucdre.idleskills.skills.domain.training.BaseTrainingMethodRepository
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
-import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryInterface
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -14,9 +14,9 @@ import javax.inject.Singleton
  * with XP amount, action durations, and level requirements.
  */
 @Singleton
-class MiningTrainingMethodRepository @Inject constructor() : TrainingMethodRepositoryInterface {
+class MiningTrainingMethodRepository @Inject constructor() : BaseTrainingMethodRepository() {
 
-    private val trainingMethods = mapOf(
+    override val trainingMethods = mapOf(
         "Mining" to listOf(
             TrainingMethod("Mining", "Copper Rock", 10, 3000, requiredCardType = CardType.MINING_PICKAXE, availableRegions = listOf(Region.FIRST_REGION)), // 10 XP, 3 seconds, Level 1
             TrainingMethod("Mining", "Tin Rock", 10, 3000, requiredCardType = CardType.MINING_PICKAXE, availableRegions = listOf(Region.FIRST_REGION)), // 15 XP, 4 seconds, Level 1
@@ -29,17 +29,4 @@ class MiningTrainingMethodRepository @Inject constructor() : TrainingMethodRepos
             TrainingMethod("Mining", "Cheat Rock", 3000000, 1000, 1, requiredCardType = CardType.MINING_PICKAXE, availableRegions = listOf(Region.FIRST_REGION)) // Cheat
         )
     )
-
-    /**
-     * Retrieves training methods available for the specified skill in a given region.
-     *
-     * @param skillName The name of the skill to get training methods for
-     * @param region The region for which to fetch training methods
-     * @return List of training methods available for the skill and region, or empty list if not found
-     */
-    override fun getTrainingMethodsForSkill(skillName: String, region: Region): List<TrainingMethod> {
-        return (trainingMethods[skillName] ?: emptyList()).filter { 
-            it.availableRegions.isEmpty() || region in it.availableRegions 
-        }
-    }
 }
