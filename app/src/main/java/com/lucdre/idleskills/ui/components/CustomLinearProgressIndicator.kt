@@ -1,4 +1,4 @@
-package com.lucdre.idleskills.skills.presentation.util
+package com.lucdre.idleskills.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

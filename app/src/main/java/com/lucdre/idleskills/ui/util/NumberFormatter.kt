@@ -1,4 +1,4 @@
-package com.lucdre.idleskills.skills.presentation.util
+package com.lucdre.idleskills.ui.util
 
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols

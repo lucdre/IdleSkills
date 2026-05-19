@@ -13,8 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
-import com.lucdre.idleskills.skills.presentation.util.CustomLinearProgressIndicator
-import com.lucdre.idleskills.skills.presentation.util.formatNumber
+import com.lucdre.idleskills.ui.components.CustomLinearProgressIndicator
+import com.lucdre.idleskills.ui.util.formatNumber
 
 /**
  * A reusable component that displays a skill's XP progress and levels.

@@ -21,7 +21,7 @@ import com.lucdre.idleskills.R
 import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.cards.domain.CardType
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
-import com.lucdre.idleskills.skills.presentation.util.CustomLinearProgressIndicator
+import com.lucdre.idleskills.ui.components.CustomLinearProgressIndicator
 
 /**
  * Screen displaying details for a specific card and upgrade requirements.

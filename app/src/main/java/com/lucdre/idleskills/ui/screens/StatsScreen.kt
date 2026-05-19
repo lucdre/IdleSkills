@@ -30,7 +30,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.presentation.SkillListViewModel
-import com.lucdre.idleskills.skills.presentation.util.formatNumber
+import com.lucdre.idleskills.ui.util.formatNumber
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
 /**

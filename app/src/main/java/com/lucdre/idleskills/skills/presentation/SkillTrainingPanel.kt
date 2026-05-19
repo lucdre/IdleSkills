@@ -11,8 +11,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
-import com.lucdre.idleskills.skills.presentation.util.CustomLinearProgressIndicator
-import com.lucdre.idleskills.skills.presentation.util.formatNumber
+import com.lucdre.idleskills.ui.components.CustomLinearProgressIndicator
+import com.lucdre.idleskills.ui.util.formatNumber
 
 /**
  * A base composable for displaying a skill's training methods panel.
