@@ -3,7 +3,7 @@ package com.lucdre.idleskills.cards.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lucdre.idleskills.cards.domain.Card
-import com.lucdre.idleskills.cards.domain.CardRepositoryInterface
+import com.lucdre.idleskills.cards.domain.usecase.GetOwnedCardsUseCase
 import com.lucdre.idleskills.cards.domain.usecase.UpgradeCardUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -24,12 +24,12 @@ data class CardUiState(
 /**
  * ViewModel for handling skill tree interactions.
  *
- * @property cardRepository Repository for card data.
+ * @property getOwnedCardsUseCase Use case for observing cards.
  * @property upgradeCardUseCase Use case for upgrading cards.
  */
 @HiltViewModel
 class CardViewModel @Inject constructor(
-    private val cardRepository: CardRepositoryInterface,
+    private val getOwnedCardsUseCase: GetOwnedCardsUseCase,
     private val upgradeCardUseCase: UpgradeCardUseCase
 ) : ViewModel() {
 
@@ -38,7 +38,7 @@ class CardViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            cardRepository.getOwnedCards().collect { cards ->
+            getOwnedCardsUseCase().collect { cards ->
                 val grouped = cards.groupBy { it.type.skillName }
                 _uiState.update { it.copy(
                     cardsBySkill = grouped,

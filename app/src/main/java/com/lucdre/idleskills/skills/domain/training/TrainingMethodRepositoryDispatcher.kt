@@ -1,10 +1,8 @@
 package com.lucdre.idleskills.skills.domain.training
 
 import com.lucdre.idleskills.region.domain.Region
-import com.lucdre.idleskills.skills.fishing.data.FishingTrainingMethodRepository
-import com.lucdre.idleskills.skills.mining.data.MiningTrainingMethodRepository
-import com.lucdre.idleskills.skills.woodcutting.data.WcTrainingMethodRepository
 import javax.inject.Inject
+import javax.inject.Provider
 import javax.inject.Singleton
 
 
@@ -14,14 +12,11 @@ import javax.inject.Singleton
  * This class acts as a central point of access for retrieving [TrainingMethod] lists
  * for various skills. It delegates the actual data retrieval to specific repositories.
  *
- * @property wcRepo The repository responsible for Woodcutting training methods.
- * @property miningRepo The repository responsible for Mining training methods.
+ * @property repositories A map of skill-specific repositories.
  */
 @Singleton
 class TrainingMethodRepositoryDispatcher @Inject constructor(
-    private val wcRepo: WcTrainingMethodRepository,
-    private val miningRepo: MiningTrainingMethodRepository,
-    private val fishingRepo: FishingTrainingMethodRepository
+    private val repositories: Map<String, @JvmSuppressWildcards Provider<TrainingMethodRepositoryInterface>>
 ) : TrainingMethodRepositoryInterface {
 
     /**
@@ -36,11 +31,7 @@ class TrainingMethodRepositoryDispatcher @Inject constructor(
      * @return A list of [TrainingMethod] objects available for the specified skill and region.
      *         Returns an empty list if the [skillName] is not supported.
      */
-    override fun getTrainingMethodsForSkill(skillName: String, region: Region): List<TrainingMethod> = when (skillName) {
-        "Woodcutting" -> wcRepo.getTrainingMethodsForSkill(skillName, region)
-        "Mining" -> miningRepo.getTrainingMethodsForSkill(skillName, region)
-        "Fishing" -> fishingRepo.getTrainingMethodsForSkill(skillName, region)
-        // TODO add more as more skills come
-        else -> emptyList()
+    override fun getTrainingMethodsForSkill(skillName: String, region: Region): List<TrainingMethod> {
+        return repositories[skillName]?.get()?.getTrainingMethodsForSkill(skillName, region) ?: emptyList()
     }
 }

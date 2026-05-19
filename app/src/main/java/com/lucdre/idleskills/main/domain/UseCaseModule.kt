@@ -1,7 +1,10 @@
+@file:Suppress("UNUSED") // Hilt dependency injection
+
 package com.lucdre.idleskills.main.domain
 
 import com.lucdre.idleskills.cards.domain.CardRepositoryInterface
 import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
+import com.lucdre.idleskills.cards.domain.usecase.GetOwnedCardsUseCase
 import com.lucdre.idleskills.cards.domain.usecase.UpgradeCardUseCase
 import com.lucdre.idleskills.prestige.domain.PrestigeRepositoryInterface
 import com.lucdre.idleskills.prestige.domain.usecase.CheckPrestigeRequirementsUseCase
@@ -47,8 +50,8 @@ object UseCaseModule {
      *
      * This use case retrieves skill data and observes changes to skills.
      *
-     * @param repository The skill repository that provides the data
-     * @return A configured [GetSkillsUseCase]
+     * @param repository The skill repository that provides the data.
+     * @return A configured [GetSkillsUseCase].
      */
     @Provides
     @ViewModelScoped
@@ -61,8 +64,8 @@ object UseCaseModule {
      *
      * This use case handles updating skill XP and levels.
      *
-     * @param repository The skill repository used to persist skill updates
-     * @return A configured [UpdateSkillUseCase]
+     * @param repository The skill repository used to persist skill updates.
+     * @return A configured [UpdateSkillUseCase].
      */
     @Provides
     @ViewModelScoped
@@ -75,9 +78,9 @@ object UseCaseModule {
      *
      * This use case retrieves available training methods for skills.
      *
-     * @param repository The training method repository that provides the methods
-     * @param profileRepository The profile repository to check current region
-     * @return A configured [GetTrainingMethodUseCase]
+     * @param repository The training method repository that provides the methods.
+     * @param profileRepository The profile repository to check current region.
+     * @return A configured [GetTrainingMethodUseCase].
      */
     @Provides
     @ViewModelScoped
@@ -91,10 +94,10 @@ object UseCaseModule {
     /**
      * Provides a [GetActiveCardsUseCase] instance.
      *
-     * @param repository The card repository
-     * @param trainingMethodRepository The training method repository
-     * @param profileRepository The profile repository
-     * @return A configured [GetActiveCardsUseCase]
+     * @param repository The card repository.
+     * @param trainingMethodRepository The training method repository.
+     * @param profileRepository The profile repository.
+     * @return A configured [GetActiveCardsUseCase].
      */
     @Provides
     @ViewModelScoped
@@ -109,8 +112,8 @@ object UseCaseModule {
     /**
      * Provides an [UpgradeCardUseCase] instance.
      *
-     * @param repository The card repository
-     * @return A configured [UpgradeCardUseCase]
+     * @param repository The card repository.
+     * @return A configured [UpgradeCardUseCase].
      */
     @Provides
     @ViewModelScoped
@@ -123,9 +126,8 @@ object UseCaseModule {
     /**
      * Provides a [SetupPlayerProfileUseCase] instance.
      *
-     * @param profileRepository The profile repository
-     * @param prestigeRepository The prestige repository
-     * @return A configured [SetupPlayerProfileUseCase]
+     * @param profileRepository The profile repository.
+     * @return A configured [SetupPlayerProfileUseCase].
      */
     @Provides
     @ViewModelScoped
@@ -138,8 +140,8 @@ object UseCaseModule {
     /**
      * Provides an [IsGameFreshUseCase] instance.
      *
-     * @param repository The profile repository
-     * @return A configured [IsGameFreshUseCase]
+     * @param repository The profile repository.
+     * @return A configured [IsGameFreshUseCase].
      */
     @Provides
     @ViewModelScoped
@@ -150,8 +152,8 @@ object UseCaseModule {
     /**
      * Provides a [GetPlayerProfileUseCase] instance.
      *
-     * @param repository The profile repository
-     * @return A configured [GetPlayerProfileUseCase]
+     * @param repository The profile repository.
+     * @return A configured [GetPlayerProfileUseCase].
      */
     @Provides
     @ViewModelScoped
@@ -165,8 +167,8 @@ object UseCaseModule {
      * This use case handles resetting all skills to their initial state (level 1, 0 XP).
      * Used during prestige operations to reset player progress.
      *
-     * @param skillRepository The skill repository used to persist skill resets
-     * @return A configured [ResetSkillsUseCase]
+     * @param skillRepository The skill repository used to persist skill resets.
+     * @return A configured [ResetSkillsUseCase].
      */
     @Provides
     @ViewModelScoped
@@ -176,16 +178,14 @@ object UseCaseModule {
         return ResetSkillsUseCase(skillRepository)
     }
 
-
     /**
      * Provides a [CheckPrestigeRequirementsUseCase] instance.
      *
      * This use case validates whether the player meets the requirements to prestige
      * based on their current prestige level and skill levels.
      *
-     * @param skillRepository The skill repository to check skill levels
-     * @param prestigeRepository The prestige repository to check current prestige level
-     * @return A configured [CheckPrestigeRequirementsUseCase]
+     * @param skillRepository The skill repository to check skill levels.
+     * @return A configured [CheckPrestigeRequirementsUseCase].
      */
     @Provides
     @ViewModelScoped
@@ -201,10 +201,9 @@ object UseCaseModule {
      * This use case filters skills based on prestige level to control which skills
      * are visible to the player. Implements the progressive skill unlocking system.
      *
-     * @param skillRepository The skill repository that provides all skills
-     * @param prestigeRepository The prestige repository to check visibility rules
-     * @param profileRepository The profile repository to check current region
-     * @return A configured [GetVisibleSkillsUseCase]
+     * @param skillRepository The skill repository that provides all skills.
+     * @param profileRepository The profile repository to check current region.
+     * @return A configured [GetVisibleSkillsUseCase].
      */
     @Provides
     @ViewModelScoped
@@ -221,11 +220,11 @@ object UseCaseModule {
      * This use case orchestrates the complete prestige operation: checking requirements,
      * resetting skills, and incrementing prestige level.
      *
-     * @param prestigeRepository The prestige repository to update prestige state
-     * @param skillRepository The skill repository that provides all skills
-     * @param getPrestigeStateUseCase Use case to see the complete state of a prestige
-     * @param resetSkillsUseCase Use case to reset all skills during prestige
-     * @return A configured [PerformPrestigeUseCase]
+     * @param prestigeRepository The prestige repository to update prestige state.
+     * @param skillRepository The skill repository that provides all skills.
+     * @param getPrestigeStateUseCase Use case to see the complete state of a prestige.
+     * @param resetSkillsUseCase Use case to reset all skills during prestige.
+     * @return A configured [PerformPrestigeUseCase].
      */
     @Provides
     @ViewModelScoped
@@ -245,9 +244,9 @@ object UseCaseModule {
      * to provide complete prestige state information for UI display
      * (Prestige level and if you can prestige).
      *
-     * @param prestigeRepository The prestige repository to get current prestige level
-     * @param checkPrestigeRequirementsUseCase Use case to check if prestiging is possible
-     * @return A configured [GetPrestigeStateUseCase]
+     * @param prestigeRepository The prestige repository to get current prestige level.
+     * @param checkPrestigeRequirementsUseCase Use case to check if prestiging is possible.
+     * @return A configured [GetPrestigeStateUseCase].
      */
     @Provides
     @ViewModelScoped
@@ -256,5 +255,21 @@ object UseCaseModule {
         checkPrestigeRequirementsUseCase: CheckPrestigeRequirementsUseCase
     ): GetPrestigeStateUseCase {
         return GetPrestigeStateUseCase(prestigeRepository, checkPrestigeRequirementsUseCase)
+    }
+
+    /**
+     * Provides a [GetOwnedCardsUseCase] instance.
+     *
+     * This use case provides an observable stream of all cards owned by the player.
+     *
+     * @param cardRepository The repository used to retrieve card data.
+     * @return A configured [GetOwnedCardsUseCase].
+     */
+    @Provides
+    @ViewModelScoped
+    fun provideGetOwnedCardsUseCase(
+        cardRepository: CardRepositoryInterface
+    ): GetOwnedCardsUseCase {
+        return GetOwnedCardsUseCase(cardRepository)
     }
 }
