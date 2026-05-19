@@ -68,7 +68,6 @@ object LevelCalculator {
     /**
      * Checks if the skill level should be updated based on total XP.
      *
-     *
      * @param skill The skill to check for level up.
      * @return The updated skill with the potentially new level, or the original skill in case of no level change.
      */

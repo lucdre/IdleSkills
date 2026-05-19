@@ -26,6 +26,7 @@ import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 /**
  * A reusable composable for displaying a styled icon representing a skill training method.
  *
+ * @param modifier Optional [Modifier] for this composable.
  * @param method The training method data to display.
  * @param isSelected Whether this method is currently selected.
  * @param onMethodSelected Callback invoked when this icon is clicked.
@@ -37,7 +38,6 @@ import com.lucdre.idleskills.skills.domain.training.TrainingMethod
  * @param selectionIndicatorColor Color of the dot shown when selected.
  * @param iconSize The size of the main icon graphic. Default is 40.dp.
  * @param boxSize The total size of the clickable box. Default is 80.dp.
- * @param modifier Optional [Modifier] for this composable.
  */
 @Composable
 fun SkillMethodIcon(

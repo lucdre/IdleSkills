@@ -11,7 +11,7 @@ import javax.inject.Singleton
  * Temporary repository that provides woodcutting training methods.
  *
  * Contains predefined training methods for the woodcutting skill
- * with XP amount, action durations, and level requirements.
+ * with XP amount, action durations, and level, card and region requirements.
  */
 @Singleton
 class WcTrainingMethodRepository @Inject constructor() : BaseTrainingMethodRepository() {

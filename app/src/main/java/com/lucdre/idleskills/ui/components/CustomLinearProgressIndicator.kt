@@ -19,11 +19,11 @@ import androidx.compose.ui.unit.dp
 /**
  * A custom linear progress indicator. Doesn't clip at the end like the default one.
  *
- * @param modifier Modifier
- * @param progress The current progress, between 0 and 1
- * @param progressColor The color of the progress bar
- * @param backgroundColor The color of the background
- * @param cornerRadius The radius [dp] of the corners
+ * @param modifier Modifier.
+ * @param progress The current progress, between 0 and 1.
+ * @param progressColor The color of the progress bar.
+ * @param backgroundColor The color of the background.
+ * @param cornerRadius The radius [dp] of the corners.
  */
 @Composable
 fun CustomLinearProgressIndicator(

@@ -65,7 +65,7 @@ fun CardDetailScreen(
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Large Card Visual
+            // Main Card Visual
             Box(
                 modifier = Modifier
                     .size(200.dp, 300.dp)
@@ -167,7 +167,7 @@ fun CardDetailScreen(
             }
 
             //Spacer(modifier = Modifier.weight(1f))
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp)) // TODO Might cause issues on smaller screens
 
             // Upgrade Section
             val requirement = card.getUpgradeRequirement()

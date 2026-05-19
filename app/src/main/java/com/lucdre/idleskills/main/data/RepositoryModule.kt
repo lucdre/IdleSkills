@@ -31,35 +31,52 @@ import javax.inject.Singleton
  * - [CardRepositoryInterface] to [CardRepository]
  * - [SkillRepositoryInterface] to [MockSkillRepository]
  * - [PrestigeRepositoryInterface] to [MockPrestigeRepository]
+ * - [ProfileRepositoryInterface] to [ProfileRepository]
  */
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
 
+    /**
+     * Binds the [TrainingMethodRepositoryDispatcher] to the [TrainingMethodRepositoryInterface].
+     * The dispatcher routes requests to skill-specific repositories using Hilt multi-bindings.
+     */
     @Binds
     @Singleton
     abstract fun bindTrainingMethodRepositoryDispatcher(
         dispatcher: TrainingMethodRepositoryDispatcher
     ): TrainingMethodRepositoryInterface
 
+    /**
+     * Binds the [CardRepository] implementation to the [CardRepositoryInterface].
+     */
     @Binds
     @Singleton
     abstract fun bindCardRepository(
         repository: CardRepository
     ): CardRepositoryInterface
 
+    /**
+     * Binds the [MockSkillRepository] implementation to the [SkillRepositoryInterface].
+     */
     @Binds
     @Singleton
     abstract fun bindSkillRepository(
         repository: MockSkillRepository
     ): SkillRepositoryInterface
 
+    /**
+     * Binds the [ProfileRepository] implementation to the [ProfileRepositoryInterface].
+     */
     @Binds
     @Singleton
     abstract fun bindProfileRepository(
         repository: ProfileRepository
     ): ProfileRepositoryInterface
 
+    /**
+     * Binds the [MockPrestigeRepository] implementation to the [PrestigeRepositoryInterface].
+     */
     @Binds
     abstract fun bindPrestigeRepository(
         mockPrestigeRepository: MockPrestigeRepository

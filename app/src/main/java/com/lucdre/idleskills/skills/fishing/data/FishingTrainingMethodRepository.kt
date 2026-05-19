@@ -11,7 +11,7 @@ import javax.inject.Singleton
  * Temporary repository that provides fishing training methods.
  *
  * Contains predefined training methods for the fishing skill
- * with XP amount, action durations, and level requirements.
+ * with XP amount, action durations, and level, card and region requirements.
  */
 @Singleton
 class FishingTrainingMethodRepository @Inject constructor() : BaseTrainingMethodRepository() {

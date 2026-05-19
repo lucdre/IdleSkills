@@ -15,20 +15,20 @@ object TrainingMethodsPanelFactory {
     /**
      * Creates a training methods panel for the specified skill.
      *
-     * @param skillName Name of the skill to create a panel for
-     * @param methods List of training methods available for the skill
-     * @param activeMethod Currently selected training method
-     * @param trainingProgress Progress of the current training action (0-1)
-     * @param activeCards Currently active cards for the skill
-     * @param onMethodSelected Callback for when a training method is selected
-     * @param modifier Modifier
+     * @param modifier Modifier.
+     * @param skillName Name of the skill to create a panel for.
+     * @param methods List of training methods available for the skill.
+     * @param activeMethod Currently selected training method.
+     * @param trainingProgress Progress of the current training action (0-1).
+     * @param activeCards Currently active cards for the skill.
+     * @param onMethodSelected Callback for when a training method is selected.
      */
     @Composable
     fun CreateTrainingMethodsPanel(
+        modifier: Modifier = Modifier,
         skillName: String,
         methods: List<TrainingMethod>,
         activeMethod: TrainingMethod?,
-        modifier: Modifier = Modifier,
         trainingProgress: Float = 0f,
         activeCards: List<Card> = emptyList(),
         onMethodSelected: (TrainingMethod) -> Unit

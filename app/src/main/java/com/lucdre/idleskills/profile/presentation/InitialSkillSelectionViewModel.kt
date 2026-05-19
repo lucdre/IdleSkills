@@ -24,7 +24,7 @@ class InitialSkillSelectionViewModel @Inject constructor(
     val uiState: StateFlow<InitialSkillSelectionUiState> = _uiState.asStateFlow()
 
     /**
-     * Attempts to setup the player profile.
+     * Attempts to set up the player profile.
      *
      * @param username The player's chosen username.
      * @param favoriteSkill The name of the skill to select as the favorite.

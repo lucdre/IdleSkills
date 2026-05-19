@@ -47,17 +47,17 @@ import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
  * when the skill is actively being trained. When expanded, it shows training methods
  * directly within the card.
  *
- * @param skill The skill to display
- * @param isActive Whether this skill is currently being trained
- * @param isExpanded Whether this skill item is currently expanded
- * @param xpPerHour Current XP gain rate when active
- * @param trainingMethods List of available training methods for this skill
- * @param activeMethod Currently selected training method
- * @param activeCards Currently active cards for this skill/method
- * @param trainingProgress Progress of the current training action (0-1)
- * @param onSkillClick Callback for when this skill is clicked
- * @param onToggleExpand Callback for when expansion state should change
- * @param onMethodSelected Callback for when a training method is selected
+ * @param skill The skill to display.
+ * @param isActive Whether this skill is currently being trained.
+ * @param isExpanded Whether this skill item is currently expanded.
+ * @param xpPerHour Current XP gain rate when active.
+ * @param trainingMethods List of available training methods for this skill.
+ * @param activeMethod Currently selected training method.
+ * @param activeCards Currently active cards for this skill/method.
+ * @param trainingProgress Progress of the current training action (0-1).
+ * @param onSkillClick Callback for when this skill is clicked.
+ * @param onToggleExpand Callback for when expansion state should change.
+ * @param onMethodSelected Callback for when a training method is selected.
  */
 @Composable
 fun ExpandableSkillItem(

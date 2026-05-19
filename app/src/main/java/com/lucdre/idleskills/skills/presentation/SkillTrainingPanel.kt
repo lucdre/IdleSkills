@@ -17,7 +17,8 @@ import com.lucdre.idleskills.ui.util.formatNumber
 /**
  * A base composable for displaying a skill's training methods panel.
  *
- * @param panelTitle The title text to display for the panel (e.g., "Trees", "Rocks").
+ * @param modifier [Modifier] for this composable.
+ * @param panelTitle The title text to display for the panel.
  * @param panelBackgroundColor The background color of the main content area of the panel.
  * @param primaryThemeColor The primary color used for text, icons, and progress indication within the panel.
  * @param methods List of available training methods for the skill.
@@ -28,7 +29,6 @@ import com.lucdre.idleskills.ui.util.formatNumber
  * @param methodItemContent A composable lambda responsible for rendering each individual training method item in the grid.
  *                          It receives the [TrainingMethod], a boolean indicating if it's selected,
  *                          and the onMethodSelected callback.
- * @param modifier [Modifier] for this composable.
  */
 @Composable
 fun SkillTrainingPanel(
@@ -82,7 +82,7 @@ fun SkillTrainingPanel(
                             Text(
                                 text = "${method.xpPerAction.formatNumber()} XP | ${method.calculateXpPerHour(activeCards).formatNumber()} XP/h",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = primaryThemeColor.copy(alpha = 0.7f) // Slightly muted
+                                color = primaryThemeColor.copy(alpha = 0.7f)
                             )
                             CustomLinearProgressIndicator(
                                 modifier = Modifier

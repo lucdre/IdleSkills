@@ -26,11 +26,11 @@ import javax.inject.Inject
  * Manages UI state and business logic for skill list, training methods and cards.
  * Handles user interactions and communicates with domain layer use cases.
  *
- * @property getVisibleSkillsUseCase Use case for retrieving available skills at current prestige
- * @property updateSkillUseCase Use case for updating skill data
- * @property getTrainingMethodUseCase Use case for retrieving training methods
- * @property getActiveCardsUseCase Use case for retrieving active cards
- * @property getPlayerProfileUseCase Use case for retrieving player profile
+ * @property getVisibleSkillsUseCase Use case for retrieving available skills at current prestige.
+ * @property updateSkillUseCase Use case for updating skill data.
+ * @property getTrainingMethodUseCase Use case for retrieving training methods.
+ * @property getActiveCardsUseCase Use case for retrieving active cards.
+ * @property getPlayerProfileUseCase Use case for retrieving player profile.
  */
 @HiltViewModel
 class SkillListViewModel @Inject constructor(
@@ -69,7 +69,7 @@ class SkillListViewModel @Inject constructor(
 
                 // If level up, check for newly available training methods
                 if (updatedSkill.level > previousLevel) {
-                    Log.d("SkillListViewModel", "🎉 ${updatedSkill.name} leveled up to ${updatedSkill.level}!")
+                    Log.d("SkillListViewModel", "${updatedSkill.name} leveled up to ${updatedSkill.level}!")
 
                     val updatedMethods = getTrainingMethodUseCase(updatedSkill.name)
                         .filter { it.requiredLevel <= updatedSkill.level }
@@ -132,7 +132,7 @@ class SkillListViewModel @Inject constructor(
      * Updates UI state, fetches relevant training methods and cards,
      * and starts training with the previously selected method and cards.
      *
-     * @param skill The skill that was selected
+     * @param skill The skill that was selected.
      */
     fun onSkillClick(skill: Skill) {
         // Clicking the same skill that's already active, do nothing
@@ -172,7 +172,7 @@ class SkillListViewModel @Inject constructor(
      * Updates UI state and starts training with the selected method.
      * Automatically applies relevant cards for the new method.
      *
-     * @param method The training method that was selected
+     * @param method The training method that was selected.
      */
     fun selectTrainingMethod(method: TrainingMethod) {
         // If the training method is already active, don't restart it

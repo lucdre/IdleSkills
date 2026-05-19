@@ -10,8 +10,6 @@ import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * Main entry point for the UI.
- *
- * Activity hosts the skill list screen as main interface.
  */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

@@ -30,8 +30,8 @@ import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 /**
  * A trading card style item for displaying game cards.
  *
- * @param card The card data to display
- * @param onClick Callback when the card is clicked
+ * @param card The card data to display.
+ * @param onClick Callback when the card is clicked.
  */
 @Composable
 fun TradingCardItem(

@@ -12,27 +12,27 @@ import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 /**
  * A generic training methods panel that adapts its visuals based on the skill metadata.
  *
+ * @param modifier Modifier for this composable.
  * @param skillName Name of the skill to display methods for.
  * @param methods List of available training methods.
  * @param activeMethod Currently selected training method.
  * @param activeCards Currently active cards for the skill.
  * @param trainingProgress Progress of the current training action (0-1).
  * @param onMethodSelected Callback for when a training method is selected.
- * @param modifier Modifier for this composable.
  */
 @Composable
 fun GenericTrainingMethodsPanel(
+    modifier: Modifier = Modifier,
     skillName: String,
     methods: List<TrainingMethod>,
     activeMethod: TrainingMethod?,
-    modifier: Modifier = Modifier,
     activeCards: List<Card> = emptyList(),
     trainingProgress: Float = 0f,
     onMethodSelected: (TrainingMethod) -> Unit
 ) {
     val theme = SkillMetadata.getTheme(skillName)
     
-    // Determine panel title based on skill (Woodcutting -> Trees, Mining -> Rocks, etc.)
+    // Determine panel title based on skill
     val panelTitle = when (skillName.lowercase()) {
         "woodcutting" -> "Trees"
         "mining" -> "Rocks"
