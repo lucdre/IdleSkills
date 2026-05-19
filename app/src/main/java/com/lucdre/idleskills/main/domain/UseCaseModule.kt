@@ -12,8 +12,10 @@ import com.lucdre.idleskills.prestige.domain.usecase.GetPrestigeStateUseCase
 import com.lucdre.idleskills.region.domain.usecase.GetVisibleSkillsUseCase
 import com.lucdre.idleskills.prestige.domain.usecase.PerformPrestigeUseCase
 import com.lucdre.idleskills.profile.domain.ProfileRepositoryInterface
+import com.lucdre.idleskills.profile.domain.StatisticsRepositoryInterface
 import com.lucdre.idleskills.profile.domain.usecase.GetPlayerProfileUseCase
 import com.lucdre.idleskills.profile.domain.usecase.IsGameFreshUseCase
+import com.lucdre.idleskills.profile.domain.usecase.ObserveStatisticsUseCase
 import com.lucdre.idleskills.profile.domain.usecase.SetupPlayerProfileUseCase
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import com.lucdre.idleskills.skills.domain.skill.usecase.GetSkillsUseCase
@@ -21,6 +23,7 @@ import com.lucdre.idleskills.skills.domain.skill.usecase.ResetSkillsUseCase
 import com.lucdre.idleskills.skills.domain.skill.usecase.UpdateSkillUseCase
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryInterface
 import com.lucdre.idleskills.skills.domain.training.usecase.GetTrainingMethodUseCase
+import com.lucdre.idleskills.skills.domain.training.usecase.RecordTrainingActionUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -159,6 +162,30 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideGetPlayerProfileUseCase(repository: ProfileRepositoryInterface): GetPlayerProfileUseCase {
         return GetPlayerProfileUseCase(repository)
+    }
+
+    /**
+     * Provides an [ObserveStatisticsUseCase] instance.
+     *
+     * @param repository The statistics repository.
+     * @return A configured [ObserveStatisticsUseCase].
+     */
+    @Provides
+    @ViewModelScoped
+    fun provideObserveStatisticsUseCase(repository: StatisticsRepositoryInterface): ObserveStatisticsUseCase {
+        return ObserveStatisticsUseCase(repository)
+    }
+
+    /**
+     * Provides a [RecordTrainingActionUseCase] instance.
+     *
+     * @param repository The statistics repository.
+     * @return A configured [RecordTrainingActionUseCase].
+     */
+    @Provides
+    @ViewModelScoped
+    fun provideRecordTrainingActionUseCase(repository: StatisticsRepositoryInterface): RecordTrainingActionUseCase {
+        return RecordTrainingActionUseCase(repository)
     }
 
     /**

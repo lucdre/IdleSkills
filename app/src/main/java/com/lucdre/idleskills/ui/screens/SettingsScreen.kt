@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lucdre.idleskills.profile.domain.PlayerProfile
+import com.lucdre.idleskills.profile.domain.PlayerStatistics
 import com.lucdre.idleskills.region.domain.Region
 import com.lucdre.idleskills.skills.presentation.SkillListViewModel
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
@@ -30,7 +31,8 @@ fun SettingsScreen(
 
     SettingsScreenContent(
         modifier = modifier,
-        playerProfile = uiState.playerProfile
+        playerProfile = uiState.playerProfile,
+        playerStatistics = uiState.playerStatistics
     )
 }
 
@@ -41,8 +43,10 @@ fun SettingsScreenPreview() {
         SettingsScreenContent(
             playerProfile = PlayerProfile(
                 username = "IdleMaster",
+                favoriteSkill = "Woodcutting",
                 currentRegion = Region.FIRST_REGION
-            )
+            ),
+            playerStatistics = PlayerStatistics()
         )
     }
 }
@@ -50,7 +54,8 @@ fun SettingsScreenPreview() {
 @Composable
 fun SettingsScreenContent(
     modifier: Modifier = Modifier,
-    playerProfile: PlayerProfile
+    playerProfile: PlayerProfile,
+    playerStatistics: PlayerStatistics
 ) {
     Column(
         modifier = modifier
@@ -103,6 +108,73 @@ fun SettingsScreenContent(
                         fontWeight = FontWeight.Bold
                     )
                 }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = "Favorite Skill", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        text = playerProfile.favoriteSkill,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Stats",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = "Trees cut", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        text = playerStatistics.getCountForSkill("Woodcutting").toString(),
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = "Rocks mined", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        text = playerStatistics.getCountForSkill("Mining").toString(),
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = "Fish fished", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        text = playerStatistics.getCountForSkill("Fishing").toString(),
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }

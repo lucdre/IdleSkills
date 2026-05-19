@@ -7,7 +7,9 @@ import com.lucdre.idleskills.cards.domain.CardRepositoryInterface
 import com.lucdre.idleskills.prestige.data.MockPrestigeRepository
 import com.lucdre.idleskills.prestige.domain.PrestigeRepositoryInterface
 import com.lucdre.idleskills.profile.data.ProfileRepository
+import com.lucdre.idleskills.profile.data.StatisticsRepository
 import com.lucdre.idleskills.profile.domain.ProfileRepositoryInterface
+import com.lucdre.idleskills.profile.domain.StatisticsRepositoryInterface
 import com.lucdre.idleskills.skills.data.MockSkillRepository
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryDispatcher
@@ -32,6 +34,7 @@ import javax.inject.Singleton
  * - [SkillRepositoryInterface] to [MockSkillRepository]
  * - [PrestigeRepositoryInterface] to [MockPrestigeRepository]
  * - [ProfileRepositoryInterface] to [ProfileRepository]
+ * - [StatisticsRepositoryInterface] to [StatisticsRepository]
  */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -73,6 +76,15 @@ abstract class RepositoryModule {
     abstract fun bindProfileRepository(
         repository: ProfileRepository
     ): ProfileRepositoryInterface
+
+    /**
+     * Binds the [StatisticsRepository] implementation to the [StatisticsRepositoryInterface].
+     */
+    @Binds
+    @Singleton
+    abstract fun bindStatisticsRepository(
+        repository: StatisticsRepository
+    ): StatisticsRepositoryInterface
 
     /**
      * Binds the [MockPrestigeRepository] implementation to the [PrestigeRepositoryInterface].

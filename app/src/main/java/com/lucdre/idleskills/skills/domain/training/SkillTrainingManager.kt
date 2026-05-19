@@ -4,6 +4,7 @@ import android.util.Log
 import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.usecase.UpdateSkillUseCase
+import com.lucdre.idleskills.skills.domain.training.usecase.RecordTrainingActionUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -12,9 +13,11 @@ import kotlinx.coroutines.launch
 /**
  * Manages the active training process for a specific skill.
  *
- * Updates XP via [UpdateSkillUseCase] and notifies listeners about progress and skill state changes.
+ * Updates XP via [UpdateSkillUseCase], records actions via [RecordTrainingActionUseCase],
+ * and notifies listeners about progress and skill state changes.
  *
  * @property updateSkillUseCase The use case responsible for applying XP and handling level ups.
+ * @property recordTrainingActionUseCase The use case responsible for recording training actions.
  * @property coroutineScope The scope used to launch and manage the training coroutine.
  * @property onProgressUpdate A callback lambda function invoked periodically during a training
  *                            action to report progress (0.0f to 1.0f).
@@ -23,6 +26,7 @@ import kotlinx.coroutines.launch
  */
 class SkillTrainingManager(
     private val updateSkillUseCase: UpdateSkillUseCase,
+    private val recordTrainingActionUseCase: RecordTrainingActionUseCase,
     private val coroutineScope: CoroutineScope,
     private val onProgressUpdate: (Float) -> Unit,
     private val onSkillUpdate: (Skill) -> Unit
@@ -89,8 +93,13 @@ class SkillTrainingManager(
                 // Calculate XP gained using current method state
                 val xpGained = activeMethod?.xpPerAction ?: 0
 
-                // Apply XP update using the use case
+                // Apply XP update and record action using use cases
                 try {
+                    // Record action count
+                    activeMethod?.let { method ->
+                        recordTrainingActionUseCase(method.skillName, method.name)
+                    }
+
                     val updatedSkill = updateSkillUseCase(currentSkill, xpGained)
                     currentSkill = updatedSkill // Update local state for next loop iteration
                     onSkillUpdate(updatedSkill) // Notify listener
@@ -130,8 +139,11 @@ class SkillTrainingManager(
                 }
                 onProgressUpdate(1f)
 
-                // Apply XP update
+                // Apply XP update and record action
                 try {
+                    // Record action count for basic training (using skill name and generic "Basic")
+                    recordTrainingActionUseCase(currentSkill.name, "Basic")
+
                     // TODO changed XP for now
                     val updatedSkill = updateSkillUseCase(currentSkill, 300000000)
                     currentSkill = updatedSkill

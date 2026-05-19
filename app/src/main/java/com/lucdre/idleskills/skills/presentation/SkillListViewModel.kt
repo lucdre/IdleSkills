@@ -6,11 +6,13 @@ import androidx.lifecycle.viewModelScope
 import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
 import com.lucdre.idleskills.region.domain.usecase.GetVisibleSkillsUseCase
 import com.lucdre.idleskills.profile.domain.usecase.GetPlayerProfileUseCase
+import com.lucdre.idleskills.profile.domain.usecase.ObserveStatisticsUseCase
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.usecase.UpdateSkillUseCase
 import com.lucdre.idleskills.skills.domain.training.SkillTrainingManager
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 import com.lucdre.idleskills.skills.domain.training.usecase.GetTrainingMethodUseCase
+import com.lucdre.idleskills.skills.domain.training.usecase.RecordTrainingActionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,6 +33,8 @@ import javax.inject.Inject
  * @property getTrainingMethodUseCase Use case for retrieving training methods.
  * @property getActiveCardsUseCase Use case for retrieving active cards.
  * @property getPlayerProfileUseCase Use case for retrieving player profile.
+ * @property observeStatisticsUseCase Use case for observing player statistics.
+ * @property recordTrainingActionUseCase Use case for recording training actions.
  */
 @HiltViewModel
 class SkillListViewModel @Inject constructor(
@@ -38,7 +42,9 @@ class SkillListViewModel @Inject constructor(
     private val updateSkillUseCase: UpdateSkillUseCase,
     private val getTrainingMethodUseCase: GetTrainingMethodUseCase,
     private val getActiveCardsUseCase: GetActiveCardsUseCase,
-    private val getPlayerProfileUseCase: GetPlayerProfileUseCase
+    private val getPlayerProfileUseCase: GetPlayerProfileUseCase,
+    private val observeStatisticsUseCase: ObserveStatisticsUseCase,
+    private val recordTrainingActionUseCase: RecordTrainingActionUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SkillListUiState(isLoading = true))
@@ -55,6 +61,7 @@ class SkillListViewModel @Inject constructor(
 
     private val trainingManager = SkillTrainingManager(
         updateSkillUseCase = updateSkillUseCase,
+        recordTrainingActionUseCase = recordTrainingActionUseCase,
         coroutineScope = viewModelScope,
         onProgressUpdate = { progress ->
             _uiState.update { it.copy(trainingProgress = progress) }
@@ -104,6 +111,14 @@ class SkillListViewModel @Inject constructor(
             getPlayerProfileUseCase.observeProfile().collect { profile ->
                 _uiState.update { state ->
                     state.copy(playerProfile = profile)
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            observeStatisticsUseCase.observeStatistics().collect { statistics ->
+                _uiState.update { state ->
+                    state.copy(playerStatistics = statistics)
                 }
             }
         }

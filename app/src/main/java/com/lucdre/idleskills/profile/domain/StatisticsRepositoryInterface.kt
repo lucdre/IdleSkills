@@ -1,0 +1,30 @@
+package com.lucdre.idleskills.profile.domain
+
+import kotlinx.coroutines.flow.Flow
+
+/**
+ * Interface for handling player statistics operations.
+ */
+interface StatisticsRepositoryInterface {
+    /**
+     * Observes the player statistics as a flow.
+     *
+     * @return A [Flow] of [PlayerStatistics] that updates when data changes.
+     */
+    fun observeStatistics(): Flow<PlayerStatistics>
+
+    /**
+     * Gets the current player statistics snapshot.
+     *
+     * @return The current [PlayerStatistics].
+     */
+    suspend fun getStatistics(): PlayerStatistics
+
+    /**
+     * Increments the count for a specific training method within a skill.
+     *
+     * @param skillName The name of the skill.
+     * @param methodName The name of the training method.
+     */
+    suspend fun incrementCount(skillName: String, methodName: String)
+}
