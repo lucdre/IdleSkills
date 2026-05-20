@@ -14,7 +14,8 @@ data class SkillTheme(
     val indicatorColor: Color,
     val unselectedIconTint: Color,
     val panelBackgroundColor: Color,
-    val iconResId: Int
+    val iconResId: Int,
+    val biomeColors: List<Color>
 )
 
 /**
@@ -28,7 +29,8 @@ object SkillMetadata {
             indicatorColor = Color(0xFF4CAF50),
             unselectedIconTint = Color.Gray,
             panelBackgroundColor = Color(0x0A4CAF50),
-            iconResId = R.drawable.ic_tree
+            iconResId = R.drawable.ic_tree,
+            biomeColors = listOf(Color(0xFF2E7D32), Color(0xFF1B5E20))
         ),
         "Mining" to SkillTheme(
             primaryColor = Color(0xFF37474F),
@@ -36,7 +38,8 @@ object SkillMetadata {
             indicatorColor = Color(0xFF455A64),
             unselectedIconTint = Color(0xFF78909C),
             panelBackgroundColor = Color(0x1A37474F),
-            iconResId = R.drawable.ic_tree // TODO: Replace with mining icon
+            iconResId = R.drawable.ic_tree, // TODO: Replace with mining icon
+            biomeColors = listOf(Color(0xFF424242), Color(0xFF212121))
         ),
         "Fishing" to SkillTheme(
             primaryColor = Color(0xFF0277BD),
@@ -44,7 +47,8 @@ object SkillMetadata {
             indicatorColor = Color(0xFF0288D1),
             unselectedIconTint = Color(0xFF81D4FA),
             panelBackgroundColor = Color(0x1A0277BD),
-            iconResId = R.drawable.ic_tree // TODO: Replace with fishing icon
+            iconResId = R.drawable.ic_tree, // TODO: Replace with fishing icon
+            biomeColors = listOf(Color(0xFF0277BD), Color(0xFF01579B))
         )
     )
 
@@ -54,7 +58,8 @@ object SkillMetadata {
         indicatorColor = Color.Gray,
         unselectedIconTint = Color.Gray,
         panelBackgroundColor = Color.Transparent,
-        iconResId = R.drawable.ic_tree
+        iconResId = R.drawable.ic_tree,
+        biomeColors = listOf(Color(0xFF121212), Color(0xFF000000))
     )
 
     /**

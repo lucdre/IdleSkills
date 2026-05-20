@@ -15,6 +15,7 @@ import com.lucdre.idleskills.profile.domain.PlayerStatistics
 import com.lucdre.idleskills.region.domain.Region
 import com.lucdre.idleskills.skills.presentation.SkillListViewModel
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
+import com.lucdre.idleskills.ui.util.formatNumber
 
 /**
  * Screen displaying settings and player profile.
@@ -140,7 +141,7 @@ fun SettingsScreenContent(
                 ) {
                     Text(text = "Trees cut", style = MaterialTheme.typography.bodyLarge)
                     Text(
-                        text = playerStatistics.getCountForSkill("Woodcutting").toString(),
+                        text = playerStatistics.getCountForSkill("Woodcutting").formatNumber(),
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -154,7 +155,7 @@ fun SettingsScreenContent(
                 ) {
                     Text(text = "Rocks mined", style = MaterialTheme.typography.bodyLarge)
                     Text(
-                        text = playerStatistics.getCountForSkill("Mining").toString(),
+                        text = playerStatistics.getCountForSkill("Mining").formatNumber(),
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -168,7 +169,7 @@ fun SettingsScreenContent(
                 ) {
                     Text(text = "Fish fished", style = MaterialTheme.typography.bodyLarge)
                     Text(
-                        text = playerStatistics.getCountForSkill("Fishing").toString(),
+                        text = playerStatistics.getCountForSkill("Fishing").formatNumber(),
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Bold
                     )
