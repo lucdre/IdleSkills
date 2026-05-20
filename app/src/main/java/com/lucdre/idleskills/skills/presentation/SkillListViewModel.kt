@@ -8,7 +8,9 @@ import com.lucdre.idleskills.region.domain.usecase.GetVisibleSkillsUseCase
 import com.lucdre.idleskills.profile.domain.usecase.GetPlayerProfileUseCase
 import com.lucdre.idleskills.profile.domain.usecase.ObserveStatisticsUseCase
 import com.lucdre.idleskills.skills.domain.skill.Skill
+import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import com.lucdre.idleskills.skills.domain.skill.usecase.UpdateSkillUseCase
+import com.lucdre.idleskills.skills.domain.training.ActiveTraining
 import com.lucdre.idleskills.skills.domain.training.SkillTrainingManager
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 import com.lucdre.idleskills.skills.domain.training.usecase.GetTrainingMethodUseCase
@@ -35,6 +37,7 @@ import javax.inject.Inject
  * @property getPlayerProfileUseCase Use case for retrieving player profile.
  * @property observeStatisticsUseCase Use case for observing player statistics.
  * @property recordTrainingActionUseCase Use case for recording training actions.
+ * @property skillRepository The skill repository to update active skill state.
  */
 @HiltViewModel
 class SkillListViewModel @Inject constructor(
@@ -44,7 +47,8 @@ class SkillListViewModel @Inject constructor(
     private val getActiveCardsUseCase: GetActiveCardsUseCase,
     private val getPlayerProfileUseCase: GetPlayerProfileUseCase,
     private val observeStatisticsUseCase: ObserveStatisticsUseCase,
-    private val recordTrainingActionUseCase: RecordTrainingActionUseCase
+    private val recordTrainingActionUseCase: RecordTrainingActionUseCase,
+    private val skillRepository: SkillRepositoryInterface
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SkillListUiState(isLoading = true))
@@ -68,6 +72,9 @@ class SkillListViewModel @Inject constructor(
         },
         onSkillUpdate = { updatedSkill ->
             viewModelScope.launch {
+                // Ensure repository stays in sync if skill update is called directly
+                skillRepository.setActiveTraining(ActiveTraining(updatedSkill.name, _uiState.value.activeTrainingMethod?.name ?: "Basic"))
+
                 // Get the level before update to check for level up
                 val previousLevel = previousLevels[updatedSkill.name] ?: updatedSkill.level
                 
@@ -166,7 +173,10 @@ class SkillListViewModel @Inject constructor(
             // Use previously selected method for this skill, or default to basic method if first time
             val selectedMethod = selectedMethods[skill.name] ?: methods.minByOrNull { it.requiredLevel }
 
-            // Update UI state with skill and methods immediately
+            // Update repository state
+            skillRepository.setActiveTraining(ActiveTraining(skill.name, selectedMethod?.name ?: "Basic"))
+
+            // Update UI state with skill and methods
             _uiState.update { state ->
                 state.copy(
                     activeSkill = skill.name,
@@ -195,9 +205,14 @@ class SkillListViewModel @Inject constructor(
             return
         }
 
-        // Save the selected method for this skill
+            // Save the selected method for this skill
         _uiState.value.activeSkill?.let { skillName ->
             selectedMethods[skillName] = method
+            
+            // Update repository state
+            viewModelScope.launch {
+                skillRepository.setActiveTraining(ActiveTraining(skillName, method.name))
+            }
         }
 
         val currentSkill = _uiState.value.skills.find { it.name == _uiState.value.activeSkill }
@@ -266,6 +281,11 @@ class SkillListViewModel @Inject constructor(
                 trainingProgress = 0f
             )
         }
+        
+        // Clear active skill in repository
+        viewModelScope.launch {
+            skillRepository.setActiveTraining(null)
+        }
     }
 
     /**
@@ -274,5 +294,9 @@ class SkillListViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         trainingManager.cancelTraining()
+        // Clear active skill in repository
+        viewModelScope.launch {
+            skillRepository.setActiveTraining(null)
+        }
     }
 }

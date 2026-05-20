@@ -3,6 +3,7 @@ package com.lucdre.idleskills.skills.data
 import android.util.Log
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
+import com.lucdre.idleskills.skills.domain.training.ActiveTraining
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,6 +27,8 @@ class MockSkillRepository @Inject constructor() : SkillRepositoryInterface {
         )
     )
 
+    private val _activeTraining = MutableStateFlow<ActiveTraining?>(null)
+
     override fun observeSkills(): Flow<List<Skill>> {
         return _skills.asStateFlow()
     }
@@ -44,6 +47,14 @@ class MockSkillRepository @Inject constructor() : SkillRepositoryInterface {
         }
 
         return skill
+    }
+
+    override fun observeActiveTraining(): Flow<ActiveTraining?> {
+        return _activeTraining.asStateFlow()
+    }
+
+    override suspend fun setActiveTraining(training: ActiveTraining?) {
+        _activeTraining.value = training
     }
 
     override suspend fun resetSkills(skills: List<Skill>): List<Skill> {

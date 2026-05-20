@@ -22,4 +22,12 @@ interface CardRepositoryInterface {
      * @param card The card with updated data.
      */
     suspend fun updateCard(card: Card)
+
+    /**
+     * Adds a certain amount of cards to the player's collection.
+     *
+     * @param cardType The type of card to add.
+     * @param quantity The number of cards to add.
+     */
+    suspend fun addCards(cardType: CardType, quantity: Int)
 }

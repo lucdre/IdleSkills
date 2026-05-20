@@ -61,7 +61,6 @@ fun SkillTreeScreen(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-// todo clean
 private fun SkillTreeContent(
     modifier: Modifier = Modifier,
     availablePoints: Int,

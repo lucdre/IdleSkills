@@ -1,5 +1,6 @@
 package com.lucdre.idleskills.cards.data
 
+import android.util.Log
 import com.lucdre.idleskills.R
 import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.cards.domain.CardRepositoryInterface
@@ -18,7 +19,7 @@ import javax.inject.Singleton
 @Singleton
 class CardRepository @Inject constructor() : CardRepositoryInterface {
 
-    // Initial set of cards the player starts with
+    // Initial set of cards
     private val _ownedCards = MutableStateFlow(
         listOf(
             Card("Bronze Axe", CardType.WOODCUTTING_AXE, 1, 5, 0.00f, R.drawable.ic_tree),
@@ -45,6 +46,18 @@ class CardRepository @Inject constructor() : CardRepositoryInterface {
         if (index != -1) {
             currentCards[index] = card
             _ownedCards.value = currentCards
+        }
+    }
+
+    override suspend fun addCards(cardType: CardType, quantity: Int) {
+        val currentCards = _ownedCards.value.toMutableList()
+        val index = currentCards.indexOfFirst { it.type == cardType }
+        if (index != -1) {
+            val card = currentCards[index]
+            currentCards[index] = card.copy(quantity = card.quantity + quantity)
+            _ownedCards.value = currentCards
+        } else {
+            Log.e("CardRepository", "Card error: $cardType")
         }
     }
 }

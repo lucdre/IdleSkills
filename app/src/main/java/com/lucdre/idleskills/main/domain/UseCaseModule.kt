@@ -6,6 +6,10 @@ import com.lucdre.idleskills.cards.domain.CardRepositoryInterface
 import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
 import com.lucdre.idleskills.cards.domain.usecase.GetOwnedCardsUseCase
 import com.lucdre.idleskills.cards.domain.usecase.UpgradeCardUseCase
+import com.lucdre.idleskills.loot.domain.LootRepositoryInterface
+import com.lucdre.idleskills.loot.domain.usecase.CollectLootBoxUseCase
+import com.lucdre.idleskills.loot.domain.usecase.ObserveLootBoxCountUseCase
+import com.lucdre.idleskills.loot.domain.usecase.OpenLootBoxUseCase
 import com.lucdre.idleskills.prestige.domain.PrestigeRepositoryInterface
 import com.lucdre.idleskills.prestige.domain.usecase.CheckPrestigeRequirementsUseCase
 import com.lucdre.idleskills.prestige.domain.usecase.GetPrestigeStateUseCase
@@ -18,10 +22,10 @@ import com.lucdre.idleskills.profile.domain.usecase.IsGameFreshUseCase
 import com.lucdre.idleskills.profile.domain.usecase.ObserveStatisticsUseCase
 import com.lucdre.idleskills.profile.domain.usecase.SetupPlayerProfileUseCase
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
-import com.lucdre.idleskills.skills.domain.skill.usecase.GetSkillsUseCase
 import com.lucdre.idleskills.skills.domain.skill.usecase.ResetSkillsUseCase
 import com.lucdre.idleskills.skills.domain.skill.usecase.UpdateSkillUseCase
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryInterface
+import com.lucdre.idleskills.skills.domain.training.usecase.GetActiveTrainingUseCase
 import com.lucdre.idleskills.skills.domain.training.usecase.GetTrainingMethodUseCase
 import com.lucdre.idleskills.skills.domain.training.usecase.RecordTrainingActionUseCase
 import dagger.Module
@@ -47,20 +51,6 @@ import dagger.hilt.android.scopes.ViewModelScoped
 @Module
 @InstallIn(ViewModelComponent::class)
 object UseCaseModule {
-
-    /**
-     * Provides a [GetSkillsUseCase] instance.
-     *
-     * This use case retrieves skill data and observes changes to skills.
-     *
-     * @param repository The skill repository that provides the data.
-     * @return A configured [GetSkillsUseCase].
-     */
-    @Provides
-    @ViewModelScoped
-    fun provideGetSkillsUseCase(repository: SkillRepositoryInterface): GetSkillsUseCase {
-        return GetSkillsUseCase(repository)
-    }
 
     /**
      * Provides an [UpdateSkillUseCase] instance.
@@ -189,6 +179,20 @@ object UseCaseModule {
     }
 
     /**
+     * Provides a [GetActiveTrainingUseCase] instance.
+     *
+     * @param repository The skill repository.
+     * @return A configured [GetActiveTrainingUseCase].
+     */
+    @Provides
+    @ViewModelScoped
+    fun provideGetActiveTrainingUseCase(
+        repository: SkillRepositoryInterface
+    ): GetActiveTrainingUseCase {
+        return GetActiveTrainingUseCase(repository)
+    }
+
+    /**
      * Provides a [ResetSkillsUseCase] instance.
      *
      * This use case handles resetting all skills to their initial state (level 1, 0 XP).
@@ -298,5 +302,49 @@ object UseCaseModule {
         cardRepository: CardRepositoryInterface
     ): GetOwnedCardsUseCase {
         return GetOwnedCardsUseCase(cardRepository)
+    }
+
+    /**
+     * Provides a [ObserveLootBoxCountUseCase] instance.
+     *
+     * @param repository The loot repository.
+     * @return A configured [ObserveLootBoxCountUseCase].
+     */
+    @Provides
+    @ViewModelScoped
+    fun provideObserveLootBoxCountUseCase(
+        repository: LootRepositoryInterface
+    ): ObserveLootBoxCountUseCase {
+        return ObserveLootBoxCountUseCase(repository)
+    }
+
+    /**
+     * Provides a [CollectLootBoxUseCase] instance.
+     *
+     * @param repository The loot repository.
+     * @return A configured [CollectLootBoxUseCase].
+     */
+    @Provides
+    @ViewModelScoped
+    fun provideCollectLootBoxUseCase(
+        repository: LootRepositoryInterface
+    ): CollectLootBoxUseCase {
+        return CollectLootBoxUseCase(repository)
+    }
+
+    /**
+     * Provides a [OpenLootBoxUseCase] instance.
+     *
+     * @param repository The loot repository.
+     * @param cardRepository The card repository.
+     * @return A configured [OpenLootBoxUseCase].
+     */
+    @Provides
+    @ViewModelScoped
+    fun provideOpenLootBoxUseCase(
+        repository: LootRepositoryInterface,
+        cardRepository: CardRepositoryInterface
+    ): OpenLootBoxUseCase {
+        return OpenLootBoxUseCase(repository, cardRepository)
     }
 }

@@ -6,6 +6,8 @@ import com.lucdre.idleskills.cards.data.CardRepository
 import com.lucdre.idleskills.cards.domain.CardRepositoryInterface
 import com.lucdre.idleskills.prestige.data.MockPrestigeRepository
 import com.lucdre.idleskills.prestige.domain.PrestigeRepositoryInterface
+import com.lucdre.idleskills.loot.data.LootRepository
+import com.lucdre.idleskills.loot.domain.LootRepositoryInterface
 import com.lucdre.idleskills.profile.data.ProfileRepository
 import com.lucdre.idleskills.profile.data.StatisticsRepository
 import com.lucdre.idleskills.profile.domain.ProfileRepositoryInterface
@@ -93,4 +95,13 @@ abstract class RepositoryModule {
     abstract fun bindPrestigeRepository(
         mockPrestigeRepository: MockPrestigeRepository
     ): PrestigeRepositoryInterface
+
+    /**
+     * Binds the [LootRepository] implementation to the [LootRepositoryInterface].
+     */
+    @Binds
+    @Singleton
+    abstract fun bindLootRepository(
+        repository: LootRepository
+    ): LootRepositoryInterface
 }
