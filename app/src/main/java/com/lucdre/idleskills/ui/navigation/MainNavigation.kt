@@ -37,7 +37,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lucdre.idleskills.skills.presentation.SkillListViewModel
 import com.lucdre.idleskills.ui.screens.CardsScreen
 import com.lucdre.idleskills.ui.screens.InitialSkillSelectionScreen
-import com.lucdre.idleskills.ui.screens.QuestsScreen
+import com.lucdre.idleskills.ui.screens.LiveScreen
 import com.lucdre.idleskills.ui.screens.SettingsScreen
 import com.lucdre.idleskills.ui.screens.SkillListScreen
 import com.lucdre.idleskills.ui.screens.StatsScreen
@@ -131,7 +131,7 @@ private fun MainNavigationContent(
             false
         ),
         BottomNavigationItem(
-            "Quests",
+            "Live",
             Icons.Filled.CheckCircle,
             Icons.Outlined.CheckCircle,
             false
@@ -195,7 +195,7 @@ private fun MainNavigationContent(
                     modifier = Modifier.padding(innerPadding),
                     skillViewModel = skillListViewModel
                 )
-            2 -> QuestsScreen(modifier = Modifier.padding(innerPadding))
+            2 -> LiveScreen(modifier = Modifier.padding(innerPadding))
             3 -> CardsScreen(modifier = Modifier.padding(innerPadding))
             4 -> SettingsScreen(modifier = Modifier.padding(innerPadding))
         }
@@ -214,7 +214,7 @@ fun MainNavigationPreview() {
             )
 
             NavigationBar {
-                val items = listOf("Skills", "Stats", "Quests", "Cards", "Settings")
+                val items = listOf("Skills", "Stats", "Live", "Cards", "Settings")
                 val icons = listOf(
                     Icons.Filled.Home,
                     Icons.Filled.BarChart,
