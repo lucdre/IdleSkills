@@ -1,10 +1,11 @@
 package com.lucdre.idleskills.profile.data
 
+import com.lucdre.idleskills.core.persistence.ProfileDao
+import com.lucdre.idleskills.core.persistence.ProfileEntity
 import com.lucdre.idleskills.profile.domain.PlayerProfile
 import com.lucdre.idleskills.profile.domain.ProfileRepositoryInterface
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -12,19 +13,35 @@ import javax.inject.Singleton
  * Repository implementation for managing the player profile.
  */
 @Singleton
-class ProfileRepository @Inject constructor() : ProfileRepositoryInterface {
-
-    private val _profile = MutableStateFlow(PlayerProfile())
+class ProfileRepository @Inject constructor(
+    private val profileDao: ProfileDao
+) : ProfileRepositoryInterface {
 
     override fun observeProfile(): Flow<PlayerProfile> {
-        return _profile.asStateFlow()
+        return profileDao.observeProfile().map { entity ->
+            entity?.toDomain() ?: PlayerProfile()
+        }
     }
 
     override suspend fun getProfile(): PlayerProfile {
-        return _profile.value
+        return profileDao.getProfile()?.toDomain() ?: PlayerProfile()
     }
 
     override suspend fun updateProfile(profile: PlayerProfile) {
-        _profile.value = profile
+        val currentEntity = profileDao.getProfile() ?: ProfileEntity()
+        profileDao.insertOrUpdate(
+            currentEntity.copy(
+                username = profile.username,
+                currentRegion = profile.currentRegion,
+                lastSavedTimestamp = System.currentTimeMillis()
+            )
+        )
+    }
+
+    private fun ProfileEntity.toDomain(): PlayerProfile {
+        return PlayerProfile(
+            username = username,
+            currentRegion = currentRegion
+        )
     }
 }

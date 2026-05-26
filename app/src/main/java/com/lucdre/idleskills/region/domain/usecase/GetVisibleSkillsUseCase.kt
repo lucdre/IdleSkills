@@ -32,7 +32,9 @@ class GetVisibleSkillsUseCase @Inject constructor(
         val currentRegion = profile.currentRegion
         val regionSkillNames = RegionConfig.getSkillsForRegion(currentRegion)
         
-        return skills.filter { it.name in regionSkillNames }
+        return regionSkillNames.mapNotNull { name ->
+            skills.find { it.name == name }
+        }
     }
 
     /**
@@ -48,7 +50,9 @@ class GetVisibleSkillsUseCase @Inject constructor(
             val currentRegion = profile.currentRegion
             val regionSkillNames = RegionConfig.getSkillsForRegion(currentRegion)
             
-            skills.filter { it.name in regionSkillNames }
+            regionSkillNames.mapNotNull { name ->
+                skills.find { it.name == name }
+            }
         }
     }
 }

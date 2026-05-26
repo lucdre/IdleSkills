@@ -4,7 +4,7 @@ package com.lucdre.idleskills.main.data
 
 import com.lucdre.idleskills.cards.data.CardRepository
 import com.lucdre.idleskills.cards.domain.CardRepositoryInterface
-import com.lucdre.idleskills.prestige.data.MockPrestigeRepository
+import com.lucdre.idleskills.prestige.data.PrestigeRepository
 import com.lucdre.idleskills.prestige.domain.PrestigeRepositoryInterface
 import com.lucdre.idleskills.loot.data.LootRepository
 import com.lucdre.idleskills.loot.domain.LootRepositoryInterface
@@ -12,7 +12,7 @@ import com.lucdre.idleskills.profile.data.ProfileRepository
 import com.lucdre.idleskills.profile.data.StatisticsRepository
 import com.lucdre.idleskills.profile.domain.ProfileRepositoryInterface
 import com.lucdre.idleskills.profile.domain.StatisticsRepositoryInterface
-import com.lucdre.idleskills.skills.data.MockSkillRepository
+import com.lucdre.idleskills.skills.data.SkillRepository
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryDispatcher
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryInterface
@@ -33,8 +33,8 @@ import javax.inject.Singleton
  * ## Bindings:
  * - [TrainingMethodRepositoryInterface] to [TrainingMethodRepositoryDispatcher]
  * - [CardRepositoryInterface] to [CardRepository]
- * - [SkillRepositoryInterface] to [MockSkillRepository]
- * - [PrestigeRepositoryInterface] to [MockPrestigeRepository]
+ * - [SkillRepositoryInterface] to [SkillRepository]
+ * - [PrestigeRepositoryInterface] to [PrestigeRepository]
  * - [ProfileRepositoryInterface] to [ProfileRepository]
  * - [StatisticsRepositoryInterface] to [StatisticsRepository]
  */
@@ -62,12 +62,12 @@ abstract class RepositoryModule {
     ): CardRepositoryInterface
 
     /**
-     * Binds the [MockSkillRepository] implementation to the [SkillRepositoryInterface].
+     * Binds the [SkillRepository] implementation to the [SkillRepositoryInterface].
      */
     @Binds
     @Singleton
     abstract fun bindSkillRepository(
-        repository: MockSkillRepository
+        repository: SkillRepository
     ): SkillRepositoryInterface
 
     /**
@@ -89,11 +89,12 @@ abstract class RepositoryModule {
     ): StatisticsRepositoryInterface
 
     /**
-     * Binds the [MockPrestigeRepository] implementation to the [PrestigeRepositoryInterface].
+     * Binds the [PrestigeRepository] implementation to the [PrestigeRepositoryInterface].
      */
     @Binds
+    @Singleton
     abstract fun bindPrestigeRepository(
-        mockPrestigeRepository: MockPrestigeRepository
+        repository: PrestigeRepository
     ): PrestigeRepositoryInterface
 
     /**

@@ -2,11 +2,13 @@ package com.lucdre.idleskills.ui.navigation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lucdre.idleskills.profile.domain.ProfileRepositoryInterface
 import com.lucdre.idleskills.profile.domain.usecase.IsGameFreshUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -14,10 +16,12 @@ import javax.inject.Inject
  * ViewModel for managing main navigation state.
  *
  * @property isGameFreshUseCase Use case for checking if the game is fresh.
+ * @property profileRepository The repository for player profile data to observe reset.
  */
 @HiltViewModel
 class MainNavigationViewModel @Inject constructor(
     private val isGameFreshUseCase: IsGameFreshUseCase,
+    private val profileRepository: ProfileRepositoryInterface
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainNavigationUiState())
@@ -25,6 +29,7 @@ class MainNavigationViewModel @Inject constructor(
 
     init {
         checkGameFreshState()
+        observeProfile()
     }
 
     /**
@@ -32,14 +37,27 @@ class MainNavigationViewModel @Inject constructor(
      */
     private fun checkGameFreshState() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
+            _uiState.update { it.copy(isLoading = true) }
 
             val isGameFresh = isGameFreshUseCase()
 
-            _uiState.value = _uiState.value.copy(
+            _uiState.update { it.copy(
                 isLoading = false,
                 isGameFresh = isGameFresh
-            )
+            ) }
+        }
+    }
+
+    /**
+     * Observes the profile to detect data resets (username becoming empty).
+     */
+    private fun observeProfile() {
+        viewModelScope.launch {
+            profileRepository.observeProfile().collect { profile ->
+                if (profile.username.isEmpty()) {
+                    _uiState.update { it.copy(isGameFresh = true) }
+                }
+            }
         }
     }
 
@@ -47,7 +65,7 @@ class MainNavigationViewModel @Inject constructor(
      * Call when initial skill has been selected to proceed to main app.
      */
     fun onInitialSkillSelected() {
-        _uiState.value = _uiState.value.copy(isGameFresh = false)
+        _uiState.update { it.copy(isGameFresh = false) }
     }
 }
 
