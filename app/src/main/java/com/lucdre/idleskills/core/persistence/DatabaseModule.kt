@@ -1,7 +1,7 @@
 package com.lucdre.idleskills.core.persistence
 
 import android.content.Context
-import androidx.room.Room
+import androidx.room3.Room
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

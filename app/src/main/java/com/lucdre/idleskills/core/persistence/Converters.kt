@@ -1,6 +1,6 @@
 package com.lucdre.idleskills.core.persistence
 
-import androidx.room.TypeConverter
+import androidx.room3.TypeConverter
 import com.lucdre.idleskills.region.domain.Region
 
 /**
