@@ -27,6 +27,7 @@ import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 import com.lucdre.idleskills.skills.presentation.ExpandableSkillItem
 import com.lucdre.idleskills.skills.presentation.SkillListUiState
 import com.lucdre.idleskills.skills.presentation.SkillListViewModel
+import com.lucdre.idleskills.ui.components.OfflineProgressPopup
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
 /**
@@ -44,29 +45,22 @@ fun SkillListScreen(
 ) {
     val skillUiState by skillViewModel.uiState.collectAsStateWithLifecycle()
     val prestigeUiState by prestigeViewModel.uiState.collectAsStateWithLifecycle()
-    var expandedSkillName by remember { mutableStateOf<String?>(null) }
     var showSkillTree by remember { mutableStateOf(false) }
-
-    LaunchedEffect(key1 = true) {
-        skillViewModel.loadSkills()
-    }
 
     Box(modifier = modifier.fillMaxSize()) {
         SkillListScreenContents(
             modifier = Modifier.fillMaxSize(),
             skillUiState = skillUiState,
             prestigeUiState = prestigeUiState,
-            expandedSkillName = expandedSkillName,
-            onSkillClick = { skillViewModel.onSkillClick(it) },
+            onSkillClick = { /* Handled by toggle */ },
             onToggleExpand = { skillName ->
-                expandedSkillName = if (expandedSkillName == skillName) null else skillName
+                skillViewModel.toggleSkillExpansion(skillName)
             },
             onMethodSelected = { skillViewModel.selectTrainingMethod(it) },
             onPrestigeClick = {
                 prestigeViewModel.prestige(
                     resetTrainingState = {
                         skillViewModel.resetTrainingState()
-                        expandedSkillName = null
                     }
                 )
             },
@@ -74,6 +68,14 @@ fun SkillListScreen(
                 showSkillTree = true
             }
         )
+
+        // Offline Progress Popup
+        skillUiState.offlineProgress?.let { result ->
+            OfflineProgressPopup(
+                result = result,
+                onDismiss = { skillViewModel.dismissOfflineProgress() }
+            )
+        }
 
         // Skill Tree Screen as overlay
         if (showSkillTree) {
@@ -113,13 +115,13 @@ private fun SkillListScreenContents(
     modifier: Modifier = Modifier,
     skillUiState: SkillListUiState,
     prestigeUiState: PrestigeUiState,
-    expandedSkillName: String?,
     onSkillClick: (Skill) -> Unit,
     onToggleExpand: (String) -> Unit,
     onMethodSelected: (TrainingMethod) -> Unit,
     onPrestigeClick: () -> Unit,
     onSkillTreeClick: () -> Unit
 ) {
+    val expandedSkillName = skillUiState.expandedSkillName
     Column(modifier = modifier) {
         if (skillUiState.isLoading) {
             // Loading indicator
@@ -152,18 +154,19 @@ private fun SkillListScreenContents(
                 // Skill list
                 items(skillUiState.skills, key = { it.name }) { skill ->
                     val isActiveSkill = skill.name == skillUiState.activeSkill
+                    val isSelectedSkill = skill.name == expandedSkillName
 
                     ExpandableSkillItem(
                         skill = skill,
                         isActive = isActiveSkill,
-                        isExpanded = skill.name == expandedSkillName,
+                        isExpanded = isSelectedSkill,
                         xpPerHour = if (isActiveSkill) {
                             skillUiState.activeTrainingMethod?.calculateXpPerHour(skillUiState.activeCards)
                                 ?: 3600 // Fallback to 3600 (1 XP per second)
                         } else {
                             0
                         },
-                        trainingMethods = if (isActiveSkill) skillUiState.trainingMethods else emptyList(),
+                        trainingMethods = if (isSelectedSkill) skillUiState.trainingMethods else emptyList(),
                         activeMethod = if (isActiveSkill) skillUiState.activeTrainingMethod else null,
                         activeCards = if (isActiveSkill) skillUiState.activeCards else emptyList(),
                         trainingProgress = if (isActiveSkill) skillUiState.trainingProgress else 0f,
@@ -201,15 +204,12 @@ fun SkillListScreenContentsPreview() {
             isPerformingPrestige = false
         )
 
-        var expandedSkillName by remember { mutableStateOf<String?>("Woodcutting") }
-
         SkillListScreenContents(
             modifier = Modifier.padding(8.dp),
             skillUiState = previewSkillState,
             prestigeUiState = previewPrestigeState,
-            expandedSkillName = expandedSkillName,
             onSkillClick = { /* nothing */ },
-            onToggleExpand = { name -> expandedSkillName = if (expandedSkillName == name) null else name },
+            onToggleExpand = { /* nothing */ },
             onMethodSelected = { /* nothing */ },
             onPrestigeClick = { /* nothing */ },
             onSkillTreeClick = { /* nothing */ }

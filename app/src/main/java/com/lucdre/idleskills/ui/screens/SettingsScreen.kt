@@ -2,9 +2,9 @@ package com.lucdre.idleskills.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -29,12 +29,39 @@ fun SettingsScreen(
     skillViewModel: SkillListViewModel = hiltViewModel()
 ) {
     val uiState by skillViewModel.uiState.collectAsStateWithLifecycle()
+    var showResetDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     SettingsScreenContent(
         modifier = modifier,
         playerProfile = uiState.playerProfile,
-        playerStatistics = uiState.playerStatistics
+        playerStatistics = uiState.playerStatistics,
+        onResetClick = { showResetDialog = true }
     )
+
+    if (showResetDialog) {
+        AlertDialog(
+            onDismissRequest = { showResetDialog = false },
+            title = { Text("Reset Progress?") },
+            text = { Text("This will revert everything. This cannot be undone.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        skillViewModel.resetAllData(context)
+                        showResetDialog = false
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("RESET EVERYTHING")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showResetDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 }
 
 @Preview(showBackground = true)
@@ -47,7 +74,8 @@ fun SettingsScreenPreview() {
                 favoriteSkill = "Woodcutting",
                 currentRegion = Region.FIRST_REGION
             ),
-            playerStatistics = PlayerStatistics()
+            playerStatistics = PlayerStatistics(),
+            onResetClick = {}
         )
     }
 }
@@ -56,7 +84,8 @@ fun SettingsScreenPreview() {
 fun SettingsScreenContent(
     modifier: Modifier = Modifier,
     playerProfile: PlayerProfile,
-    playerStatistics: PlayerStatistics
+    playerStatistics: PlayerStatistics,
+    onResetClick: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -177,6 +206,16 @@ fun SettingsScreenContent(
 
                 Spacer(modifier = Modifier.height(8.dp))
             }
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Button(
+            onClick = onResetClick,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.errorContainer, contentColor = MaterialTheme.colorScheme.onErrorContainer)
+        ) {
+            Text("RESET ALL PROGRESS")
         }
     }
 }

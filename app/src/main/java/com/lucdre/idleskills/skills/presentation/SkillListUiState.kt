@@ -1,6 +1,7 @@
 package com.lucdre.idleskills.skills.presentation
 
 import com.lucdre.idleskills.cards.domain.Card
+import com.lucdre.idleskills.core.domain.OfflineProgressResult
 import com.lucdre.idleskills.profile.domain.PlayerProfile
 import com.lucdre.idleskills.profile.domain.PlayerStatistics
 import com.lucdre.idleskills.skills.domain.skill.Skill
@@ -21,6 +22,7 @@ import com.lucdre.idleskills.skills.domain.training.TrainingMethod
  * @property trainingProgress Progress of the current training action (0-1).
  * @property playerProfile The current player profile data.
  * @property playerStatistics The current player statistics data.
+ * @property offlineProgress The result of offline progress calculation to show in a popup.
  */
 data class SkillListUiState(
     val skills: List<Skill> = emptyList(),
@@ -32,5 +34,7 @@ data class SkillListUiState(
     val activeCards: List<Card> = emptyList(),
     val trainingProgress: Float = 0f, // Progress from 0 to 1.0
     val playerProfile: PlayerProfile = PlayerProfile(),
-    val playerStatistics: PlayerStatistics = PlayerStatistics()
+    val playerStatistics: PlayerStatistics = PlayerStatistics(),
+    val offlineProgress: OfflineProgressResult? = null,
+    val expandedSkillName: String? = null
 )

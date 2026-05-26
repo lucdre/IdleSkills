@@ -185,6 +185,9 @@ class SkillTrainingManager(
         }
         trainingJob = null
         activeSkillName = null
+        activeMethod = null
+        activeCards = emptyList()
+        onProgressUpdate(0f)
     }
 
     /**

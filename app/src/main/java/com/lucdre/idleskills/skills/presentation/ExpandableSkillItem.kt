@@ -91,13 +91,7 @@ fun ExpandableSkillItem(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable {
-                        if (!isExpanded) {
-                            // Only trigger the skill click when collapsing to avoid double click issues
-                            onSkillClick(skill)
-                        }
-                        onToggleExpand()
-                    }
+                    .clickable { onToggleExpand() }
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -124,13 +118,7 @@ fun ExpandableSkillItem(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             // Expansion toggle
-                            IconButton(onClick = {
-                                if (!isExpanded) {
-                                    // Only trigger the skill click when collapsing to avoid double click issues
-                                    onSkillClick(skill)
-                                }
-                                onToggleExpand()
-                            }) {
+                            IconButton(onClick = { onToggleExpand() }) {
                                 Icon(
                                     modifier = Modifier.rotate(rotationState),
                                     imageVector = if (isExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,

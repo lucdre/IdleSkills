@@ -15,6 +15,8 @@ import com.lucdre.idleskills.prestige.domain.usecase.CheckPrestigeRequirementsUs
 import com.lucdre.idleskills.prestige.domain.usecase.GetPrestigeStateUseCase
 import com.lucdre.idleskills.region.domain.usecase.GetVisibleSkillsUseCase
 import com.lucdre.idleskills.prestige.domain.usecase.PerformPrestigeUseCase
+import com.lucdre.idleskills.core.domain.usecase.ResetAllDataUseCase
+import com.lucdre.idleskills.core.persistence.AppDatabase
 import com.lucdre.idleskills.profile.domain.ProfileRepositoryInterface
 import com.lucdre.idleskills.profile.domain.StatisticsRepositoryInterface
 import com.lucdre.idleskills.profile.domain.usecase.GetPlayerProfileUseCase
@@ -26,6 +28,7 @@ import com.lucdre.idleskills.skills.domain.skill.usecase.ResetSkillsUseCase
 import com.lucdre.idleskills.skills.domain.skill.usecase.UpdateSkillUseCase
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryInterface
 import com.lucdre.idleskills.skills.domain.training.usecase.GetActiveTrainingUseCase
+import com.lucdre.idleskills.skills.domain.training.usecase.GetAvailableTrainingMethodsUseCase
 import com.lucdre.idleskills.skills.domain.training.usecase.GetTrainingMethodUseCase
 import com.lucdre.idleskills.skills.domain.training.usecase.RecordTrainingActionUseCase
 import dagger.Module
@@ -33,6 +36,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.scopes.ViewModelScoped
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
 /**
  * Dagger/Hilt module providing use case instances.
@@ -49,7 +54,7 @@ import dagger.hilt.android.scopes.ViewModelScoped
  * - The repository module provides a repository for it.
  */
 @Module
-@InstallIn(ViewModelComponent::class)
+@InstallIn(SingletonComponent::class)
 object UseCaseModule {
 
     /**
@@ -61,7 +66,7 @@ object UseCaseModule {
      * @return A configured [UpdateSkillUseCase].
      */
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideUpdateSkillUseCase(repository: SkillRepositoryInterface): UpdateSkillUseCase {
         return UpdateSkillUseCase(repository)
     }
@@ -76,7 +81,7 @@ object UseCaseModule {
      * @return A configured [GetTrainingMethodUseCase].
      */
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideGetTrainingMethodUseCase(
         repository: TrainingMethodRepositoryInterface,
         profileRepository: ProfileRepositoryInterface
@@ -93,7 +98,7 @@ object UseCaseModule {
      * @return A configured [GetActiveCardsUseCase].
      */
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideGetActiveCardsUseCase(
         repository: CardRepositoryInterface,
         trainingMethodRepository: TrainingMethodRepositoryInterface,
@@ -109,7 +114,7 @@ object UseCaseModule {
      * @return A configured [UpgradeCardUseCase].
      */
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideUpgradeCardUseCase(
         repository: CardRepositoryInterface
     ): UpgradeCardUseCase {
@@ -123,7 +128,7 @@ object UseCaseModule {
      * @return A configured [SetupPlayerProfileUseCase].
      */
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideSetupPlayerProfileUseCase(
         profileRepository: ProfileRepositoryInterface
     ): SetupPlayerProfileUseCase {
@@ -137,7 +142,7 @@ object UseCaseModule {
      * @return A configured [IsGameFreshUseCase].
      */
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideIsGameFreshUseCase(repository: ProfileRepositoryInterface): IsGameFreshUseCase {
         return IsGameFreshUseCase(repository)
     }
@@ -149,7 +154,7 @@ object UseCaseModule {
      * @return A configured [GetPlayerProfileUseCase].
      */
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideGetPlayerProfileUseCase(repository: ProfileRepositoryInterface): GetPlayerProfileUseCase {
         return GetPlayerProfileUseCase(repository)
     }
@@ -161,7 +166,7 @@ object UseCaseModule {
      * @return A configured [ObserveStatisticsUseCase].
      */
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideObserveStatisticsUseCase(repository: StatisticsRepositoryInterface): ObserveStatisticsUseCase {
         return ObserveStatisticsUseCase(repository)
     }
@@ -173,7 +178,7 @@ object UseCaseModule {
      * @return A configured [RecordTrainingActionUseCase].
      */
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideRecordTrainingActionUseCase(repository: StatisticsRepositoryInterface): RecordTrainingActionUseCase {
         return RecordTrainingActionUseCase(repository)
     }
@@ -185,7 +190,7 @@ object UseCaseModule {
      * @return A configured [GetActiveTrainingUseCase].
      */
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideGetActiveTrainingUseCase(
         repository: SkillRepositoryInterface
     ): GetActiveTrainingUseCase {
@@ -202,7 +207,7 @@ object UseCaseModule {
      * @return A configured [ResetSkillsUseCase].
      */
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideResetSkillsUseCase(
         skillRepository: SkillRepositoryInterface
     ): ResetSkillsUseCase {
@@ -219,7 +224,7 @@ object UseCaseModule {
      * @return A configured [CheckPrestigeRequirementsUseCase].
      */
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideCheckPrestigeRequirementsUseCase(
         skillRepository: SkillRepositoryInterface
     ): CheckPrestigeRequirementsUseCase {
@@ -237,7 +242,7 @@ object UseCaseModule {
      * @return A configured [GetVisibleSkillsUseCase].
      */
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideGetVisibleSkillsUseCase(
         skillRepository: SkillRepositoryInterface,
         profileRepository: ProfileRepositoryInterface
@@ -258,7 +263,7 @@ object UseCaseModule {
      * @return A configured [PerformPrestigeUseCase].
      */
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun providePerformPrestigeUseCase(
         prestigeRepository: PrestigeRepositoryInterface,
         skillRepository: SkillRepositoryInterface,
@@ -280,12 +285,40 @@ object UseCaseModule {
      * @return A configured [GetPrestigeStateUseCase].
      */
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideGetPrestigeStateUseCase(
         prestigeRepository: PrestigeRepositoryInterface,
         checkPrestigeRequirementsUseCase: CheckPrestigeRequirementsUseCase
     ): GetPrestigeStateUseCase {
         return GetPrestigeStateUseCase(prestigeRepository, checkPrestigeRequirementsUseCase)
+    }
+
+    /**
+     * Provides a [GetAvailableTrainingMethodsUseCase] instance.
+     *
+     * @param getTrainingMethodUseCase Use case to get all training methods.
+     * @return A configured [GetAvailableTrainingMethodsUseCase].
+     */
+    @Provides
+    @Singleton
+    fun provideGetAvailableTrainingMethodsUseCase(
+        getTrainingMethodUseCase: GetTrainingMethodUseCase
+    ): GetAvailableTrainingMethodsUseCase {
+        return GetAvailableTrainingMethodsUseCase(getTrainingMethodUseCase)
+    }
+
+    /**
+     * Provides a [ResetAllDataUseCase] instance.
+     *
+     * @param database The app database.
+     * @return A configured [ResetAllDataUseCase].
+     */
+    @Provides
+    @Singleton
+    fun provideResetAllDataUseCase(
+        database: AppDatabase
+    ): ResetAllDataUseCase {
+        return ResetAllDataUseCase(database)
     }
 
     /**
@@ -297,7 +330,7 @@ object UseCaseModule {
      * @return A configured [GetOwnedCardsUseCase].
      */
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideGetOwnedCardsUseCase(
         cardRepository: CardRepositoryInterface
     ): GetOwnedCardsUseCase {
@@ -311,7 +344,7 @@ object UseCaseModule {
      * @return A configured [ObserveLootBoxCountUseCase].
      */
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideObserveLootBoxCountUseCase(
         repository: LootRepositoryInterface
     ): ObserveLootBoxCountUseCase {
@@ -325,7 +358,7 @@ object UseCaseModule {
      * @return A configured [CollectLootBoxUseCase].
      */
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideCollectLootBoxUseCase(
         repository: LootRepositoryInterface
     ): CollectLootBoxUseCase {
@@ -340,7 +373,7 @@ object UseCaseModule {
      * @return A configured [OpenLootBoxUseCase].
      */
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideOpenLootBoxUseCase(
         repository: LootRepositoryInterface,
         cardRepository: CardRepositoryInterface

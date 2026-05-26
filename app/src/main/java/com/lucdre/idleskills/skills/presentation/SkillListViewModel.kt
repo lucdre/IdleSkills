@@ -1,302 +1,184 @@
 package com.lucdre.idleskills.skills.presentation
 
-import android.util.Log
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
-import com.lucdre.idleskills.region.domain.usecase.GetVisibleSkillsUseCase
+import com.lucdre.idleskills.core.domain.usecase.ResetAllDataUseCase
 import com.lucdre.idleskills.profile.domain.usecase.GetPlayerProfileUseCase
 import com.lucdre.idleskills.profile.domain.usecase.ObserveStatisticsUseCase
+import com.lucdre.idleskills.region.domain.usecase.GetVisibleSkillsUseCase
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
-import com.lucdre.idleskills.skills.domain.skill.usecase.UpdateSkillUseCase
-import com.lucdre.idleskills.skills.domain.training.ActiveTraining
-import com.lucdre.idleskills.skills.domain.training.SkillTrainingManager
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
-import com.lucdre.idleskills.skills.domain.training.usecase.GetTrainingMethodUseCase
-import com.lucdre.idleskills.skills.domain.training.usecase.RecordTrainingActionUseCase
+import com.lucdre.idleskills.skills.domain.training.TrainingService
+import com.lucdre.idleskills.skills.domain.training.usecase.GetAvailableTrainingMethodsUseCase
+import com.jakewharton.processphoenix.ProcessPhoenix
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * ViewModel for the [com.lucdre.idleskills.ui.screens.SkillListScreen].
+ * ViewModel for the SkillListScreen.
  *
  * Manages UI state and business logic for skill list, training methods and cards.
- * Handles user interactions and communicates with domain layer use cases.
- *
- * @property getVisibleSkillsUseCase Use case for retrieving available skills at current prestige.
- * @property updateSkillUseCase Use case for updating skill data.
- * @property getTrainingMethodUseCase Use case for retrieving training methods.
- * @property getActiveCardsUseCase Use case for retrieving active cards.
- * @property getPlayerProfileUseCase Use case for retrieving player profile.
- * @property observeStatisticsUseCase Use case for observing player statistics.
- * @property recordTrainingActionUseCase Use case for recording training actions.
- * @property skillRepository The skill repository to update active skill state.
+ * Subscribes to TrainingService for real-time training progress and state.
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class SkillListViewModel @Inject constructor(
     private val getVisibleSkillsUseCase: GetVisibleSkillsUseCase,
-    private val updateSkillUseCase: UpdateSkillUseCase,
-    private val getTrainingMethodUseCase: GetTrainingMethodUseCase,
+    private val getAvailableTrainingMethodsUseCase: GetAvailableTrainingMethodsUseCase,
     private val getActiveCardsUseCase: GetActiveCardsUseCase,
     private val getPlayerProfileUseCase: GetPlayerProfileUseCase,
     private val observeStatisticsUseCase: ObserveStatisticsUseCase,
-    private val recordTrainingActionUseCase: RecordTrainingActionUseCase,
-    private val skillRepository: SkillRepositoryInterface
+    private val trainingService: TrainingService,
+    private val skillRepository: SkillRepositoryInterface,
+    private val resetAllDataUseCase: ResetAllDataUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(SkillListUiState(isLoading = true))
-    val uiState: StateFlow<SkillListUiState> = _uiState.asStateFlow()
+    // 1. Core State Inputs
+    private val _expandedSkillName = MutableStateFlow<String?>(null)
+    private val _hasResumedTraining = MutableStateFlow(false)
+    private val _offlineProgress = MutableStateFlow<com.lucdre.idleskills.core.domain.OfflineProgressResult?>(null)
 
-    // Track previous levels to detect level ups
-    private val previousLevels = mutableMapOf<String, Int>()
+    // 2. Reactive Pipelines
+    
+    // Observed Skills list (Source of Truth)
+    private val skillsFlow = getVisibleSkillsUseCase.observeVisibleSkills()
 
-    // Track selected training methods per skill to maintain selection across skill switches
-    private val selectedMethods = mutableMapOf<String, TrainingMethod>()
-
-    // Job for observing active cards reactive updates
-    private var activeCardsJob: Job? = null
-
-    private val trainingManager = SkillTrainingManager(
-        updateSkillUseCase = updateSkillUseCase,
-        recordTrainingActionUseCase = recordTrainingActionUseCase,
-        coroutineScope = viewModelScope,
-        onProgressUpdate = { progress ->
-            _uiState.update { it.copy(trainingProgress = progress) }
-        },
-        onSkillUpdate = { updatedSkill ->
-            viewModelScope.launch {
-                // Ensure repository stays in sync if skill update is called directly
-                skillRepository.setActiveTraining(ActiveTraining(updatedSkill.name, _uiState.value.activeTrainingMethod?.name ?: "Basic"))
-
-                // Get the level before update to check for level up
-                val previousLevel = previousLevels[updatedSkill.name] ?: updatedSkill.level
-                
-                // Update the stored level for next time
-                previousLevels[updatedSkill.name] = updatedSkill.level
-
-                // If level up, check for newly available training methods
-                if (updatedSkill.level > previousLevel) {
-                    Log.d("SkillListViewModel", "${updatedSkill.name} leveled up to ${updatedSkill.level}!")
-
-                    val updatedMethods = getTrainingMethodUseCase(updatedSkill.name)
-                        .filter { it.requiredLevel <= updatedSkill.level }
-
-                    _uiState.update { state ->
-                        state.copy(trainingMethods = updatedMethods)
-                    }
-                }
-            }
-        }
-    )
-
-    /**
-     * Initializes the ViewModel and sets up observers.
-     * Loads skills and starts observing skill updates.
-     */
-    init {
-        loadSkills()
-
-        viewModelScope.launch {
-            getVisibleSkillsUseCase.observeVisibleSkills().collect { skills ->
-                _uiState.update { state ->
-                    state.copy(
-                        skills = skills,
-                        isLoading = false
-                    )
-                }
-            }
-        }
-
-        viewModelScope.launch {
-            getPlayerProfileUseCase.observeProfile().collect { profile ->
-                _uiState.update { state ->
-                    state.copy(playerProfile = profile)
-                }
-            }
-        }
-
-        viewModelScope.launch {
-            observeStatisticsUseCase.observeStatistics().collect { statistics ->
-                _uiState.update { state ->
-                    state.copy(playerStatistics = statistics)
-                }
+    // Methods are re-loaded when expansion changes OR when skill data (levels) update
+    private val availableMethodsFlow = combine(
+        _expandedSkillName,
+        skillsFlow
+    ) { expandedName, skills ->
+        expandedName to skills
+    }.flatMapLatest { (name, skills) ->
+        if (name == null) flowOf(emptyList())
+        else {
+            val skill = skills.find { it.name == name }
+            if (skill != null) {
+                flow { emit(getAvailableTrainingMethodsUseCase(skill)) }
+            } else {
+                flowOf(emptyList())
             }
         }
     }
 
-    /**
-     * Loads visible skills from the repository based on current prestige.
-     * Updates UI state.
-     */
-    fun loadSkills() {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
-            try {
-                val skills = getVisibleSkillsUseCase()
-                _uiState.update { it.copy(skills = skills, isLoading = false) }
-            } catch (e: Exception) {
-                Log.e("SkillListViewModel", "Error loading skills", e)
-                _uiState.update { it.copy(error = "Failed to load skills.", isLoading = false) }
-            }
+    // Combine infrequently updating data
+    private val baseStateFlow = combine(
+        skillsFlow,
+        getPlayerProfileUseCase.observeProfile(),
+        observeStatisticsUseCase.observeStatistics(),
+        availableMethodsFlow,
+        _expandedSkillName
+    ) { skills, profile, stats, methods, expanded ->
+        
+        if (!_hasResumedTraining.value && skills.isNotEmpty()) {
+            _hasResumedTraining.value = true
+            resumeInitialTraining(skills)
+        }
+
+        SkillListUiState(
+            skills = skills,
+            playerProfile = profile,
+            playerStatistics = stats,
+            trainingMethods = methods,
+            expandedSkillName = expanded
+        )
+    }
+
+    // High-frequency cards update
+    private val activeCardsFlow = trainingService.trainingState.flatMapLatest { training ->
+        if (training.activeSkill != null && training.activeMethod != null) {
+            getActiveCardsUseCase(training.activeSkill.name, training.activeMethod.name)
+        } else {
+            flowOf(emptyList())
         }
     }
 
+    // Final UI State: Merge base state with high-frequency training data
+    val uiState: StateFlow<SkillListUiState> = combine(
+        baseStateFlow,
+        trainingService.trainingState,
+        activeCardsFlow,
+        _offlineProgress
+    ) { base, training, cards, offline ->
+        base.copy(
+            isLoading = false,
+            activeSkill = training.activeSkill?.name,
+            activeTrainingMethod = training.activeMethod,
+            trainingProgress = training.progress,
+            activeCards = cards,
+            offlineProgress = offline
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SkillListUiState(isLoading = true))
+
+    // --- Actions ---
+
     /**
-     * Handles the selection of a skill by the user.
-     *
-     * Updates UI state, fetches relevant training methods and cards,
-     * and starts training with the previously selected method and cards.
-     *
-     * @param skill The skill that was selected.
+     * Toggles expansion of a skill card.
      */
-    fun onSkillClick(skill: Skill) {
-        // Clicking the same skill that's already active, do nothing
-        if (trainingManager.isTraining(skill.name)) return
-
-        // Cancel any previous training
-        trainingManager.cancelTraining()
-
-        previousLevels[skill.name] = skill.level
-
-        viewModelScope.launch {
-            // Fetch training methods for this skill
-            val methods = getTrainingMethodUseCase(skill.name)
-                .filter { it.requiredLevel <= skill.level }
-
-            // Use previously selected method for this skill, or default to basic method if first time
-            val selectedMethod = selectedMethods[skill.name] ?: methods.minByOrNull { it.requiredLevel }
-
-            // Update repository state
-            skillRepository.setActiveTraining(ActiveTraining(skill.name, selectedMethod?.name ?: "Basic"))
-
-            // Update UI state with skill and methods
-            _uiState.update { state ->
-                state.copy(
-                    activeSkill = skill.name,
-                    trainingMethods = methods,
-                    activeTrainingMethod = selectedMethod,
-                    trainingProgress = 0f
-                )
-            }
-
-            // Start observing active cards for this skill and method
-            observeActiveCards(skill, selectedMethod)
-        }
+    fun toggleSkillExpansion(skillName: String) {
+        val current = _expandedSkillName.value
+        _expandedSkillName.value = if (current == skillName) null else skillName
     }
 
     /**
-     * Handles the selection of a training method by the user.
-     *
-     * Updates UI state and starts training with the selected method.
-     * Automatically applies relevant cards for the new method.
-     *
-     * @param method The training method that was selected.
+     * Toggles training for a specific method.
      */
     fun selectTrainingMethod(method: TrainingMethod) {
-        // If the training method is already active, don't restart it
-        if (method == _uiState.value.activeTrainingMethod) {
-            return
-        }
-
-            // Save the selected method for this skill
-        _uiState.value.activeSkill?.let { skillName ->
-            selectedMethods[skillName] = method
-            
-            // Update repository state
-            viewModelScope.launch {
-                skillRepository.setActiveTraining(ActiveTraining(skillName, method.name))
-            }
-        }
-
-        val currentSkill = _uiState.value.skills.find { it.name == _uiState.value.activeSkill }
-
-        currentSkill?.let { skill ->
-            _uiState.update { state ->
-                state.copy(
-                    activeTrainingMethod = method,
-                    trainingProgress = 0f
-                )
-            }
-
-            // Cancel current training to ensure progress resets when switching methods
-            trainingManager.cancelTraining()
-
-            // Start observing active cards for the new method (this will trigger startTraining)
-            observeActiveCards(skill, method)
+        val skill = uiState.value.skills.find { it.name == method.skillName }
+        if (skill != null) {
+            trainingService.toggleTraining(skill, method)
         }
     }
 
     /**
-     * Observes active cards for the specified skill and method and updates the training manager.
+     * Skill header click logic (purely expansion).
      */
-    private fun observeActiveCards(skill: Skill, method: TrainingMethod?) {
-        activeCardsJob?.cancel()
-        activeCardsJob = viewModelScope.launch {
-            getActiveCardsUseCase(skill.name, method?.name).collect { cards ->
-                _uiState.update { it.copy(activeCards = cards) }
-                
-                if (trainingManager.isTraining(skill.name)) {
-                    // If already training, update the cards
-                    trainingManager.updateCards(cards)
-                } else {
-                    // If not training (initial start or method switch), start the training loop
+    fun onSkillClick(skill: Skill) {
+        toggleSkillExpansion(skill.name)
+    }
+
+    private fun resumeInitialTraining(skills: List<Skill>) {
+        viewModelScope.launch {
+            val activeTraining = skillRepository.observeActiveTraining().firstOrNull()
+            if (activeTraining != null) {
+                val skill = skills.find { it.name == activeTraining.skillName }
+                if (skill != null) {
+                    val methods = getAvailableTrainingMethodsUseCase(skill)
+                    val method = methods.find { it.name == activeTraining.methodName }
                     if (method != null) {
-                        trainingManager.startTraining(skill, method, cards)
-                    } else {
-                        trainingManager.startBasicTraining(skill)
+                        trainingService.startTraining(skill, method)
+                        // Also expand the skill we are resuming
+                        _expandedSkillName.value = skill.name
                     }
                 }
             }
         }
     }
 
-    /**
-     * Resets the training state to initial conditions.
-     * Used when prestiging to provide a fresh start experience.
-     */
+    fun dismissOfflineProgress() {
+        _offlineProgress.value = null
+    }
+
     fun resetTrainingState() {
-        // Cancel any active training
-        trainingManager.cancelTraining()
+        trainingService.stopTraining()
+        _expandedSkillName.value = null
+    }
 
-        // Clear all selected methods
-        selectedMethods.clear()
-
-        // Clear previous level tracking
-        previousLevels.clear()
-
-        // Reset UI state to fresh start
-        _uiState.update { state ->
-            state.copy(
-                activeSkill = null,
-                trainingMethods = emptyList(),
-                activeTrainingMethod = null,
-                activeCards = emptyList(),
-                trainingProgress = 0f
-            )
-        }
-        
-        // Clear active skill in repository
+    fun resetAllData(context: Context) {
         viewModelScope.launch {
-            skillRepository.setActiveTraining(null)
+            trainingService.stopTraining()
+            resetAllDataUseCase()
+            ProcessPhoenix.triggerRebirth(context)
         }
     }
 
-    /**
-     * Called when the ViewModel is being destroyed.
-     */
-    override fun onCleared() {
-        super.onCleared()
-        trainingManager.cancelTraining()
-        // Clear active skill in repository
-        viewModelScope.launch {
-            skillRepository.setActiveTraining(null)
-        }
+    fun setOfflineProgress(result: com.lucdre.idleskills.core.domain.OfflineProgressResult) {
+        _offlineProgress.value = result
     }
 }
