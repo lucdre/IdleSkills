@@ -316,7 +316,7 @@ fun AnimatedCharacter(skillName: String) {
 @Composable
 fun InventorySheetContent(
     lootBoxes: List<LootBox>,
-    onOpenBoxClick: (String) -> Unit
+    onOpenBoxClick: (SkillType) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -350,7 +350,7 @@ fun InventorySheetContent(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(ownedBoxes) { box ->
-                    LootBoxItem(box = box, onOpenClick = { onOpenBoxClick(box.skill.displayName) })
+                    LootBoxItem(box = box, onOpenClick = { onOpenBoxClick(box.skill) })
                 }
             }
         }

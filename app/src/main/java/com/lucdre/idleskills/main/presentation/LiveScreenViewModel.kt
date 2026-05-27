@@ -138,9 +138,9 @@ class LiveScreenViewModel @Inject constructor(
         }
     }
 
-    fun onOpenBoxClick(skillName: String) {
+    fun onOpenBoxClick(skill: SkillType) {
         viewModelScope.launch {
-            openLootBoxUseCase(skillName).onSuccess { rewards ->
+            openLootBoxUseCase(skill).onSuccess { rewards ->
                 _uiState.update { it.copy(lastRewards = rewards) }
             }
         }

@@ -18,12 +18,4 @@ class CollectLootBoxUseCase @Inject constructor(
     suspend operator fun invoke(skill: SkillType) {
         lootRepository.collectLootBox(skill)
     }
-
-    /**
-     * String-based overload for backward compatibility or simpler call sites.
-     */
-    suspend operator fun invoke(skillName: String) {
-        val skill = SkillType.fromString(skillName) ?: SkillType.WOODCUTTING
-        invoke(skill)
-    }
 }

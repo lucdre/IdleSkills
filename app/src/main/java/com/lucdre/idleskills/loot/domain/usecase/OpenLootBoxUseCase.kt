@@ -38,12 +38,4 @@ class OpenLootBoxUseCase @Inject constructor(
 
         return Result.success(rewards)
     }
-
-    /**
-     * String-based overload for backward compatibility.
-     */
-    suspend operator fun invoke(skillName: String): Result<Map<CardType, Int>> {
-        val skill = SkillType.fromString(skillName) ?: return Result.failure(Exception("Invalid skill: $skillName"))
-        return invoke(skill)
-    }
 }
