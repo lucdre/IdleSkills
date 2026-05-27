@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.lucdre.idleskills"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.lucdre.idleskills"
