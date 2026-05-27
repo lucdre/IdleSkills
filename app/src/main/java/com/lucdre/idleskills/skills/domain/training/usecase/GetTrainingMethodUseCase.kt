@@ -4,6 +4,7 @@ import com.lucdre.idleskills.profile.domain.ProfileRepositoryInterface
 import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryInterface
+import javax.inject.Inject
 
 /**
  * Use case for retrieving training methods for a specific skill.
@@ -15,7 +16,7 @@ import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryInte
  * - [invoke]: Get all available training methods for a specific skill in the current region.
  * - [getBestAvailableMethod]: Returns the best available training method for a skill at the current level in the current region. (Placeholder)
  */
-class GetTrainingMethodUseCase(
+class GetTrainingMethodUseCase @Inject constructor(
     private val trainingMethodRepository: TrainingMethodRepositoryInterface,
     private val profileRepository: ProfileRepositoryInterface
 ) {

@@ -1,34 +1,31 @@
 package com.lucdre.idleskills.profile.domain.usecase
 
+import com.lucdre.idleskills.profile.domain.PlayerProfile
 import com.lucdre.idleskills.profile.domain.ProfileRepositoryInterface
 import javax.inject.Inject
 
 /**
- * Use case for setting up the player profile at the start of the game.
- *
- * @property profileRepository The repository for player profile data.
+ * Use case for setting up a new player profile.
  */
 class SetupPlayerProfileUseCase @Inject constructor(
-    private val profileRepository: ProfileRepositoryInterface,
+    private val profileRepository: ProfileRepositoryInterface
 ) {
     /**
-     * Sets up the player profile with a username and favorite skill.
-     *
-     * @param username The player's chosen username.
-     * @param favoriteSkill The player's favorite skill.
+     * Initializes the player profile with the provided username and favorite skill.
+     * 
+     * @param username The player's name.
+     * @param favoriteSkill The favorite skill.
      * @return True if setup was successful.
      */
     suspend operator fun invoke(username: String, favoriteSkill: String): Boolean {
-        if (username.isBlank() || favoriteSkill.isBlank()) return false
-
-        // Update Profile
-        val currentProfile = profileRepository.getProfile()
-        val updatedProfile = currentProfile.copy(
+        if (username.isBlank()) return false
+        
+        val profile = PlayerProfile(
             username = username,
             favoriteSkill = favoriteSkill
         )
-        profileRepository.updateProfile(updatedProfile)
-
+        
+        profileRepository.updateProfile(profile)
         return true
     }
 }

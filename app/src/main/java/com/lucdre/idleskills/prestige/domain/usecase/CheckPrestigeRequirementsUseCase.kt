@@ -4,22 +4,13 @@ import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import javax.inject.Inject
 
 /**
- * Use case for checking if the player meets the requirements to prestige.
- *
- * Validates prestige requirements based on current skill levels.
- * A player can prestige if they have reached at least one skill at level 99.
- *
- * @property skillRepository The repository for skill data.
+ * Use case for checking if the player meets prestige requirements.
  */
 class CheckPrestigeRequirementsUseCase @Inject constructor(
     private val skillRepository: SkillRepositoryInterface
 ) {
     /**
-     * Checks if the player can prestige based on their current state.
-     *
-     * Requirements: At least one skill must be at level 99.
-     *
-     * @return True if prestige requirements are met, false otherwise.
+     * @return True if the player can currently prestige.
      */
     suspend operator fun invoke(): Boolean {
         val skills = skillRepository.getSkills()
