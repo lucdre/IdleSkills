@@ -28,8 +28,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lucdre.idleskills.cards.domain.CardType
 import com.lucdre.idleskills.loot.domain.LootBox
-import com.lucdre.idleskills.loot.presentation.LiveScreenUiState
-import com.lucdre.idleskills.loot.presentation.LiveScreenViewModel
+import com.lucdre.idleskills.main.presentation.LiveScreenUiState
+import com.lucdre.idleskills.main.presentation.LiveScreenViewModel
 import com.lucdre.idleskills.skills.domain.skill.SkillMetadata
 import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
@@ -88,7 +88,7 @@ fun LiveScreenContent(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(getBiomeGradient(uiState.activeTrainingSkill))
+            .background(getBiomeGradient(uiState.activeTrainingSkill?.displayName))
     ) {
         // --- 1. GAME SCENE (Character & Object) ---
         Column(
@@ -98,12 +98,12 @@ fun LiveScreenContent(
         ) {
             if (uiState.activeTrainingSkill != null) {
                 // The training target (Tree/Rock/etc)
-                TrainingTarget(skillName = uiState.activeTrainingSkill)
+                TrainingTarget(skillName = uiState.activeTrainingSkill.displayName)
                 
                 Spacer(modifier = Modifier.height(32.dp))
                 
                 // The character performing the action
-                AnimatedCharacter(skillName = uiState.activeTrainingSkill)
+                AnimatedCharacter(skillName = uiState.activeTrainingSkill.displayName)
             } else {
                 Text(
                     text = "Start training a skill!",
@@ -117,21 +117,24 @@ fun LiveScreenContent(
 
         // --- 2. DROPS ---
         if (uiState.isSpriteVisible) {
-            val spriteIcon = getIconForSkill(uiState.activeTrainingSkill)
+            val spriteIcon = getIconForSkill(uiState.activeTrainingSkill?.displayName)
             
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(48.dp)
             ) {
+                // Pre-calculate bias to avoid constant recomposition during state changes
+                val alignment = remember(uiState.spritePosition) {
+                    BiasAlignment(
+                        horizontalBias = (uiState.spritePosition.x * 2) - 1,
+                        verticalBias = (uiState.spritePosition.y * 2) - 1
+                    )
+                }
+                
                 Box(
                     modifier = Modifier
-                        .align(
-                            BiasAlignment(
-                                horizontalBias = (uiState.spritePosition.x * 2) - 1,
-                                verticalBias = (uiState.spritePosition.y * 2) - 1
-                            )
-                        )
+                        .align(alignment)
                         .size(64.dp)
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.9f))
@@ -161,10 +164,11 @@ fun LiveScreenContent(
                     shape = CircleShape,
                     modifier = Modifier.padding(top = 8.dp)
                 ) {
+                    val skillName = uiState.activeTrainingSkill.displayName
                     val displayText = if (uiState.activeTrainingMethod != null) {
-                        "${uiState.activeTrainingSkill}: ${uiState.activeTrainingMethod}"
+                        "$skillName: ${uiState.activeTrainingMethod}"
                     } else {
-                        uiState.activeTrainingSkill
+                        skillName
                     }
                     Text(
                         text = displayText,
@@ -239,7 +243,7 @@ fun TrainingTarget(skillName: String) { //TODO specific icons for specific train
 fun AnimatedCharacter(skillName: String) {
     val infiniteTransition = rememberInfiniteTransition(label = "CharacterAnimation")
     
-    val modifier = when (skillName) {
+    val characterAnimationModifier = when (skillName) {
         "Woodcutting" -> {
             val rotation by infiniteTransition.animateFloat(
                 initialValue = -20f,
@@ -281,7 +285,7 @@ fun AnimatedCharacter(skillName: String) {
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
+        modifier = characterAnimationModifier
     ) {
         Icon(
             imageVector = Icons.Default.Person,
@@ -428,7 +432,7 @@ fun LiveScreenPreview() {
                 ),
                 isSpriteVisible = true,
                 spritePosition = Offset(0.55f, 0.45f),
-                activeTrainingSkill = "Woodcutting"
+                activeTrainingSkill = SkillType.WOODCUTTING
             ),
             onSpriteClick = {},
             onClearRewards = {},

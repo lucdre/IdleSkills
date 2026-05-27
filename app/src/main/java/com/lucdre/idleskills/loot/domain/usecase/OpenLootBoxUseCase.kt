@@ -20,15 +20,13 @@ class OpenLootBoxUseCase @Inject constructor(
     /**
      * Attempts to open a loot box for a specific skill.
      *
-     * @param skillName The skill origin of the box to open.
+     * @param skill The skill origin of the box to open.
      * @return Result containing the rewards if successful, or an error.
      */
-    suspend operator fun invoke(skillName: String): Result<Map<CardType, Int>> {
-        val skill = SkillType.fromString(skillName) ?: return Result.failure(Exception("Invalid skill: $skillName"))
-        
-        val success = lootRepository.consumeLootBox(skillName)
+    suspend operator fun invoke(skill: SkillType): Result<Map<CardType, Int>> {
+        val success = lootRepository.consumeLootBox(skill)
         if (!success) {
-            return Result.failure(Exception("No loot boxes available for $skillName."))
+            return Result.failure(Exception("No loot boxes available for ${skill.displayName}."))
         }
 
         val rewards = LootGenerator.generateRewards(skill, 20) //TODO change depending on the box potentially
@@ -39,5 +37,13 @@ class OpenLootBoxUseCase @Inject constructor(
         }
 
         return Result.success(rewards)
+    }
+
+    /**
+     * String-based overload for backward compatibility.
+     */
+    suspend operator fun invoke(skillName: String): Result<Map<CardType, Int>> {
+        val skill = SkillType.fromString(skillName) ?: return Result.failure(Exception("Invalid skill: $skillName"))
+        return invoke(skill)
     }
 }

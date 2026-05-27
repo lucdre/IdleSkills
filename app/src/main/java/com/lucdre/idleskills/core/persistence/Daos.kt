@@ -89,6 +89,15 @@ interface LootBoxDao {
     @Query("SELECT * FROM loot_boxes")
     fun observeLootBoxes(): Flow<List<LootBoxEntity>>
 
+    @Query("SELECT * FROM loot_boxes WHERE skillName = :skillName")
+    suspend fun getLootBoxBySkill(skillName: String): LootBoxEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun updateLootBox(lootBox: LootBoxEntity)
+    suspend fun insertOrUpdate(lootBox: LootBoxEntity)
+
+    /**
+     * Atomically updates the loot box count.
+     */
+    @Query("UPDATE loot_boxes SET count = count + :amount WHERE skillName = :skillName")
+    suspend fun updateLootBoxCount(skillName: String, amount: Int)
 }
