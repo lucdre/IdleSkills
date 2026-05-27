@@ -1,10 +1,8 @@
 package com.lucdre.idleskills.core.domain
 
 import android.util.Log
+import com.lucdre.idleskills.core.persistence.OfflineProgressDao
 import com.lucdre.idleskills.core.persistence.ProfileDao
-import com.lucdre.idleskills.core.persistence.SkillDao
-import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
-import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryDispatcher
 import javax.inject.Inject
@@ -25,14 +23,11 @@ data class OfflineProgressResult(
 
 /**
  * Manages the calculation and application of offline progress.
- *
- * This manager calculates the time elapsed since the last save and awards XP
- * for the player's active training method, capped at 48 hours.
  */
 @Singleton
 class OfflineProgressManager @Inject constructor(
     private val profileDao: ProfileDao,
-    private val skillDao: SkillDao,
+    private val offlineProgressDao: OfflineProgressDao,
     private val trainingMethodDispatcher: TrainingMethodRepositoryDispatcher
 ) {
 
@@ -70,38 +65,16 @@ class OfflineProgressManager @Inject constructor(
         val actionsCompleted = diffMs / method.actionDurationMs
         val earnedXp = (actionsCompleted * method.xpPerAction).toInt()
 
-        var result: OfflineProgressResult? = null
-
         if (earnedXp > 0) {
-            val skills = skillDao.getSkills()
-            val skillEntity = skills.find { it.name == activeSkillName }
+            offlineProgressDao.applyOfflineProgress(activeSkillName, earnedXp, now)
             
-            if (skillEntity != null) {
-                val currentSkill = Skill(
-                    name = skillEntity.name,
-                    xp = skillEntity.xp,
-                    level = LevelCalculator.calculateLevelFromTotalXp(skillEntity.xp)
-                )
-                
-                // Add XP and check for level up
-                val updatedXp = currentSkill.xp + earnedXp
-                val updatedLevel = LevelCalculator.calculateLevelFromTotalXp(updatedXp)
-                
-                // Persist the update
-                skillDao.insertOrUpdate(skillEntity.copy(xp = updatedXp))
-                
-                Log.d("OfflineProgressManager", 
-                    "Applied $earnedXp offline XP to $activeSkillName. " +
-                    "Level: ${currentSkill.level} -> $updatedLevel"
-                )
-
-                result = OfflineProgressResult(activeSkillName, earnedXp, diffMs)
-            }
+            Log.d("OfflineProgressManager", "Applied $earnedXp offline XP to $activeSkillName.")
+            return OfflineProgressResult(activeSkillName, earnedXp, diffMs)
+        } else {
+            // Even if no XP earned, update timestamp to prevent redundant checks
+            offlineProgressDao.updateProfile(profile.copy(lastSavedTimestamp = now))
         }
 
-        // Update the timestamp to 'now' after applying progress
-        profileDao.insertOrUpdate(profile.copy(lastSavedTimestamp = now))
-        
-        return result
+        return null
     }
 }

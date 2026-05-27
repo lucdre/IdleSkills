@@ -15,7 +15,7 @@ import androidx.room3.TypeConverters
         LootBoxEntity::class
     ],
     version = 1,
-    exportSchema = false
+    exportSchema = true // Enabled to support auto-migrations in the future
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
@@ -23,6 +23,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun skillDao(): SkillDao
     abstract fun cardDao(): CardDao
     abstract fun lootBoxDao(): LootBoxDao
+    abstract fun offlineProgressDao(): OfflineProgressDao
 
     /**
      * Resets the entire database by clearing all tables.

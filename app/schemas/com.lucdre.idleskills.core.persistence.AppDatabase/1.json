@@ -1,0 +1,173 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "a56a55113416fd9087ae7e70bab5c429",
+    "entities": [
+      {
+        "tableName": "player_profile",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `username` TEXT NOT NULL, `currentRegion` TEXT NOT NULL, `availablePrestigePoints` INTEGER NOT NULL, `totalPrestigePoints` INTEGER NOT NULL, `unlockedSkillTreeNodes` TEXT NOT NULL, `activeSkillName` TEXT, `activeMethodName` TEXT, `lastSavedTimestamp` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "username",
+            "columnName": "username",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "currentRegion",
+            "columnName": "currentRegion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "availablePrestigePoints",
+            "columnName": "availablePrestigePoints",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "totalPrestigePoints",
+            "columnName": "totalPrestigePoints",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "unlockedSkillTreeNodes",
+            "columnName": "unlockedSkillTreeNodes",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "activeSkillName",
+            "columnName": "activeSkillName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "activeMethodName",
+            "columnName": "activeMethodName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastSavedTimestamp",
+            "columnName": "lastSavedTimestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "skills",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `xp` INTEGER NOT NULL, PRIMARY KEY(`name`))",
+        "fields": [
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "xp",
+            "columnName": "xp",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "name"
+          ]
+        }
+      },
+      {
+        "tableName": "cards",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`cardType` TEXT NOT NULL, `name` TEXT NOT NULL, `quantity` INTEGER NOT NULL, `level` INTEGER NOT NULL, `efficiencyBonus` REAL NOT NULL, `iconResId` INTEGER NOT NULL, PRIMARY KEY(`cardType`))",
+        "fields": [
+          {
+            "fieldPath": "cardType",
+            "columnName": "cardType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quantity",
+            "columnName": "quantity",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "level",
+            "columnName": "level",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "efficiencyBonus",
+            "columnName": "efficiencyBonus",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "iconResId",
+            "columnName": "iconResId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "cardType"
+          ]
+        }
+      },
+      {
+        "tableName": "loot_boxes",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`skillName` TEXT NOT NULL, `count` INTEGER NOT NULL, PRIMARY KEY(`skillName`))",
+        "fields": [
+          {
+            "fieldPath": "skillName",
+            "columnName": "skillName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "count",
+            "columnName": "count",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "skillName"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a56a55113416fd9087ae7e70bab5c429')"
+    ]
+  }
+}

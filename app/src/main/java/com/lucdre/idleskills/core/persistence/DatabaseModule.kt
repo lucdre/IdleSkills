@@ -34,4 +34,7 @@ object DatabaseModule {
 
     @Provides
     fun provideLootBoxDao(db: AppDatabase): LootBoxDao = db.lootBoxDao()
+
+    @Provides
+    fun provideOfflineProgressDao(db: AppDatabase): OfflineProgressDao = db.offlineProgressDao()
 }

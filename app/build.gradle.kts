@@ -33,6 +33,11 @@ android {
     }
 }
 
+// Export Room schema for migrations
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 kotlin {
     jvmToolchain(17)
 }

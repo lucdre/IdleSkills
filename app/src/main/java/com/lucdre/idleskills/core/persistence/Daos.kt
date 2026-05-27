@@ -23,14 +23,50 @@ interface SkillDao {
     @Query("SELECT * FROM skills")
     suspend fun getSkills(): List<SkillEntity>
 
+    @Query("SELECT * FROM skills WHERE name = :name")
+    suspend fun getSkillByName(name: String): SkillEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrUpdate(skill: SkillEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(skills: List<SkillEntity>)
 
+    /**
+     * Atomically adds XP to a skill.
+     */
+    @Query("UPDATE skills SET xp = xp + :amount WHERE name = :name")
+    suspend fun addXpAtomically(name: String, amount: Int)
+
     @Query("DELETE FROM skills")
     suspend fun clearSkills()
+}
+
+/**
+ * Specialized DAO for operations involving multiple tables that must be atomic.
+ */
+@Dao
+interface OfflineProgressDao {
+    @Query("UPDATE skills SET xp = xp + :amount WHERE name = :name")
+    suspend fun addXpAtomically(name: String, amount: Int)
+
+    @Query("SELECT * FROM player_profile WHERE id = 0")
+    suspend fun getProfile(): ProfileEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateProfile(profile: ProfileEntity)
+
+    /**
+     * Atomic operation to apply offline XP and update the save timestamp.
+     */
+    @Transaction
+    suspend fun applyOfflineProgress(skillName: String, amount: Int, now: Long) {
+        addXpAtomically(skillName, amount)
+        val profile = getProfile()
+        if (profile != null) {
+            updateProfile(profile.copy(lastSavedTimestamp = now))
+        }
+    }
 }
 
 @Dao

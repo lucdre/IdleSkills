@@ -14,16 +14,19 @@ class Converters {
 
     @TypeConverter
     fun toRegion(value: String): Region {
-        return Region.valueOf(value)
+        // Use runCatching to handle cases where an enum value was renamed in code 
+        // but still exists in the user's database.
+        return runCatching { Region.valueOf(value) }
+            .getOrElse { Region.FIRST_REGION }
     }
 
     @TypeConverter
     fun fromStringSet(value: Set<String>): String {
-        return value.joinToString(",")
+        return value.joinToString("|")
     }
 
     @TypeConverter
     fun toStringSet(value: String): Set<String> {
-        return if (value.isEmpty()) emptySet() else value.split(",").toSet()
+        return if (value.isEmpty()) emptySet() else value.split("|").toSet()
     }
 }
