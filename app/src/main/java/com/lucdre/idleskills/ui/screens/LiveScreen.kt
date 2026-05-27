@@ -31,6 +31,7 @@ import com.lucdre.idleskills.loot.domain.LootBox
 import com.lucdre.idleskills.loot.presentation.LiveScreenUiState
 import com.lucdre.idleskills.loot.presentation.LiveScreenViewModel
 import com.lucdre.idleskills.skills.domain.skill.SkillMetadata
+import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
 /**
@@ -345,7 +346,7 @@ fun InventorySheetContent(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(ownedBoxes) { box ->
-                    LootBoxItem(box = box, onOpenClick = { onOpenBoxClick(box.skillName) })
+                    LootBoxItem(box = box, onOpenClick = { onOpenBoxClick(box.skill.displayName) })
                 }
             }
         }
@@ -422,8 +423,8 @@ fun LiveScreenPreview() {
         LiveScreenContent(
             uiState = LiveScreenUiState(
                 lootBoxes = listOf(
-                    LootBox("Woodcutting", 5),
-                    LootBox("Mining", 2)
+                    LootBox(SkillType.WOODCUTTING, 5),
+                    LootBox(SkillType.MINING, 2)
                 ),
                 isSpriteVisible = true,
                 spritePosition = Offset(0.55f, 0.45f),

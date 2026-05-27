@@ -4,6 +4,7 @@ import com.lucdre.idleskills.cards.domain.CardRepositoryInterface
 import com.lucdre.idleskills.cards.domain.CardType
 import com.lucdre.idleskills.loot.domain.LootGenerator
 import com.lucdre.idleskills.loot.domain.LootRepositoryInterface
+import com.lucdre.idleskills.skills.domain.skill.SkillType
 import javax.inject.Inject
 
 /**
@@ -23,12 +24,14 @@ class OpenLootBoxUseCase @Inject constructor(
      * @return Result containing the rewards if successful, or an error.
      */
     suspend operator fun invoke(skillName: String): Result<Map<CardType, Int>> {
+        val skill = SkillType.fromString(skillName) ?: return Result.failure(Exception("Invalid skill: $skillName"))
+        
         val success = lootRepository.consumeLootBox(skillName)
         if (!success) {
             return Result.failure(Exception("No loot boxes available for $skillName."))
         }
 
-        val rewards = LootGenerator.generateRewards(skillName, 1) //TODO change depending on the box potentially
+        val rewards = LootGenerator.generateRewards(skill, 20) //TODO change depending on the box potentially
 
         // Add rewards
         rewards.forEach { (type, quantity) ->

@@ -3,6 +3,7 @@ package com.lucdre.idleskills.skills.domain.training
 import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
+import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.skills.domain.skill.usecase.UpdateSkillUseCase
 import com.lucdre.idleskills.skills.domain.training.usecase.RecordTrainingActionUseCase
 import kotlinx.coroutines.*
@@ -11,7 +12,12 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * State of the current training session.
+ * UI state representing the current training status.
+ *
+ * @property activeSkill The skill currently being trained, or null if idle.
+ * @property activeMethod The training method currently being used, or null if idle.
+ * @property progress The progress of the current training action (0 to 1.0).
+ * @property isPaused Whether training is currently paused.
  */
 data class TrainingState(
     val activeSkill: Skill? = null,
@@ -54,19 +60,11 @@ class TrainingService @Inject constructor(
         )
     }
 
-    /**
-     * Starts or pauses training for a skill and method.
-     */
     fun toggleTraining(skill: Skill, method: TrainingMethod) {
         val currentState = _trainingState.value
-        
-        if (currentState.activeSkill?.name == skill.name && 
-            currentState.activeMethod?.name == method.name && 
-            !currentState.isPaused) {
-            // Same skill and method is already training, so pause it
+        if (currentState.activeSkill?.name == skill.name && currentState.activeMethod?.name == method.name) {
             stopTraining()
         } else {
-            // Start or switch to new training
             startTraining(skill, method)
         }
     }
@@ -90,8 +88,9 @@ class TrainingService @Inject constructor(
 
         // Observe active cards and update manager
         cardsJob = serviceScope.launch {
-            getActiveCardsUseCase(skill.name, method.name).collect { cards ->
-                if (!trainingManager!!.isTraining(skill.name)) {
+            val skillType = SkillType.fromString(skill.name) ?: SkillType.WOODCUTTING
+            getActiveCardsUseCase(skillType, method.name).collect { cards ->
+                if (trainingManager?.isTraining(skill.name) == false) {
                     trainingManager?.startTraining(skill, method, cards)
                 } else {
                     trainingManager?.updateCards(cards)

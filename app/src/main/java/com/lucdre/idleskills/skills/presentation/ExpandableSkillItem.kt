@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillMetadata
+import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 import com.lucdre.idleskills.skills.presentation.components.SkillXpBar
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
@@ -218,12 +219,12 @@ fun ExpandableSkillItemCollapsedPreview() {
 @Composable
 fun ExpandableSkillItemExpandedPreview() {
     val methods = listOf(
-        TrainingMethod("Woodcutting", "Tree", 10, 10000, requiredCardType = com.lucdre.idleskills.cards.domain.CardType.WOODCUTTING_AXE),
-        TrainingMethod("Woodcutting", "Oak Tree", 15, 10000, 5, requiredCardType = com.lucdre.idleskills.cards.domain.CardType.WOODCUTTING_AXE),
-        TrainingMethod("Woodcutting", "Willow Tree", 30, 15000, 20, requiredCardType = com.lucdre.idleskills.cards.domain.CardType.WOODCUTTING_AXE),
-        TrainingMethod("Woodcutting", "Willow Tree", 30, 15000, 20, requiredCardType = com.lucdre.idleskills.cards.domain.CardType.WOODCUTTING_AXE),
-        TrainingMethod("Woodcutting", "Willow Tree", 30, 15000, 20, requiredCardType = com.lucdre.idleskills.cards.domain.CardType.WOODCUTTING_AXE),
-        TrainingMethod("Woodcutting", "Willow Tree", 30, 15000, 20, requiredCardType = com.lucdre.idleskills.cards.domain.CardType.WOODCUTTING_AXE)
+        TrainingMethod(SkillType.WOODCUTTING, "Tree", 10, 10000, requiredCardType = com.lucdre.idleskills.cards.domain.CardType.WOODCUTTING_AXE),
+        TrainingMethod(SkillType.WOODCUTTING, "Oak Tree", 15, 10000, 5, requiredCardType = com.lucdre.idleskills.cards.domain.CardType.WOODCUTTING_AXE),
+        TrainingMethod(SkillType.WOODCUTTING, "Willow Tree", 30, 15000, 20, requiredCardType = com.lucdre.idleskills.cards.domain.CardType.WOODCUTTING_AXE),
+        TrainingMethod(SkillType.WOODCUTTING, "Willow Tree", 30, 15000, 20, requiredCardType = com.lucdre.idleskills.cards.domain.CardType.WOODCUTTING_AXE),
+        TrainingMethod(SkillType.WOODCUTTING, "Willow Tree", 30, 15000, 20, requiredCardType = com.lucdre.idleskills.cards.domain.CardType.WOODCUTTING_AXE),
+        TrainingMethod(SkillType.WOODCUTTING, "Willow Tree", 30, 15000, 20, requiredCardType = com.lucdre.idleskills.cards.domain.CardType.WOODCUTTING_AXE)
 
     )
     val activeCards = listOf(

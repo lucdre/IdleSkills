@@ -6,6 +6,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.cards.domain.CardType
 import com.lucdre.idleskills.skills.domain.skill.SkillMetadata
+import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
@@ -72,9 +73,9 @@ fun GenericTrainingMethodsPanel(
 fun WoodcuttingTrainingMethodsPanelPreview() {
     IdleSkillsTheme {
         val methods = listOf(
-            TrainingMethod("Woodcutting", "Tree", 10, 3000, requiredCardType = CardType.WOODCUTTING_AXE),
-            TrainingMethod("Woodcutting", "Oak Tree", 15, 4000, 10, requiredCardType = CardType.WOODCUTTING_AXE),
-            TrainingMethod("Woodcutting", "Willow Tree", 22, 5000, 25, requiredCardType = CardType.WOODCUTTING_AXE)
+            TrainingMethod(SkillType.WOODCUTTING, "Tree", 10, 3000, requiredCardType = CardType.WOODCUTTING_AXE),
+            TrainingMethod(SkillType.WOODCUTTING, "Oak Tree", 15, 4000, 10, requiredCardType = CardType.WOODCUTTING_AXE),
+            TrainingMethod(SkillType.WOODCUTTING, "Willow Tree", 22, 5000, 25, requiredCardType = CardType.WOODCUTTING_AXE)
         )
 
         GenericTrainingMethodsPanel(
@@ -91,9 +92,9 @@ fun WoodcuttingTrainingMethodsPanelPreview() {
 fun MiningTrainingMethodsPanelPreview() {
     IdleSkillsTheme {
         val methods = listOf(
-            TrainingMethod("Mining", "Copper Rock", 10, 3000, requiredCardType = CardType.MINING_PICKAXE),
-            TrainingMethod("Mining", "Tin Rock", 10, 3000, requiredCardType = CardType.MINING_PICKAXE),
-            TrainingMethod("Mining", "Iron Rock", 20, 4000, 5, requiredCardType = CardType.MINING_PICKAXE)
+            TrainingMethod(SkillType.MINING, "Copper Rock", 10, 3000, requiredCardType = CardType.MINING_PICKAXE),
+            TrainingMethod(SkillType.MINING, "Tin Rock", 10, 3000, requiredCardType = CardType.MINING_PICKAXE),
+            TrainingMethod(SkillType.MINING, "Iron Rock", 20, 4000, 5, requiredCardType = CardType.MINING_PICKAXE)
         )
 
         GenericTrainingMethodsPanel(
@@ -110,9 +111,9 @@ fun MiningTrainingMethodsPanelPreview() {
 fun FishingTrainingMethodsPanelPreview() {
     IdleSkillsTheme {
         val methods = listOf(
-            TrainingMethod("Fishing", "Sardine", 10, 3000, requiredCardType = CardType.FISHING_NET),
-            TrainingMethod("Fishing", "Trout", 20, 4000, 5, requiredCardType = CardType.FISHING_ROD),
-            TrainingMethod("Fishing", "Shark", 350, 30000, 80, requiredCardType = CardType.FISHING_HARPOON)
+            TrainingMethod(SkillType.FISHING, "Sardine", 10, 3000, requiredCardType = CardType.FISHING_NET),
+            TrainingMethod(SkillType.FISHING, "Trout", 20, 4000, 5, requiredCardType = CardType.FISHING_ROD),
+            TrainingMethod(SkillType.FISHING, "Shark", 350, 30000, 80, requiredCardType = CardType.FISHING_HARPOON)
         )
 
         GenericTrainingMethodsPanel(

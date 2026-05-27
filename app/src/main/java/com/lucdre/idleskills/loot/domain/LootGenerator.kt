@@ -1,6 +1,7 @@
 package com.lucdre.idleskills.loot.domain
 
 import com.lucdre.idleskills.cards.domain.CardType
+import com.lucdre.idleskills.skills.domain.skill.SkillType
 import kotlin.random.Random
 
 /**
@@ -31,17 +32,17 @@ object LootGenerator {
     /**
      * Generates a random set of rewards based on the box's origin skill.
      *
-     * @param originSkill The skill name the loot box came from. 
+     * @param originSkill The skill the loot box came from. 
      *                   Bias will be applied to cards of this skill.
      * @param amountToDrop Number of card drops to generate.
      * @return A map of [CardType] to quantity dropped.
      */
-    fun generateRewards(originSkill: String, amountToDrop: Int): Map<CardType, Int> {
+    fun generateRewards(originSkill: SkillType, amountToDrop: Int): Map<CardType, Int> {
         val rewards = mutableMapOf<CardType, Int>()
         
         // Apply bias: Cards matching the origin skill are 10x more likely to drop
         val weightedConfigs = dropConfigs.map { config ->
-            val finalWeight = if (config.cardType.skillName == originSkill) {
+            val finalWeight = if (config.cardType.skill == originSkill) {
                 config.weight * 10
             } else {
                 config.weight

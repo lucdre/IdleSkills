@@ -5,6 +5,7 @@ import com.lucdre.idleskills.core.persistence.ProfileDao
 import com.lucdre.idleskills.core.persistence.SkillDao
 import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
 import com.lucdre.idleskills.skills.domain.skill.Skill
+import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryDispatcher
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -61,7 +62,8 @@ class OfflineProgressManager @Inject constructor(
         }
 
         // Get the training method to determine XP rate
-        val methods = trainingMethodDispatcher.getTrainingMethodsForSkill(activeSkillName, profile.currentRegion)
+        val skill = SkillType.fromString(activeSkillName) ?: return null
+        val methods = trainingMethodDispatcher.getTrainingMethodsForSkill(skill, profile.currentRegion)
         val method = methods.find { it.name == activeMethodName } ?: return null
 
         // Calculate XP: (Diff / ActionDuration) * XpPerAction

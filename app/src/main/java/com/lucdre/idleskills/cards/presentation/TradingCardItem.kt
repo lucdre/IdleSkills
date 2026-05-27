@@ -39,7 +39,7 @@ fun TradingCardItem(
     card: GameCard,
     onClick: () -> Unit
 ) {
-    val skillTheme = SkillMetadata.getTheme(card.type.skillName)
+    val skillTheme = SkillMetadata.getTheme(card.type.skill)
     val cardColor = skillTheme.primaryColor
 
     Card(

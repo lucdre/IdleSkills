@@ -4,6 +4,7 @@ import com.lucdre.idleskills.core.persistence.LootBoxDao
 import com.lucdre.idleskills.core.persistence.LootBoxEntity
 import com.lucdre.idleskills.loot.domain.LootBox
 import com.lucdre.idleskills.loot.domain.LootRepositoryInterface
+import com.lucdre.idleskills.skills.domain.skill.SkillType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -19,7 +20,10 @@ class LootRepository @Inject constructor(
 ) : LootRepositoryInterface {
 
     override fun observeLootBoxes(): Flow<List<LootBox>> = lootBoxDao.observeLootBoxes().map { entities ->
-        entities.map { LootBox(it.skillName, it.count) }
+        entities.mapNotNull { 
+            val skill = SkillType.fromString(it.skillName)
+            if (skill != null) LootBox(skill, it.count) else null
+        }
     }
 
     override suspend fun collectLootBox(skillName: String) {

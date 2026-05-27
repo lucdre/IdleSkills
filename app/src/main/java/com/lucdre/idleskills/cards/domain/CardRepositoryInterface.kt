@@ -1,5 +1,6 @@
 package com.lucdre.idleskills.cards.domain
 
+import com.lucdre.idleskills.skills.domain.skill.SkillType
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -14,7 +15,7 @@ interface CardRepositoryInterface {
     /**
      * Retrieves cards owned by the player for a specific skill.
      */
-    fun getCardsForSkill(skillName: String): Flow<List<Card>>
+    fun getCardsForSkill(skill: SkillType): Flow<List<Card>>
 
     /**
      * Updates a specific card in the player's collection.

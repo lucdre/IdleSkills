@@ -1,6 +1,7 @@
 package com.lucdre.idleskills.skills.domain.training.usecase
 
 import com.lucdre.idleskills.profile.domain.ProfileRepositoryInterface
+import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryInterface
 
@@ -20,12 +21,14 @@ class GetTrainingMethodUseCase(
 ) {
     suspend operator fun invoke(skillName: String): List<TrainingMethod> {
         val region = profileRepository.getProfile().currentRegion
-        return trainingMethodRepository.getTrainingMethodsForSkill(skillName, region)
+        val skill = SkillType.fromString(skillName) ?: return emptyList()
+        return trainingMethodRepository.getTrainingMethodsForSkill(skill, region)
     }
 
     suspend fun getBestAvailableMethod(skillName: String, currentLevel: Int): TrainingMethod? {
         val region = profileRepository.getProfile().currentRegion
-        val methods = trainingMethodRepository.getTrainingMethodsForSkill(skillName, region)
+        val skill = SkillType.fromString(skillName) ?: return null
+        val methods = trainingMethodRepository.getTrainingMethodsForSkill(skill, region)
 
         // Get all methods that user has the level for
         val availableMethods = methods.filter { it.requiredLevel <= currentLevel }

@@ -7,6 +7,7 @@ import com.lucdre.idleskills.core.persistence.SkillEntity
 import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
+import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.skills.domain.training.ActiveTraining
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -22,14 +23,7 @@ class SkillRepository @Inject constructor(
     private val profileDao: ProfileDao
 ) : SkillRepositoryInterface {
 
-    private val initialSkills = listOf(
-        Skill("Woodcutting"),
-        Skill("Mining"),
-        Skill("Fishing"),
-        Skill("Smelting"),
-        Skill("Cooking"),
-        Skill("Smithing")
-    )
+    private val initialSkills = SkillType.entries.map { Skill(it.displayName) }
 
     override fun observeSkills(): Flow<List<Skill>> {
         return skillDao.observeSkills().map { entities ->

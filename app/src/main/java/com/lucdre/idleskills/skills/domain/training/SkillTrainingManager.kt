@@ -96,7 +96,7 @@ class SkillTrainingManager(
                 try {
                     // Record action count
                     activeMethod?.let { method ->
-                        recordTrainingActionUseCase(method.skillName, method.name)
+                        recordTrainingActionUseCase(method.skill.displayName, method.name)
                     }
 
                     val updatedSkill = updateSkillUseCase(currentSkill, xpGained)

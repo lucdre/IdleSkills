@@ -10,6 +10,7 @@ import com.lucdre.idleskills.profile.domain.usecase.ObserveStatisticsUseCase
 import com.lucdre.idleskills.region.domain.usecase.GetVisibleSkillsUseCase
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
+import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 import com.lucdre.idleskills.skills.domain.training.TrainingService
 import com.lucdre.idleskills.skills.domain.training.usecase.GetAvailableTrainingMethodsUseCase
@@ -92,8 +93,11 @@ class SkillListViewModel @Inject constructor(
 
     // High-frequency cards update
     private val activeCardsFlow = trainingService.trainingState.flatMapLatest { training ->
-        if (training.activeSkill != null && training.activeMethod != null) {
-            getActiveCardsUseCase(training.activeSkill.name, training.activeMethod.name)
+        val skillName = training.activeSkill?.name
+        val skillType = if (skillName != null) SkillType.fromString(skillName) else null
+        
+        if (skillType != null && training.activeMethod != null) {
+            getActiveCardsUseCase(skillType, training.activeMethod.name)
         } else {
             flowOf(emptyList())
         }
@@ -130,7 +134,7 @@ class SkillListViewModel @Inject constructor(
      * Toggles training for a specific method.
      */
     fun selectTrainingMethod(method: TrainingMethod) {
-        val skill = uiState.value.skills.find { it.name == method.skillName }
+        val skill = uiState.value.skills.find { it.name == method.skill.displayName }
         if (skill != null) {
             trainingService.toggleTraining(skill, method)
         }

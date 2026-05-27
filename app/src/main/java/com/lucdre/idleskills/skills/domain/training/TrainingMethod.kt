@@ -3,12 +3,13 @@ package com.lucdre.idleskills.skills.domain.training
 import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.cards.domain.CardType
 import com.lucdre.idleskills.region.domain.Region
+import com.lucdre.idleskills.skills.domain.skill.SkillType
 import kotlin.math.roundToInt
 
 /**
  * Represents a training method that can be used to train a specific skill.
  *
- * @property skillName The name of the skill this training method is used for.
+ * @property skill The skill this training method is used for.
  * @property name The name of the training method.
  * @property xpPerAction The XP you get per action.
  * @property actionDurationMs The time the action takes to complete in milliseconds.
@@ -17,7 +18,7 @@ import kotlin.math.roundToInt
  * @property availableRegions The list of regions where this training method is available.
  */
 data class TrainingMethod(
-    val skillName: String,
+    val skill: SkillType,
     val name: String,
     val xpPerAction: Int,
     val actionDurationMs: Long,
