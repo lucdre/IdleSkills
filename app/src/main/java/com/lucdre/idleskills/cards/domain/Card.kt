@@ -24,7 +24,7 @@ data class Card(
      * @return The number of cards required to upgrade to the next level.
      */
     fun getUpgradeRequirement(): Int {
-        return level * 10 //TODO Placeholder
+        return type.getUpgradeRequirement(level)
     }
 
     /**
@@ -44,7 +44,7 @@ data class Card(
         return copy(
             level = level + 1,
             quantity = quantity - getUpgradeRequirement(),
-            efficiencyBonus = efficiencyBonus + 0.05f
+            efficiencyBonus = efficiencyBonus + type.bonusPerLevel
         )
     }
 }

@@ -3,9 +3,10 @@ package com.lucdre.idleskills.cards.domain.usecase
 import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.cards.domain.CardRepositoryInterface
 import com.lucdre.idleskills.profile.domain.ProfileRepositoryInterface
+import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryInterface
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
 
 /**
@@ -24,15 +25,18 @@ class GetActiveCardsUseCase @Inject constructor(
     private val trainingMethodRepository: TrainingMethodRepositoryInterface,
     private val profileRepository: ProfileRepositoryInterface
 ) {
-    operator fun invoke(skillName: String, methodName: String?): Flow<List<Card>> {
-        return cardRepository.getCardsForSkill(skillName).map { cards ->
+    operator fun invoke(skill: SkillType, methodName: String?): Flow<List<Card>> {
+        return combine(
+            cardRepository.getCardsForSkill(skill),
+            profileRepository.observeProfile()
+        ) { cards, profile ->
             if (methodName == null) {
                 // If no method, return all cards for the skill (e.g., for general display)
                 cards
             } else {
                 // Find the training method to get its required card type
-                val region = profileRepository.getProfile().currentRegion
-                val method = trainingMethodRepository.getTrainingMethodsForSkill(skillName, region)
+                val region = profile.currentRegion
+                val method = trainingMethodRepository.getTrainingMethodsForSkill(skill, region)
                     .find { it.name == methodName }
 
                 val requiredType = method?.requiredCardType

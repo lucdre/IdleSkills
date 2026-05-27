@@ -6,6 +6,7 @@ import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.cards.domain.usecase.GetOwnedCardsUseCase
 import com.lucdre.idleskills.cards.domain.usecase.UpgradeCardUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -37,15 +38,18 @@ class CardViewModel @Inject constructor(
     val uiState: StateFlow<CardUiState> = _uiState.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            getOwnedCardsUseCase().collect { cards ->
-                val grouped = cards.groupBy { it.type.skillName }
+        getOwnedCardsUseCase()
+            .map { cards ->
+                cards.groupBy { it.type.skill.displayName }
+            }
+            .flowOn(Dispatchers.Default) // Offload grouping to background thread
+            .onEach { grouped ->
                 _uiState.update { it.copy(
                     cardsBySkill = grouped,
                     isLoading = false
                 ) }
             }
-        }
+            .launchIn(viewModelScope)
     }
 
     /**

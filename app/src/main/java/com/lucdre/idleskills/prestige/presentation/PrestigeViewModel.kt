@@ -12,6 +12,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -50,32 +52,42 @@ class PrestigeViewModel @Inject constructor(
         }
 
         // Also observe skills for prestige requirement changes
+        // Only refresh when the "can prestige" status (any skill >= 99) actually changes
         viewModelScope.launch {
-            skillRepository.observeSkills().collect { skills ->
-                Log.d("PrestigeViewModel", "Skills changed, refreshing prestige state")
-                loadPrestigeState()
-            }
+            skillRepository.observeSkills()
+                .map { skills -> skills.any { it.level >= 99 } }
+                .distinctUntilChanged()
+                .collect { canPrestige ->
+                    Log.d("PrestigeViewModel", "Prestige eligibility changed to: $canPrestige. Refreshing state.")
+                    loadPrestigeState(silent = true)
+                }
         }
     }
 
     /**
      * Loads the current prestige state, including whether prestige is possible.
+     *
+     * @param silent If true, does not update loading or error state in UI state.
      */
-    fun loadPrestigeState() {
+    fun loadPrestigeState(silent: Boolean = false) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
+            if (!silent) _uiState.value = _uiState.value.copy(isLoading = true)
             try {
                 val prestigeState = getPrestigeStateUseCase()
                 _uiState.value = _uiState.value.copy(
                     prestige = prestigeState,
-                    isLoading = false,
-                    error = null
+                    isLoading = if (!silent) false else _uiState.value.isLoading,
+                    error = if (!silent) null else _uiState.value.error
                 )
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    error = "Failed to load prestige state: ${e.message}",
-                    isLoading = false
-                )
+                if (!silent) {
+                    _uiState.value = _uiState.value.copy(
+                        error = "Failed to load prestige state: ${e.message}",
+                        isLoading = false
+                    )
+                } else {
+                    Log.e("PrestigeViewModel", "Failed to silently load prestige state", e)
+                }
             }
         }
     }
