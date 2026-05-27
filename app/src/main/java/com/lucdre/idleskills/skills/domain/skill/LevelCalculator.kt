@@ -1,34 +1,71 @@
 package com.lucdre.idleskills.skills.domain.skill
 
+import kotlin.math.floor
 import kotlin.math.pow
 
 /**
  * Utility object to calculate everything related to XP and skill levels.
  *
- * ## XP Formula: WIP
  */
 object LevelCalculator {
 
     /**
-     * (Placeholder) //TODO
-     * Base XP required from level 1 to level 2.
+     * Maximum level.
      */
-    private const val BASE_XP = 10
+    private const val MAX_LEVEL = 126
 
     /**
-     * (Placeholder)
-     * Exponential scaling factor to determine subsequent XP requirements to level up.
+     * Maximum XP.
      */
-    private const val SCALING_FACTOR = 1.1
+    private const val MAX_XP = 200_000_000
 
     /**
-     * Calculates XP required from current level to the next level.
+     * Precomputed XP table for levels 1 to 126.
+     */
+    private val xpTable: IntArray = IntArray(MAX_LEVEL + 1) { lvl ->
+        calculateXpForLevel(lvl)
+    }
+
+    val maxXp: Int
+        get() = MAX_XP
+
+    /**
+     * Calculates the exact total XP required for a specific level.
+     * 
+     * Internal implementation of formula:
+     * XP(L) = floor(1/4 * sum_{i=1 to L-1} floor(i + 300 * 2^(i/7)))
+     */
+    private fun calculateXpForLevel(level: Int): Int {
+        if (level <= 1) return 0
+        
+        var total = 0.0
+        for (i in 1 until level) {
+            total += floor(i + 300.0 * 2.0.pow(i / 7.0))
+        }
+        
+        return floor(total / 4.0).toInt().coerceAtMost(MAX_XP)
+    }
+
+    /**
+     * Calculates the total XP required to reach a specific level starting from level 1 (0 XP).
+     *
+     * @param targetLevel The target level to reach.
+     * @return Total XP required for the target level.
+     */
+    fun totalXpForLevel(targetLevel: Int): Int {
+        if (targetLevel > MAX_LEVEL) return MAX_XP
+        return xpTable[targetLevel.coerceIn(1, MAX_LEVEL)]
+    }
+
+    /**
+     * Calculates XP required to reach the next level from the start of the current level.
      *
      * @param currentLevel The current level of the skill.
-     * @return XP needed for the next level.
+     * @return XP needed to progress from currentLevel to currentLevel + 1.
      */
     fun xpForNextLevel(currentLevel: Int): Int {
-        return (BASE_XP * SCALING_FACTOR.pow(currentLevel - 1)).toInt()
+        if (currentLevel >= MAX_LEVEL) return (MAX_XP - (totalXpForLevel(currentLevel)))
+        return totalXpForLevel(currentLevel + 1) - totalXpForLevel(currentLevel)
     }
 
     /**
@@ -38,19 +75,16 @@ object LevelCalculator {
      * @return The current level based on total XP.
      */
     fun calculateLevelFromTotalXp(totalXp: Int): Int {
-        var level = 1
-        var xpAccumulated = 0
-
-        while (true) {
-            val xpForNext = xpForNextLevel(level)
-            if (xpAccumulated + xpForNext <= totalXp) {
-                xpAccumulated += xpForNext
-                level++
-            } else {
-                break
-            }
-        }
-        return level
+        val xp = totalXp.coerceIn(0, MAX_XP)
+        
+        // Binary search for efficient level lookup
+        val result = xpTable.binarySearch(xp)
+        return if (result >= 0) {
+            result
+        } else {
+            val insertionPoint = -(result + 1)
+            insertionPoint - 1
+        }.coerceIn(1, MAX_LEVEL)
     }
 
     /**
@@ -61,8 +95,9 @@ object LevelCalculator {
      * @return XP needed to reach the next level (how much more XP is needed beyond current total).
      */
     fun xpToNextLevelFromTotal(currentTotalXp: Int, currentLevel: Int): Int {
+        if (currentLevel >= MAX_LEVEL) return 0
         val totalXpForNextLevel = totalXpForLevel(currentLevel + 1)
-        return totalXpForNextLevel - currentTotalXp
+        return (totalXpForNextLevel - currentTotalXp).coerceAtLeast(0)
     }
 
     /**
@@ -80,17 +115,5 @@ object LevelCalculator {
         } else {
             skill
         }
-    }
-
-    /**
-     * (Placeholder)
-     * Calculate total XP required to reach a specific level from level 1.
-     */
-    fun totalXpForLevel(targetLevel: Int): Int {
-        var totalXp = 0
-        for (level in 1 until targetLevel) {
-            totalXp += xpForNextLevel(level)
-        }
-        return totalXp
     }
 }
