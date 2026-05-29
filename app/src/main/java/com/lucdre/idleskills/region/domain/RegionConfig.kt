@@ -16,7 +16,7 @@ object RegionConfig {
     /**
      * Get all skills that should be visible in a given region.
      */
-    fun getSkillsForRegion(region: Region): List<String> {
-        return regionSkills[region]?.map { it.displayName } ?: emptyList()
+    fun getSkillsForRegion(region: Region): List<SkillType> {
+        return regionSkills[region] ?: emptyList()
     }
 }

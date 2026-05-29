@@ -1,7 +1,7 @@
 package com.lucdre.idleskills.region.domain.usecase
 
 import com.lucdre.idleskills.profile.domain.ProfileRepositoryInterface
-import com.lucdre.idleskills.region.domain.RegionConfig
+import com.lucdre.idleskills.region.domain.RegionRepositoryInterface
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import kotlinx.coroutines.flow.Flow
@@ -15,10 +15,12 @@ import javax.inject.Inject
  *
  * @property skillRepository The repository for skill data.
  * @property profileRepository The repository for profile data.
+ * @property regionRepository The repository for region data.
  */
 class GetVisibleSkillsUseCase @Inject constructor(
     private val skillRepository: SkillRepositoryInterface,
-    private val profileRepository: ProfileRepositoryInterface
+    private val profileRepository: ProfileRepositoryInterface,
+    private val regionRepository: RegionRepositoryInterface
 ) {
     /**
      * Returns the list of skills that should be visible based on the current region.
@@ -30,10 +32,12 @@ class GetVisibleSkillsUseCase @Inject constructor(
         val profile = profileRepository.getProfile()
         
         val currentRegion = profile.currentRegion
-        val regionSkillNames = RegionConfig.getSkillsForRegion(currentRegion)
+        val regionSkills = regionRepository.getSkillsForRegion(currentRegion)
+
+        val skillMap = skills.associateBy { it.name }
         
-        return regionSkillNames.mapNotNull { name ->
-            skills.find { it.name == name }
+        return regionSkills.mapNotNull { type ->
+            skillMap[type.displayName]
         }
     }
 
@@ -48,10 +52,12 @@ class GetVisibleSkillsUseCase @Inject constructor(
             profileRepository.observeProfile()
         ) { skills, profile ->
             val currentRegion = profile.currentRegion
-            val regionSkillNames = RegionConfig.getSkillsForRegion(currentRegion)
+            val regionSkills = regionRepository.getSkillsForRegion(currentRegion)
             
-            regionSkillNames.mapNotNull { name ->
-                skills.find { it.name == name }
+            val skillMap = skills.associateBy { it.name }
+            
+            regionSkills.mapNotNull { type ->
+                skillMap[type.displayName]
             }
         }
     }
