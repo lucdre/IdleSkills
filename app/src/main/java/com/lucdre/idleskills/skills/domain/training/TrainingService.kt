@@ -4,7 +4,6 @@ import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import com.lucdre.idleskills.skills.domain.skill.SkillType
-import com.lucdre.idleskills.skills.domain.skill.usecase.UpdateSkillUseCase
 import com.lucdre.idleskills.skills.domain.training.usecase.RecordTrainingActionUseCase
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -28,11 +27,9 @@ data class TrainingState(
 
 /**
  * Domain service that manages the training ticker and state.
- * Lives for the duration of the app as a Singleton.
  */
 @Singleton
 class TrainingService @Inject constructor(
-    private val updateSkillUseCase: UpdateSkillUseCase,
     private val recordTrainingActionUseCase: RecordTrainingActionUseCase,
     private val getActiveCardsUseCase: GetActiveCardsUseCase,
     private val skillRepository: SkillRepositoryInterface
@@ -46,9 +43,8 @@ class TrainingService @Inject constructor(
     private var cardsJob: Job? = null
 
     init {
-        // Initialize manager with callbacks that update the StateFlow
         trainingManager = SkillTrainingManager(
-            updateSkillUseCase = updateSkillUseCase,
+            skillRepository = skillRepository,
             recordTrainingActionUseCase = recordTrainingActionUseCase,
             coroutineScope = serviceScope,
             onProgressUpdate = { progress ->
@@ -70,7 +66,7 @@ class TrainingService @Inject constructor(
     }
 
     fun startTraining(skill: Skill, method: TrainingMethod) {
-        stopTraining() // Ensure previous is stopped
+        stopTraining()
 
         _trainingState.update { 
             it.copy(
@@ -81,12 +77,10 @@ class TrainingService @Inject constructor(
             )
         }
 
-        // Persist active training in repository
         serviceScope.launch {
             skillRepository.setActiveTraining(ActiveTraining(skill.name, method.name))
         }
 
-        // Observe active cards and update manager
         cardsJob = serviceScope.launch {
             val skillType = SkillType.fromString(skill.name) ?: SkillType.WOODCUTTING
             getActiveCardsUseCase(skillType, method.name).collect { cards ->

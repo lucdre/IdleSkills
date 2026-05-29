@@ -3,20 +3,17 @@ package com.lucdre.idleskills.skills.domain.training
 import android.util.Log
 import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.skills.domain.skill.Skill
-import com.lucdre.idleskills.skills.domain.skill.usecase.UpdateSkillUseCase
+import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import com.lucdre.idleskills.skills.domain.training.usecase.RecordTrainingActionUseCase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 
 /**
  * Manages the active training process for a specific skill.
  *
- * Updates XP via [UpdateSkillUseCase], records actions via [RecordTrainingActionUseCase],
+ * Updates XP, records actions via [RecordTrainingActionUseCase],
  * and notifies listeners about progress and skill state changes.
  *
- * @property updateSkillUseCase The use case responsible for applying XP and handling level ups.
  * @property recordTrainingActionUseCase The use case responsible for recording training actions.
  * @property coroutineScope The scope used to launch and manage the training coroutine.
  * @property onProgressUpdate A callback lambda function invoked periodically during a training
@@ -25,25 +22,21 @@ import kotlinx.coroutines.launch
  *                         and XP has been applied, providing the updated [Skill] object.
  */
 class SkillTrainingManager(
-    private val updateSkillUseCase: UpdateSkillUseCase,
+    private val skillRepository: SkillRepositoryInterface,
     private val recordTrainingActionUseCase: RecordTrainingActionUseCase,
     private val coroutineScope: CoroutineScope,
     private val onProgressUpdate: (Float) -> Unit,
     private val onSkillUpdate: (Skill) -> Unit
 ) {
-    // Name of the active skill that's currently training
-    private var activeSkillName: String? = null
+    private data class TrainingConfig(
+        val method: TrainingMethod,
+        val cards: List<Card>
+    )
 
-    // Training coroutine job
+    private val _config = MutableStateFlow<TrainingConfig?>(null)
+    private var activeSkillName: String? = null
     private var trainingJob: Job? = null
 
-    // Active training method
-    private var activeMethod: TrainingMethod? = null
-
-    // Active cards providing bonuses
-    private var activeCards: List<Card> = emptyList()
-
-    // Constants for time
     private companion object {
         const val PROGRESS_UPDATE_INTERVAL_MS = 33L // ~30 FPS
     }
@@ -56,54 +49,46 @@ class SkillTrainingManager(
      * @param cards The list of [Card]s used to modify action duration.
      */
     fun startTraining(skill: Skill, method: TrainingMethod, cards: List<Card> = emptyList()) {
-        cancelTraining() // Cancel previous job if any
+        cancelTraining()
         activeSkillName = skill.name
-        activeMethod = method
-        activeCards = cards
+        _config.value = TrainingConfig(method, cards)
+        
         Log.d("SkillTrainingManager", "Starting training for ${skill.name} with ${method.name}")
 
         trainingJob = coroutineScope.launch {
-            var currentSkill = skill // Keep track of the most recent skill state
-
-            while (true) {
+            while (isActive) {
                 val startTime = System.currentTimeMillis()
                 
-                // Use the dynamically updatable method and cards
-                val method = activeMethod ?: break
-                val actionDuration = method.getEffectiveActionDuration(activeCards)
-                val endTime = startTime + actionDuration.toLong()
-
-                // Loop for progress updates during the action
-                while (true) {
+                // 1. Action Phase
+                while (isActive) {
+                    val config = _config.value ?: break
+                    val actionDuration = config.method.getEffectiveActionDuration(config.cards)
                     val currentTime = System.currentTimeMillis()
-                    if (currentTime >= endTime) break
-
-                    // Re-calculate based on current state (method or cards might have changed)
-                    val currentMethod = activeMethod ?: break
-                    val currentDuration = currentMethod.getEffectiveActionDuration(activeCards)
-                    val progress = (currentTime - startTime).toFloat() / currentDuration
-                    onProgressUpdate(progress.coerceIn(0f, 1f))
+                    val elapsed = currentTime - startTime
                     
+                    if (elapsed >= actionDuration) break
+
+                    onProgressUpdate((elapsed.toFloat() / actionDuration).coerceIn(0f, 1f))
                     delay(PROGRESS_UPDATE_INTERVAL_MS)
                 }
 
-                onProgressUpdate(1f) // Action complete
+                if (!isActive) break
+                onProgressUpdate(1f)
 
-                // Calculate XP gained using current method state
-                val xpGained = activeMethod?.xpPerAction ?: 0
-
-                // Apply XP update and record action using use cases
+                // 2. Completion Phase
+                val currentConfig = _config.value ?: break
                 try {
-                    // Record action count
-                    activeMethod?.let { method ->
-                        recordTrainingActionUseCase(method.skill.displayName, method.name)
+                    // Atomic XP addition - no local 'currentSkill' state used
+                    skillRepository.addXp(activeSkillName!!, currentConfig.method.xpPerAction)
+                    recordTrainingActionUseCase(currentConfig.method.skill.displayName, currentConfig.method.name)
+                    
+                    // Fetch latest state just to notify UI (purely informational)
+                    val updatedSkill = skillRepository.getSkills().find { it.name == activeSkillName }
+                    if (updatedSkill != null) {
+                        onSkillUpdate(updatedSkill)
                     }
-
-                    val updatedSkill = updateSkillUseCase(currentSkill, xpGained)
-                    currentSkill = updatedSkill // Update local state for next loop iteration
-                    onSkillUpdate(updatedSkill) // Notify listener
                 } catch (e: Exception) {
-                    Log.e("SkillTrainingManager", "Error updating skill during training", e)
+                    Log.e("SkillTrainingManager", "Error completing action", e)
                     cancelTraining()
                     break
                 }
@@ -117,30 +102,17 @@ class SkillTrainingManager(
      * @param newCards The new list of active cards.
      */
     fun updateCards(newCards: List<Card>) {
-        this.activeCards = newCards
+        _config.update { it?.copy(cards = newCards) }
     }
 
-    /**
-     * Cancels any currently active training job and clears the active skill state.
-     */
     fun cancelTraining() {
-        if (trainingJob?.isActive == true) {
-            Log.d("SkillTrainingManager", "Cancelling training for $activeSkillName")
-            trainingJob?.cancel()
-        }
+        trainingJob?.cancel()
         trainingJob = null
         activeSkillName = null
-        activeMethod = null
-        activeCards = emptyList()
+        _config.value = null
         onProgressUpdate(0f)
     }
 
-    /**
-     * Checks if a specific skill is currently being trained.
-     *
-     * @param skillName The name of the skill to check.
-     * @return `true` if the specified skill is actively training, `false` otherwise.
-     */
     fun isTraining(skillName: String): Boolean {
         return activeSkillName == skillName && trainingJob?.isActive == true
     }

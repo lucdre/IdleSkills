@@ -26,6 +26,14 @@ interface SkillRepositoryInterface {
     suspend fun updateSkill(skill: Skill): Skill
 
     /**
+     * Atomically adds XP to a skill.
+     *
+     * @param skillName The name of the skill.
+     * @param amount The amount of XP to add.
+     */
+    suspend fun addXp(skillName: String, amount: Int)
+
+    /**
      * Resets skills in the repository.
      * 
      * @param skills The list of skills to reset.

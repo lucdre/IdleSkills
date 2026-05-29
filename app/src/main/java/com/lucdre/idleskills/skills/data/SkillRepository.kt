@@ -55,6 +55,11 @@ class SkillRepository @Inject constructor(
         return skill
     }
 
+    override suspend fun addXp(skillName: String, amount: Int) {
+        skillDao.addXpAtomically(skillName, amount)
+        updateLastSavedTimestamp()
+    }
+
     override fun observeActiveTraining(): Flow<ActiveTraining?> {
         return profileDao.observeProfile().map { entity ->
             if (entity?.activeSkillName != null && entity.activeMethodName != null) {

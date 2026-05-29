@@ -42,13 +42,20 @@ class SkillListViewModel @Inject constructor(
 
     // 1. Core State Inputs
     private val _expandedSkillName = MutableStateFlow<String?>(null)
-    private val _hasResumedTraining = MutableStateFlow(false)
     private val _offlineProgress = MutableStateFlow<com.lucdre.idleskills.core.domain.OfflineProgressResult?>(null)
 
     // 2. Reactive Pipelines
     
     // Observed Skills list (Source of Truth)
     private val skillsFlow = getVisibleSkillsUseCase.observeVisibleSkills()
+
+    init {
+        // Handle initial training resumption logic separately from state mapping
+        viewModelScope.launch {
+            val skills = skillsFlow.first { it.isNotEmpty() }
+            resumeInitialTraining(skills)
+        }
+    }
 
     // Methods are re-loaded when expansion changes OR when skill data (levels) update
     private val availableMethodsFlow = combine(
@@ -76,12 +83,6 @@ class SkillListViewModel @Inject constructor(
         availableMethodsFlow,
         _expandedSkillName
     ) { skills, profile, stats, methods, expanded ->
-        
-        if (!_hasResumedTraining.value && skills.isNotEmpty()) {
-            _hasResumedTraining.value = true
-            resumeInitialTraining(skills)
-        }
-
         SkillListUiState(
             skills = skills,
             playerProfile = profile,
@@ -103,7 +104,7 @@ class SkillListViewModel @Inject constructor(
         }
     }
 
-    // Final UI State: Merge base state with high-frequency training data
+    // Final UI State
     val uiState: StateFlow<SkillListUiState> = combine(
         baseStateFlow,
         trainingService.trainingState,
@@ -147,19 +148,16 @@ class SkillListViewModel @Inject constructor(
         toggleSkillExpansion(skill.name)
     }
 
-    private fun resumeInitialTraining(skills: List<Skill>) {
-        viewModelScope.launch {
-            val activeTraining = skillRepository.observeActiveTraining().firstOrNull()
-            if (activeTraining != null) {
-                val skill = skills.find { it.name == activeTraining.skillName }
-                if (skill != null) {
-                    val methods = getAvailableTrainingMethodsUseCase(skill)
-                    val method = methods.find { it.name == activeTraining.methodName }
-                    if (method != null) {
-                        trainingService.startTraining(skill, method)
-                        // Also expand the skill we are resuming
-                        _expandedSkillName.value = skill.name
-                    }
+    private suspend fun resumeInitialTraining(skills: List<Skill>) {
+        val activeTraining = skillRepository.observeActiveTraining().firstOrNull()
+        if (activeTraining != null) {
+            val skill = skills.find { it.name == activeTraining.skillName }
+            if (skill != null) {
+                val methods = getAvailableTrainingMethodsUseCase(skill)
+                val method = methods.find { it.name == activeTraining.methodName }
+                if (method != null) {
+                    trainingService.startTraining(skill, method)
+                    _expandedSkillName.value = skill.name
                 }
             }
         }
