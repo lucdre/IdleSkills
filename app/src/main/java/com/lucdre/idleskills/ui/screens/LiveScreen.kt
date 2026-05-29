@@ -30,21 +30,37 @@ import com.lucdre.idleskills.cards.domain.CardType
 import com.lucdre.idleskills.loot.domain.LootBox
 import com.lucdre.idleskills.main.presentation.LiveScreenUiState
 import com.lucdre.idleskills.main.presentation.LiveScreenViewModel
+import com.lucdre.idleskills.prestige.presentation.PrestigeUiState
+import com.lucdre.idleskills.prestige.presentation.PrestigeViewModel
+import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillMetadata
 import com.lucdre.idleskills.skills.domain.skill.SkillType
+import com.lucdre.idleskills.skills.domain.training.TrainingMethod
+import com.lucdre.idleskills.skills.presentation.ExpandableSkillItem
+import com.lucdre.idleskills.skills.presentation.SkillListUiState
+import com.lucdre.idleskills.skills.presentation.SkillListViewModel
+import com.lucdre.idleskills.ui.components.OfflineProgressPopup
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
 /**
  * Screen where players can see their character training and catch random loot boxes.
+ * Also integrated with Skill management.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LiveScreen(
     modifier: Modifier = Modifier,
-    viewModel: LiveScreenViewModel = hiltViewModel()
+    viewModel: LiveScreenViewModel = hiltViewModel(),
+    skillViewModel: SkillListViewModel = hiltViewModel(),
+    prestigeViewModel: PrestigeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val skillUiState by skillViewModel.uiState.collectAsStateWithLifecycle()
+    val prestigeUiState by prestigeViewModel.uiState.collectAsStateWithLifecycle()
+    val trainingProgress by skillViewModel.trainingProgress.collectAsStateWithLifecycle()
+
     val sheetState = rememberModalBottomSheetState()
+    var showSkillTree by remember { mutableStateOf(false) }
 
     DisposableEffect(Unit) {
         viewModel.setScreenVisible(true)
@@ -53,23 +69,63 @@ fun LiveScreen(
         }
     }
 
-    LiveScreenContent(
-        modifier = modifier,
-        uiState = uiState,
-        onSpriteClick = { viewModel.onSpriteClick() },
-        onClearRewards = { viewModel.clearRewards() },
-        onToggleInventory = { visible -> viewModel.toggleInventory(visible) }
-    )
+    Box(modifier = modifier.fillMaxSize()) {
+        LiveScreenContent(
+            modifier = Modifier.fillMaxSize(),
+            uiState = uiState,
+            skillUiState = skillUiState,
+            prestigeUiState = prestigeUiState,
+            trainingProgress = trainingProgress,
+            onSpriteClick = { viewModel.onSpriteClick() },
+            onClearRewards = { viewModel.clearRewards() },
+            onToggleInventory = { visible -> viewModel.toggleInventory(visible) },
+            onToggleExpand = { skillName ->
+                skillViewModel.toggleSkillExpansion(skillName)
+            },
+            onMethodSelected = { skillViewModel.selectTrainingMethod(it) },
+            onPrestigeClick = {
+                prestigeViewModel.prestige(
+                    resetTrainingState = {
+                        skillViewModel.resetTrainingState()
+                    }
+                )
+            },
+            onSkillTreeClick = {
+                showSkillTree = true
+            }
+        )
 
-    if (uiState.isInventoryVisible) {
-        ModalBottomSheet(
-            onDismissRequest = { viewModel.toggleInventory(false) },
-            sheetState = sheetState
-        ) {
-            InventorySheetContent(
-                lootBoxes = uiState.lootBoxes,
-                onOpenBoxClick = { viewModel.onOpenBoxClick(it) }
+        // Offline Progress Popup
+        skillUiState.offlineProgress?.let { result ->
+            OfflineProgressPopup(
+                result = result,
+                onDismiss = { skillViewModel.dismissOfflineProgress() }
             )
+        }
+
+        // Skill Tree Screen as overlay
+        if (showSkillTree) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
+            ) {
+                SkillTreeScreen(
+                    onClose = { showSkillTree = false }
+                )
+            }
+        }
+
+        if (uiState.isInventoryVisible) {
+            ModalBottomSheet(
+                onDismissRequest = { viewModel.toggleInventory(false) },
+                sheetState = sheetState
+            ) {
+                InventorySheetContent(
+                    lootBoxes = uiState.lootBoxes,
+                    onOpenBoxClick = { viewModel.onOpenBoxClick(it) }
+                )
+            }
         }
     }
 }
@@ -81,123 +137,156 @@ fun LiveScreen(
 fun LiveScreenContent(
     modifier: Modifier = Modifier,
     uiState: LiveScreenUiState,
+    skillUiState: SkillListUiState,
+    prestigeUiState: PrestigeUiState,
+    trainingProgress: Float,
     onSpriteClick: () -> Unit,
     onClearRewards: () -> Unit,
-    onToggleInventory: (Boolean) -> Unit
+    onToggleInventory: (Boolean) -> Unit,
+    onToggleExpand: (String) -> Unit,
+    onMethodSelected: (TrainingMethod) -> Unit,
+    onPrestigeClick: () -> Unit,
+    onSkillTreeClick: () -> Unit
 ) {
-    Box(
+    Column(
         modifier = modifier
             .fillMaxSize()
             .background(getBiomeGradient(uiState.activeTrainingSkill?.displayName))
     ) {
         // --- 1. GAME SCENE (Character & Object) ---
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
         ) {
-            if (uiState.activeTrainingSkill != null) {
-                // The training target (Tree/Rock/etc)
-                TrainingTarget(skillName = uiState.activeTrainingSkill.displayName)
-                
-                Spacer(modifier = Modifier.height(32.dp))
-                
-                // The character performing the action
-                AnimatedCharacter(skillName = uiState.activeTrainingSkill.displayName)
-            } else {
-                Text(
-                    text = "Start training a skill!",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = Color.White,
-                    modifier = Modifier.padding(32.dp),
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                )
-            }
-        }
-
-        // --- 2. DROPS ---
-        if (uiState.isSpriteVisible) {
-            val spriteIcon = getIconForSkill(uiState.activeTrainingSkill?.displayName)
-            
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(48.dp)
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                // Pre-calculate bias to avoid constant recomposition during state changes
-                val alignment = remember(uiState.spritePosition) {
-                    BiasAlignment(
-                        horizontalBias = (uiState.spritePosition.x * 2) - 1,
-                        verticalBias = (uiState.spritePosition.y * 2) - 1
+                if (uiState.activeTrainingSkill != null) {
+                    // The training target (Tree/Rock/etc)
+                    TrainingTarget(skillName = uiState.activeTrainingSkill.displayName)
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    // The character performing the action
+                    AnimatedCharacter(skillName = uiState.activeTrainingSkill.displayName)
+                } else {
+                    Text(
+                        text = "Start training a skill!",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = Color.White,
+                        modifier = Modifier.padding(32.dp),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
                 }
-                
+            }
+
+            // --- 2. DROPS (Now inside the Game Scene Box) ---
+            if (uiState.isSpriteVisible) {
+                val spriteIcon = getIconForSkill(uiState.activeTrainingSkill?.displayName)
+
                 Box(
                     modifier = Modifier
-                        .align(alignment)
-                        .size(64.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.9f))
-                        .clickable { onSpriteClick() },
-                    contentAlignment = Alignment.Center
+                        .fillMaxSize()
+                        .padding(48.dp)
                 ) {
-                    Icon(
-                        imageVector = spriteIcon,
-                        contentDescription = "Loot!",
-                        tint = Color.White,
-                        modifier = Modifier.size(32.dp)
-                    )
-                }
-            }
-        }
-
-        // --- 3. HUD ---
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            if (uiState.activeTrainingSkill != null) {
-                Surface(
-                    color = Color.Black.copy(alpha = 0.3f),
-                    shape = CircleShape,
-                    modifier = Modifier.padding(top = 8.dp)
-                ) {
-                    val skillName = uiState.activeTrainingSkill.displayName
-                    val displayText = if (uiState.activeTrainingMethod != null) {
-                        "$skillName: ${uiState.activeTrainingMethod}"
-                    } else {
-                        skillName
+                    val alignment = remember(uiState.spritePosition) {
+                        BiasAlignment(
+                            horizontalBias = (uiState.spritePosition.x * 2) - 1,
+                            verticalBias = (uiState.spritePosition.y * 2) - 1
+                        )
                     }
-                    Text(
-                        text = displayText,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-                    )
-                }
-            }
-        }
 
-        // Inventory Button
-        FloatingActionButton(
-            onClick = { onToggleInventory(true) },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(24.dp),
-            containerColor = MaterialTheme.colorScheme.secondaryContainer
-        ) {
-            BadgedBox(
-                badge = {
-                    val totalBoxes = uiState.lootBoxes.sumOf { it.count }
-                    if (totalBoxes > 0) {
-                        Badge { Text(totalBoxes.toString()) }
+                    Box(
+                        modifier = Modifier
+                            .align(alignment)
+                            .size(64.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.9f))
+                            .clickable { onSpriteClick() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = spriteIcon,
+                            contentDescription = "Loot!",
+                            tint = Color.White,
+                            modifier = Modifier.size(32.dp)
+                        )
                     }
                 }
+            }
+
+            // --- 3. HUD (Now inside the Game Scene Box) ---
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Icon(Icons.Default.Inventory, contentDescription = "Inventory")
+                if (uiState.activeTrainingSkill != null) {
+                    Surface(
+                        color = Color.Black.copy(alpha = 0.3f),
+                        shape = CircleShape,
+                        modifier = Modifier.padding(top = 8.dp)
+                    ) {
+                        val skillName = uiState.activeTrainingSkill.displayName
+                        val displayText = if (uiState.activeTrainingMethod != null) {
+                            "$skillName: ${uiState.activeTrainingMethod}"
+                        } else {
+                            skillName
+                        }
+                        Text(
+                            text = displayText,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                        )
+                    }
+                }
             }
+
+            // Inventory Button
+            FloatingActionButton(
+                onClick = { onToggleInventory(true) },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(24.dp),
+                containerColor = MaterialTheme.colorScheme.secondaryContainer
+            ) {
+                BadgedBox(
+                    badge = {
+                        val totalBoxes = uiState.lootBoxes.sumOf { it.count }
+                        if (totalBoxes > 0) {
+                            Badge { Text(totalBoxes.toString()) }
+                        }
+                    }
+                ) {
+                    Icon(Icons.Default.Inventory, contentDescription = "Inventory")
+                }
+            }
+        }
+
+        // --- 4. SKILL LIST (Bottom Half) ---
+        Surface(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.1f), // Slightly transparent to see background
+            shape = MaterialTheme.shapes.large // Maybe some rounded corners at the top?
+        ) {
+            SkillListScreenContents(
+                modifier = Modifier.fillMaxSize(),
+                skillUiState = skillUiState,
+                prestigeUiState = prestigeUiState,
+                trainingProgress = trainingProgress,
+                onSkillClick = { },
+                onToggleExpand = onToggleExpand,
+                onMethodSelected = onMethodSelected,
+                onPrestigeClick = onPrestigeClick,
+                onSkillTreeClick = onSkillTreeClick
+            )
         }
 
         // Rewards Dialog
@@ -218,6 +307,65 @@ fun LiveScreenContent(
                     }
                 }
             )
+        }
+    }
+}
+
+/**
+ * Renders the skill list content.
+ */
+@Composable
+fun SkillListScreenContents(
+    modifier: Modifier = Modifier,
+    skillUiState: SkillListUiState,
+    prestigeUiState: PrestigeUiState,
+    trainingProgress: Float,
+    onSkillClick: (Skill) -> Unit,
+    onToggleExpand: (String) -> Unit,
+    onMethodSelected: (TrainingMethod) -> Unit,
+    onPrestigeClick: () -> Unit,
+    onSkillTreeClick: () -> Unit
+) {
+    val expandedSkillName = skillUiState.expandedSkillName
+    Column(modifier = modifier) {
+        if (skillUiState.isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else if (skillUiState.error != null) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("Error: ${skillUiState.error}")
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                contentPadding = PaddingValues(vertical = 16.dp)
+            ) {
+                items(skillUiState.skills, key = { it.name }) { skill ->
+                    val isActiveSkill = skill.name == skillUiState.activeSkill
+                    val isSelectedSkill = skill.name == expandedSkillName
+
+                    ExpandableSkillItem(
+                        skill = skill,
+                        isActive = isActiveSkill,
+                        isExpanded = isSelectedSkill,
+                        xpPerHour = if (isActiveSkill) {
+                            skillUiState.activeTrainingMethod?.calculateXpPerHour(skillUiState.activeCards)
+                                ?: 3600
+                        } else {
+                            0
+                        },
+                        trainingMethods = if (isSelectedSkill) skillUiState.trainingMethods else emptyList(),
+                        activeMethod = if (isActiveSkill) skillUiState.activeTrainingMethod else null,
+                        activeCards = if (isActiveSkill) skillUiState.activeCards else emptyList(),
+                        trainingProgress = if (isActiveSkill) trainingProgress else 0f,
+                        onSkillClick = onSkillClick,
+                        onToggleExpand = { onToggleExpand(skill.name) },
+                        onMethodSelected = onMethodSelected
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+            }
         }
     }
 }
@@ -434,9 +582,22 @@ fun LiveScreenPreview() {
                 spritePosition = Offset(0.55f, 0.45f),
                 activeTrainingSkill = SkillType.WOODCUTTING
             ),
+            skillUiState = SkillListUiState(
+                skills = listOf(
+                    Skill("Woodcutting", 10, 1500),
+                    Skill("Fishing", 20, 4200)
+                ),
+                isLoading = false
+            ),
+            prestigeUiState = PrestigeUiState(),
+            trainingProgress = 0.5f,
             onSpriteClick = {},
             onClearRewards = {},
-            onToggleInventory = {}
+            onToggleInventory = {},
+            onToggleExpand = {},
+            onMethodSelected = {},
+            onPrestigeClick = {},
+            onSkillTreeClick = {}
         )
     }
 }

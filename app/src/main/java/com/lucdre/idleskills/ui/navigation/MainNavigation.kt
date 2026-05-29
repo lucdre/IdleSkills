@@ -4,12 +4,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Badge
@@ -39,7 +37,6 @@ import com.lucdre.idleskills.ui.screens.CardsScreen
 import com.lucdre.idleskills.ui.screens.InitialSkillSelectionScreen
 import com.lucdre.idleskills.ui.screens.LiveScreen
 import com.lucdre.idleskills.ui.screens.SettingsScreen
-import com.lucdre.idleskills.ui.screens.SkillListScreen
 import com.lucdre.idleskills.ui.screens.StatsScreen
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
@@ -119,21 +116,15 @@ private fun MainNavigationContent(
     // TODO compose state items to be able to change hasNews
     val items = listOf(
         BottomNavigationItem(
-            "Skills",
-            Icons.Filled.Home,
-            Icons.Outlined.Home,
+            "Live",
+            Icons.Filled.CheckCircle,
+            Icons.Outlined.CheckCircle,
             false
         ),
         BottomNavigationItem(
             "Stats",
             Icons.Filled.BarChart,
             Icons.Outlined.BarChart,
-            false
-        ),
-        BottomNavigationItem(
-            "Live",
-            Icons.Filled.CheckCircle,
-            Icons.Outlined.CheckCircle,
             false
         ),
         BottomNavigationItem(
@@ -187,7 +178,7 @@ private fun MainNavigationContent(
     ) { innerPadding ->
         // Switch screens based on selected tab
         when (selectedTabIndex) {
-            0 -> SkillListScreen(
+            0 -> LiveScreen(
                     modifier = Modifier.padding(innerPadding),
                     skillViewModel = skillListViewModel
                 )
@@ -195,9 +186,8 @@ private fun MainNavigationContent(
                     modifier = Modifier.padding(innerPadding),
                     skillViewModel = skillListViewModel
                 )
-            2 -> LiveScreen(modifier = Modifier.padding(innerPadding))
-            3 -> CardsScreen(modifier = Modifier.padding(innerPadding))
-            4 -> SettingsScreen(modifier = Modifier.padding(innerPadding))
+            2 -> CardsScreen(modifier = Modifier.padding(innerPadding))
+            3 -> SettingsScreen(modifier = Modifier.padding(innerPadding))
         }
     }
 }
@@ -214,18 +204,17 @@ fun MainNavigationPreview() {
             )
 
             NavigationBar {
-                val items = listOf("Skills", "Stats", "Live", "Cards", "Settings")
+                val items = listOf("Live", "Stats", "Cards", "Settings")
                 val icons = listOf(
-                    Icons.Filled.Home,
-                    Icons.Filled.BarChart,
                     Icons.Filled.CheckCircle,
+                    Icons.Filled.BarChart,
                     Icons.Filled.Star,
                     Icons.Filled.Settings
                 )
 
                 items.forEachIndexed { index, item ->
                     NavigationBarItem(
-                        selected = index == 2,
+                        selected = index == 0,
                         onClick = { },
                         icon = { Icon(icons[index], contentDescription = item) },
                         label = { Text(item) }

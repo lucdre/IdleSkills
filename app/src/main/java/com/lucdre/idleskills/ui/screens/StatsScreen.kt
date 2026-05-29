@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -23,10 +25,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lucdre.idleskills.profile.domain.PlayerStatistics
 import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.presentation.SkillListViewModel
@@ -60,12 +64,12 @@ fun StatsScreen(
     Box(modifier = modifier.fillMaxSize()) {
         StatsScreenContent(
             modifier = Modifier.fillMaxSize(),
-            skills = skillUiState.skills,
-            onSkillClick = { skill ->
-                selectedSkillName = skill.name //it is read
-                isSheetOpen = true
-            }
-        )
+            playerStatistics = skillUiState.playerStatistics,
+            skills = skillUiState.skills
+        ) { skill ->
+            selectedSkillName = skill.name //it is read
+            isSheetOpen = true
+        }
 
         if (isSheetOpen && selectedSkill != null) {
             ModalBottomSheet(
@@ -89,6 +93,7 @@ fun StatsScreen(
 @Composable
 private fun StatsScreenContent(
     modifier: Modifier = Modifier,
+    playerStatistics: PlayerStatistics,
     skills: List<Skill>,
     onSkillClick: (Skill) -> Unit = {}
 ) {
@@ -100,6 +105,62 @@ private fun StatsScreenContent(
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(bottom = 16.dp)
         )
+
+        Card(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = "Player Statistics",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = "Trees cut", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        text = playerStatistics.getCountForSkill("Woodcutting").formatNumber(),
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = "Rocks mined", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        text = playerStatistics.getCountForSkill("Mining").formatNumber(),
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = "Fish fished", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        text = playerStatistics.getCountForSkill("Fishing").formatNumber(),
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
 
         // Skills section
         Text(
@@ -195,8 +256,16 @@ fun StatsScreenPreview() {
             Skill("Firemaking", level = 1, xp = 0),
             Skill("Cooking", level = 30, xp = 8100)
         )
+        val previewStatistics = PlayerStatistics(
+            stats = mapOf(
+                "Woodcutting" to mapOf("Oak" to 42),
+                "Mining" to mapOf("Iron" to 15),
+                "Fishing" to mapOf("Shrimp" to 100)
+            )
+        )
         StatsScreenContent(
             modifier = Modifier.fillMaxSize(),
+            playerStatistics = previewStatistics,
             skills = previewSkills,
             onSkillClick = {}
         )

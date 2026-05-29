@@ -11,11 +11,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lucdre.idleskills.profile.domain.PlayerProfile
-import com.lucdre.idleskills.profile.domain.PlayerStatistics
 import com.lucdre.idleskills.region.domain.Region
 import com.lucdre.idleskills.skills.presentation.SkillListViewModel
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
-import com.lucdre.idleskills.ui.util.formatNumber
 
 /**
  * Screen displaying settings and player profile.
@@ -26,7 +24,7 @@ import com.lucdre.idleskills.ui.util.formatNumber
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
-    skillViewModel: SkillListViewModel = hiltViewModel()
+    skillViewModel: SkillListViewModel = hiltViewModel(),
 ) {
     val uiState by skillViewModel.uiState.collectAsStateWithLifecycle()
     var showResetDialog by remember { mutableStateOf(false) }
@@ -35,7 +33,6 @@ fun SettingsScreen(
     SettingsScreenContent(
         modifier = modifier,
         playerProfile = uiState.playerProfile,
-        playerStatistics = uiState.playerStatistics,
         onResetClick = { showResetDialog = true }
     )
 
@@ -74,7 +71,6 @@ fun SettingsScreenPreview() {
                 favoriteSkill = "Woodcutting",
                 currentRegion = Region.FIRST_REGION
             ),
-            playerStatistics = PlayerStatistics(),
             onResetClick = {}
         )
     }
@@ -84,7 +80,6 @@ fun SettingsScreenPreview() {
 fun SettingsScreenContent(
     modifier: Modifier = Modifier,
     playerProfile: PlayerProfile,
-    playerStatistics: PlayerStatistics,
     onResetClick: () -> Unit
 ) {
     Column(
@@ -152,59 +147,6 @@ fun SettingsScreenContent(
                         fontWeight = FontWeight.Bold
                     )
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = "Stats",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = "Trees cut", style = MaterialTheme.typography.bodyLarge)
-                    Text(
-                        text = playerStatistics.getCountForSkill("Woodcutting").formatNumber(),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = "Rocks mined", style = MaterialTheme.typography.bodyLarge)
-                    Text(
-                        text = playerStatistics.getCountForSkill("Mining").formatNumber(),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = "Fish fished", style = MaterialTheme.typography.bodyLarge)
-                    Text(
-                        text = playerStatistics.getCountForSkill("Fishing").formatNumber(),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
             }
         }
 
