@@ -1,7 +1,5 @@
 package com.lucdre.idleskills.skills.domain.skill.usecase
 
-import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
-import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import javax.inject.Inject
 
@@ -16,31 +14,20 @@ class UpdateSkillUseCase @Inject constructor(
     /**
      * Adds 1 XP to a skill. Used for cases where no specified XP to add is provided.
      *
-     * @param skill The skill to be updated.
-     * @return The updated skill with one more XP.
+     * @param skillName The name of the skill to be updated.
      */
-    suspend operator fun invoke(skill: Skill): Skill {
-        return invoke(skill, 1)
+    suspend operator fun invoke(skillName: String) {
+        invoke(skillName, 1)
     }
 
     /**
      * Adds a specified amount of XP to a skill.
-     * Also checks if the skill can level up.
+     * Enforces atomicity and XP capping via the repository.
      *
-     * @param skill The skill to be updated.
+     * @param skillName The name of the skill to be updated.
      * @param xpAmount The amount of XP to add to the skill.
-     * @return The updated skill with the added XP.
      */
-    suspend operator fun invoke(skill: Skill, xpAmount: Int): Skill {
-        if ((skill.xp + xpAmount) >= LevelCalculator.maxXp) {
-            val updatedSkill = skill.copy(xp = LevelCalculator.maxXp)
-            return skillRepository.updateSkill(updatedSkill)
-        }
-
-        val newXp = skill.xp + xpAmount
-        val newLevel = LevelCalculator.calculateLevelFromTotalXp(newXp)
-
-        val updatedSkill = skill.copy(xp = newXp, level = newLevel)
-        return skillRepository.updateSkill(updatedSkill)
+    suspend operator fun invoke(skillName: String, xpAmount: Int) {
+        skillRepository.addXp(skillName, xpAmount)
     }
 }

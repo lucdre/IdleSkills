@@ -19,7 +19,6 @@ import com.lucdre.idleskills.skills.domain.training.TrainingMethod
  * @property trainingMethods List of available training methods for the active skill.
  * @property activeTrainingMethod Currently selected training method.
  * @property activeCards Cards that are relevant to the active skill and training method.
- * @property trainingProgress Progress of the current training action (0-1).
  * @property playerProfile The current player profile data.
  * @property playerStatistics The current player statistics data.
  * @property offlineProgress The result of offline progress calculation to show in a popup.
@@ -32,7 +31,6 @@ data class SkillListUiState(
     val trainingMethods: List<TrainingMethod> = emptyList(),
     val activeTrainingMethod: TrainingMethod? = null,
     val activeCards: List<Card> = emptyList(),
-    val trainingProgress: Float = 0f, // Progress from 0 to 1.0
     val playerProfile: PlayerProfile = PlayerProfile(),
     val playerStatistics: PlayerStatistics = PlayerStatistics(),
     val offlineProgress: OfflineProgressResult? = null,

@@ -38,7 +38,7 @@ class SkillTrainingManager(
     private var trainingJob: Job? = null
 
     private companion object {
-        const val PROGRESS_UPDATE_INTERVAL_MS = 33L // ~30 FPS
+        const val PROGRESS_UPDATE_INTERVAL_MS = 100L // 10 FPS for battery efficiency
     }
 
     /**

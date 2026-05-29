@@ -49,6 +49,12 @@ class SkillListViewModel @Inject constructor(
     // Observed Skills list (Source of Truth)
     private val skillsFlow = getVisibleSkillsUseCase.observeVisibleSkills()
 
+    // Decoupled Progress Flow for performance
+    val trainingProgress: StateFlow<Float> = trainingService.trainingState
+        .map { it.progress }
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0f)
+
     init {
         // Handle initial training resumption logic separately from state mapping
         viewModelScope.launch {
@@ -115,7 +121,6 @@ class SkillListViewModel @Inject constructor(
             isLoading = false,
             activeSkill = training.activeSkill?.name,
             activeTrainingMethod = training.activeMethod,
-            trainingProgress = training.progress,
             activeCards = cards,
             offlineProgress = offline
         )

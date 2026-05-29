@@ -45,6 +45,7 @@ fun SkillListScreen(
 ) {
     val skillUiState by skillViewModel.uiState.collectAsStateWithLifecycle()
     val prestigeUiState by prestigeViewModel.uiState.collectAsStateWithLifecycle()
+    val trainingProgress by skillViewModel.trainingProgress.collectAsStateWithLifecycle()
     var showSkillTree by remember { mutableStateOf(false) }
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -52,6 +53,7 @@ fun SkillListScreen(
             modifier = Modifier.fillMaxSize(),
             skillUiState = skillUiState,
             prestigeUiState = prestigeUiState,
+            trainingProgress = trainingProgress,
             onSkillClick = { /* Handled by toggle */ },
             onToggleExpand = { skillName ->
                 skillViewModel.toggleSkillExpansion(skillName)
@@ -103,7 +105,7 @@ fun SkillListScreen(
  * @param modifier Modifier
  * @param skillUiState Current UI state of Skills from the ViewModel
  * @param prestigeUiState Current UI state of Prestige from the ViewModel
- * @param expandedSkillName Name of the currently expanded skill, if any
+ * @param trainingProgress To handle XP/level progress bars
  * @param onSkillClick Callback for when a skill is clicked
  * @param onToggleExpand Callback for when a skill's expansion state should toggle
  * @param onMethodSelected Callback for when a training method is selected
@@ -115,6 +117,7 @@ private fun SkillListScreenContents(
     modifier: Modifier = Modifier,
     skillUiState: SkillListUiState,
     prestigeUiState: PrestigeUiState,
+    trainingProgress: Float,
     onSkillClick: (Skill) -> Unit,
     onToggleExpand: (String) -> Unit,
     onMethodSelected: (TrainingMethod) -> Unit,
@@ -169,7 +172,7 @@ private fun SkillListScreenContents(
                         trainingMethods = if (isSelectedSkill) skillUiState.trainingMethods else emptyList(),
                         activeMethod = if (isActiveSkill) skillUiState.activeTrainingMethod else null,
                         activeCards = if (isActiveSkill) skillUiState.activeCards else emptyList(),
-                        trainingProgress = if (isActiveSkill) skillUiState.trainingProgress else 0f,
+                        trainingProgress = if (isActiveSkill) trainingProgress else 0f,
                         onSkillClick = onSkillClick,
                         onToggleExpand = { onToggleExpand(skill.name) },
                         onMethodSelected = onMethodSelected
@@ -208,6 +211,7 @@ fun SkillListScreenContentsPreview() {
             modifier = Modifier.padding(8.dp),
             skillUiState = previewSkillState,
             prestigeUiState = previewPrestigeState,
+            trainingProgress = 0.5f,
             onSkillClick = { /* nothing */ },
             onToggleExpand = { /* nothing */ },
             onMethodSelected = { /* nothing */ },

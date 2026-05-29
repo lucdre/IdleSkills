@@ -35,7 +35,7 @@ interface SkillDao {
     /**
      * Atomically adds XP to a skill.
      */
-    @Query("UPDATE skills SET xp = xp + :amount WHERE name = :name")
+    @Query("UPDATE skills SET xp = MIN(xp + :amount, 200000000) WHERE name = :name")
     suspend fun addXpAtomically(name: String, amount: Int)
 
     @Query("DELETE FROM skills")

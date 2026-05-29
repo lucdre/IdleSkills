@@ -1,10 +1,12 @@
 package com.lucdre.idleskills.core.domain
 
 import android.util.Log
+import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
 import com.lucdre.idleskills.core.persistence.OfflineProgressDao
 import com.lucdre.idleskills.core.persistence.ProfileDao
 import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryDispatcher
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -28,7 +30,8 @@ data class OfflineProgressResult(
 class OfflineProgressManager @Inject constructor(
     private val profileDao: ProfileDao,
     private val offlineProgressDao: OfflineProgressDao,
-    private val trainingMethodDispatcher: TrainingMethodRepositoryDispatcher
+    private val trainingMethodDispatcher: TrainingMethodRepositoryDispatcher,
+    private val getActiveCardsUseCase: GetActiveCardsUseCase
 ) {
 
     /**
@@ -57,12 +60,16 @@ class OfflineProgressManager @Inject constructor(
         }
 
         // Get the training method to determine XP rate
-        val skill = SkillType.fromString(activeSkillName) ?: return null
-        val methods = trainingMethodDispatcher.getTrainingMethodsForSkill(skill, profile.currentRegion)
+        val skillType = SkillType.fromString(activeSkillName) ?: return null
+        val methods = trainingMethodDispatcher.getTrainingMethodsForSkill(skillType, profile.currentRegion)
         val method = methods.find { it.name == activeMethodName } ?: return null
 
-        // Calculate XP: (Diff / ActionDuration) * XpPerAction
-        val actionsCompleted = diffMs / method.actionDurationMs
+        // Get active cards to calculate effective action duration
+        val cards = getActiveCardsUseCase(skillType, method.name).first()
+        val effectiveDuration = method.getEffectiveActionDuration(cards)
+
+        // Calculate XP: (Diff / EffectiveActionDuration) * XpPerAction
+        val actionsCompleted = diffMs / effectiveDuration
         val earnedXp = (actionsCompleted * method.xpPerAction).toInt()
 
         if (earnedXp > 0) {

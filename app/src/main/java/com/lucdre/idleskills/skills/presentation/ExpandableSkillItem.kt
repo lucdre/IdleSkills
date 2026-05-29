@@ -1,7 +1,10 @@
 package com.lucdre.idleskills.skills.presentation
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
@@ -77,6 +80,12 @@ fun ExpandableSkillItem(
     val rotationState by animateFloatAsState(if (isExpanded) 180f else 0f, label = "rotate")
     val theme = SkillMetadata.getTheme(skill.name)
     val activeColor = theme.primaryColor
+
+    val animatedProgress by animateFloatAsState(
+        targetValue = trainingProgress,
+        animationSpec = if (trainingProgress == 0f) snap() else tween(durationMillis = 100, easing = LinearEasing),
+        label = "trainingProgress"
+    )
 
     Card(
         modifier = Modifier
@@ -168,7 +177,7 @@ fun ExpandableSkillItem(
                                 skillName = skill.name,
                                 methods = trainingMethods,
                                 activeMethod = activeMethod,
-                                trainingProgress = trainingProgress,
+                                trainingProgress = animatedProgress,
                                 activeCards = activeCards,
                                 onMethodSelected = onMethodSelected
                             )
