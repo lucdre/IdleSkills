@@ -32,7 +32,6 @@ fun InitialSkillSelectionScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var username by remember { mutableStateOf("") }
-    var selectedFavorite by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(uiState.isProfileSetupComplete) {
         if (uiState.isProfileSetupComplete) {
@@ -44,13 +43,8 @@ fun InitialSkillSelectionScreen(
         InitialSkillSelectionContent(
             username = username,
             onUsernameChange = { username = it },
-            skills = listOf("Woodcutting", "Mining", "Fishing"),
-            selectedFavorite = selectedFavorite,
-            onSkillSelected = { selectedFavorite = it },
             onStartClick = {
-                selectedFavorite?.let { fav ->
-                    viewModel.setupProfile(username, fav)
-                }
+                viewModel.setupProfile(username)
             },
             isLoading = uiState.isLoading,
             errorMessage = uiState.errorMessage
@@ -63,9 +57,6 @@ private fun InitialSkillSelectionContent(
     modifier: Modifier = Modifier,
     username: String,
     onUsernameChange: (String) -> Unit,
-    skills: List<String>,
-    selectedFavorite: String?,
-    onSkillSelected: (String) -> Unit,
     onStartClick: () -> Unit,
     isLoading: Boolean,
     errorMessage: String?
@@ -100,30 +91,6 @@ private fun InitialSkillSelectionContent(
             isError = username.isBlank()
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text(
-            text = "Choose your favorite starting skill:",
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            skills.forEach { skill ->
-                val theme = SkillMetadata.getTheme(skill)
-                SkillSelectionCard(
-                    modifier = Modifier.weight(1f),
-                    skillTheme = theme,
-                    skillName = skill,
-                    isSelected = selectedFavorite == skill,
-                    onClick = { onSkillSelected(skill) }
-                )
-            }
-        }
-
         if (errorMessage != null) {
             Text(
                 text = errorMessage,
@@ -139,7 +106,7 @@ private fun InitialSkillSelectionContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
-            enabled = !isLoading && username.isNotBlank() && selectedFavorite != null
+            enabled = !isLoading && username.isNotBlank()
         ) {
             if (isLoading) {
                 CircularProgressIndicator(
@@ -154,41 +121,6 @@ private fun InitialSkillSelectionContent(
     }
 }
 
-@Composable
-private fun SkillSelectionCard(
-    modifier: Modifier = Modifier,
-    skillTheme: SkillTheme,
-    skillName: String,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = modifier
-            .aspectRatio(1f)
-            .clickable { onClick() },
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
-        ),
-        border = if (isSelected) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                modifier = Modifier.fillMaxHeight(),
-                verticalArrangement = Arrangement.Center
-            ) {
-                Icon(
-                    modifier = Modifier.size(64.dp),
-                    painter = painterResource(id = skillTheme.iconResId),
-                    contentDescription = skillName,
-                    tint = skillTheme.primaryColor
-                )
-            }
-        }
-    }
-}
 
 @Preview(showBackground = true)
 @Composable
@@ -197,9 +129,6 @@ fun InitialSkillSelectionScreenPreview() {
         InitialSkillSelectionContent(
             username = "Player One",
             onUsernameChange = {},
-            skills = listOf("Woodcutting", "Mining", "Fishing"),
-            selectedFavorite = "Fishing",
-            onSkillSelected = {},
             onStartClick = {},
             isLoading = false,
             errorMessage = null

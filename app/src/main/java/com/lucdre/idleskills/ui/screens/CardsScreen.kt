@@ -17,10 +17,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.cards.presentation.CardUiState
 import com.lucdre.idleskills.cards.presentation.CardViewModel
 import com.lucdre.idleskills.cards.presentation.TradingCardItem
+import com.lucdre.idleskills.ui.navigation.Routes
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
 /**
@@ -29,27 +31,18 @@ import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 @Composable
 fun CardsScreen(
     modifier: Modifier = Modifier,
-    viewModel: CardViewModel = hiltViewModel()
+    viewModel: CardViewModel = hiltViewModel(),
+    navController: NavController? = null
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var selectedCard by remember { mutableStateOf<Card?>(null) }
 
-    if (selectedCard != null) {
-        val cards = uiState.cardsBySkill.values.flatten()
-        val currentCard = cards.find { it.name == selectedCard!!.name && it.type == selectedCard!!.type } ?: selectedCard!!
-        
-        CardDetailScreen(
-            card = currentCard,
-            onBack = { selectedCard = null },
-            onUpgrade = { viewModel.upgradeCard(it) }
-        )
-    } else {
-        CardsScreenContent(
-            modifier = modifier,
-            uiState = uiState,
-            onCardClick = { selectedCard = it }
-        )
-    }
+    CardsScreenContent(
+        modifier = modifier,
+        uiState = uiState,
+        onCardClick = { card ->
+            navController?.navigate("${Routes.CARD_DETAIL}/${card.name}")
+        }
+    )
 }
 
 @Composable
@@ -96,6 +89,7 @@ fun CardsScreenContent(
                         // Display cards in rows of 2 within the LazyColumn
                         val columns = 3
                         val rows = cards.chunked(columns)
+
                         items(rows) { rowCards ->
                             Row(
                                 modifier = Modifier

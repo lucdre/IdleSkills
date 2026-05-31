@@ -12,27 +12,38 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lucdre.idleskills.profile.domain.PlayerProfile
 import com.lucdre.idleskills.region.domain.Region
-import com.lucdre.idleskills.skills.presentation.SkillListViewModel
+import com.lucdre.idleskills.main.presentation.TrainingViewModel
+import com.jakewharton.processphoenix.ProcessPhoenix
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
 /**
  * Screen displaying settings and player profile.
  *
  * @param modifier Modifier
- * @param skillViewModel Shared ViewModel to access profile data
+ * @param viewModel Unified ViewModel to access profile data
  */
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
-    skillViewModel: SkillListViewModel = hiltViewModel(),
+    viewModel: TrainingViewModel = hiltViewModel(),
 ) {
-    val uiState by skillViewModel.uiState.collectAsStateWithLifecycle()
+    val sessionState by viewModel.sessionState.collectAsStateWithLifecycle()
     var showResetDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is TrainingViewModel.Effect.TriggerRebirth -> {
+                    ProcessPhoenix.triggerRebirth(context)
+                }
+            }
+        }
+    }
+
     SettingsScreenContent(
         modifier = modifier,
-        playerProfile = uiState.playerProfile,
+        playerProfile = sessionState.playerProfile,
         onResetClick = { showResetDialog = true }
     )
 
@@ -44,7 +55,7 @@ fun SettingsScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        skillViewModel.resetAllData(context)
+                        viewModel.resetAllData()
                         showResetDialog = false
                     },
                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
@@ -68,7 +79,6 @@ fun SettingsScreenPreview() {
         SettingsScreenContent(
             playerProfile = PlayerProfile(
                 username = "IdleMaster",
-                favoriteSkill = "Woodcutting",
                 currentRegion = Region.FIRST_REGION
             ),
             onResetClick = {}
@@ -134,19 +144,6 @@ fun SettingsScreenContent(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = "Favorite Skill", style = MaterialTheme.typography.bodyLarge)
-                    Text(
-                        text = playerProfile.favoriteSkill,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
             }
         }
 

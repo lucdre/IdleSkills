@@ -31,10 +31,8 @@ class OpenLootBoxUseCase @Inject constructor(
 
         val rewards = LootGenerator.generateRewards(skill, 20) //TODO change depending on the box potentially
 
-        // Add rewards
-        rewards.forEach { (type, quantity) ->
-            cardRepository.addCards(type, quantity)
-        }
+        // Add rewards in batch
+        cardRepository.addCardsBatch(rewards)
 
         return Result.success(rewards)
     }

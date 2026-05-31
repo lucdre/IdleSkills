@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "a56a55113416fd9087ae7e70bab5c429",
+    "identityHash": "26cc50636214f1177f609bd93263599e",
     "entities": [
       {
         "tableName": "player_profile",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `username` TEXT NOT NULL, `currentRegion` TEXT NOT NULL, `availablePrestigePoints` INTEGER NOT NULL, `totalPrestigePoints` INTEGER NOT NULL, `unlockedSkillTreeNodes` TEXT NOT NULL, `activeSkillName` TEXT, `activeMethodName` TEXT, `lastSavedTimestamp` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `username` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -19,11 +19,63 @@
             "columnName": "username",
             "affinity": "TEXT",
             "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "player_session",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `currentRegion` TEXT NOT NULL, `activeSkillName` TEXT, `activeMethodName` TEXT, `lastSavedTimestamp` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "currentRegion",
             "columnName": "currentRegion",
             "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "activeSkillName",
+            "columnName": "activeSkillName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "activeMethodName",
+            "columnName": "activeMethodName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastSavedTimestamp",
+            "columnName": "lastSavedTimestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "prestige_state",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `availablePrestigePoints` INTEGER NOT NULL, `totalPrestigePoints` INTEGER NOT NULL, `unlockedSkillTreeNodes` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -42,22 +94,6 @@
             "fieldPath": "unlockedSkillTreeNodes",
             "columnName": "unlockedSkillTreeNodes",
             "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "activeSkillName",
-            "columnName": "activeSkillName",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "activeMethodName",
-            "columnName": "activeMethodName",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "lastSavedTimestamp",
-            "columnName": "lastSavedTimestamp",
-            "affinity": "INTEGER",
             "notNull": true
           }
         ],
@@ -163,11 +199,35 @@
             "skillName"
           ]
         }
+      },
+      {
+        "tableName": "inventory",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`itemId` INTEGER NOT NULL, `quantity` INTEGER NOT NULL, PRIMARY KEY(`itemId`))",
+        "fields": [
+          {
+            "fieldPath": "itemId",
+            "columnName": "itemId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quantity",
+            "columnName": "quantity",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "itemId"
+          ]
+        }
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a56a55113416fd9087ae7e70bab5c429')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '26cc50636214f1177f609bd93263599e')"
     ]
   }
 }

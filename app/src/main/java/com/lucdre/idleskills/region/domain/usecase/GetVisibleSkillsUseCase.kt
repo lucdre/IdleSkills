@@ -34,10 +34,10 @@ class GetVisibleSkillsUseCase @Inject constructor(
         val currentRegion = profile.currentRegion
         val regionSkills = regionRepository.getSkillsForRegion(currentRegion)
 
-        val skillMap = skills.associateBy { it.name }
+        val skillMap = skills.associateBy { it.type }
         
         return regionSkills.mapNotNull { type ->
-            skillMap[type.displayName]
+            skillMap[type]
         }
     }
 
@@ -54,10 +54,10 @@ class GetVisibleSkillsUseCase @Inject constructor(
             val currentRegion = profile.currentRegion
             val regionSkills = regionRepository.getSkillsForRegion(currentRegion)
             
-            val skillMap = skills.associateBy { it.name }
+            val skillMap = skills.associateBy { it.type }
             
             regionSkills.mapNotNull { type ->
-                skillMap[type.displayName]
+                skillMap[type]
             }
         }
     }

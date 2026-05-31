@@ -23,21 +23,21 @@ abstract class SkillSpecificRepositoryModule {
 
     @Binds
     @IntoMap
-    @StringKey("Woodcutting")
+    @StringKey("WOODCUTTING")
     abstract fun bindWcRepository(
         repository: WcTrainingMethodRepository
     ): TrainingMethodRepositoryInterface
 
     @Binds
     @IntoMap
-    @StringKey("Mining")
+    @StringKey("MINING")
     abstract fun bindMiningRepository(
         repository: MiningTrainingMethodRepository
     ): TrainingMethodRepositoryInterface
 
     @Binds
     @IntoMap
-    @StringKey("Fishing")
+    @StringKey("FISHING")
     abstract fun bindFishingRepository(
         repository: FishingTrainingMethodRepository
     ): TrainingMethodRepositoryInterface

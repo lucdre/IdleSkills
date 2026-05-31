@@ -1,5 +1,7 @@
 package com.lucdre.idleskills.profile.domain
 
+import com.lucdre.idleskills.skills.domain.skill.SkillType
+
 /**
  * Represents the player's accumulated statistics for various skills and training methods.
  *
@@ -12,22 +14,22 @@ data class PlayerStatistics(
     /**
      * Gets the total count of actions completed for a specific skill.
      *
-     * @param skillName The name of the skill to get the total count for.
-     * @return The total number of actions completed across all training methods for that skill.
+     * @param skill The skill type.
+     * @return The total number of actions completed.
      */
-    fun getCountForSkill(skillName: String): Int {
-        return stats[skillName]?.values?.sum() ?: 0
+    fun getCountForSkill(skill: SkillType): Int {
+        return stats[skill.name]?.values?.sum() ?: 0
     }
 
     /**
      * Gets the count of actions completed for a specific training method within a skill.
      *
-     * @param skillName The name of the skill.
+     * @param skill The skill type.
      * @param methodName The name of the training method.
-     * @return The number of actions completed for that specific method.
+     * @return The number of actions completed.
      */
-    fun getCountForMethod(skillName: String, methodName: String): Int {
-        val skillStats = stats[skillName] ?: return 0
+    fun getCountForMethod(skill: SkillType, methodName: String): Int {
+        val skillStats = stats[skill.name] ?: return 0
         return skillStats[methodName] ?: 0
     }
 }

@@ -3,11 +3,11 @@ package com.lucdre.idleskills.ui.navigation
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
-import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.BarChart
-import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.Inventory
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Badge
@@ -22,9 +22,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -32,13 +29,32 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.lucdre.idleskills.skills.presentation.SkillListViewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.lucdre.idleskills.cards.presentation.CardViewModel
+import com.lucdre.idleskills.main.presentation.TrainingViewModel
 import com.lucdre.idleskills.ui.screens.CardsScreen
 import com.lucdre.idleskills.ui.screens.InitialSkillSelectionScreen
-import com.lucdre.idleskills.ui.screens.LiveScreen
+import com.lucdre.idleskills.ui.screens.trainingScreen.TrainingScreen
 import com.lucdre.idleskills.ui.screens.SettingsScreen
 import com.lucdre.idleskills.ui.screens.StatsScreen
+import com.lucdre.idleskills.ui.screens.CardDetailScreen
+import com.lucdre.idleskills.ui.screens.InventoryScreen
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
+
+/**
+ * Navigation routes.
+ */
+object Routes {
+    const val TRAINING = "training"
+    const val INVENTORY = "inventory"
+    const val STATS = "stats"
+    const val CARDS = "cards"
+    const val SETTINGS = "settings"
+    const val CARD_DETAIL = "card_detail"
+}
 
 /**
  * Navigation Item data class.
@@ -47,12 +63,14 @@ import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
  * @param selectedIcon
  * @param unselectedIcon
  * @param hasNews 'true' activates [Badge], 'false' doesn't
+ * @param route
  */
 data class BottomNavigationItem(
     val title: String,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector,
     val hasNews: Boolean,
+    val route: String
 )
 
 /**
@@ -70,7 +88,6 @@ fun MainNavigation(
     // Show loading or initial skill selection based on game state
     when {
         uiState.isLoading -> {
-            // Loading state - show a simple loading screen
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -98,9 +115,12 @@ fun MainNavigation(
             return
         }
         else -> {
-            // Normal game flow
-            val skillListViewModel: SkillListViewModel = hiltViewModel()
-            MainNavigationContent(skillListViewModel = skillListViewModel)
+            val trainingViewModel: TrainingViewModel = hiltViewModel()
+            val cardViewModel: CardViewModel = hiltViewModel()
+            MainNavigationContent(
+                trainingViewModel = trainingViewModel,
+                cardViewModel = cardViewModel
+            )
         }
     }
 }
@@ -111,83 +131,152 @@ fun MainNavigation(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainNavigationContent(
-    skillListViewModel: SkillListViewModel
+    trainingViewModel: TrainingViewModel,
+    cardViewModel: CardViewModel
 ) {
-    // TODO compose state items to be able to change hasNews
+    val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+    val lootState by trainingViewModel.lootState.collectAsStateWithLifecycle()
+
     val items = listOf(
         BottomNavigationItem(
-            "Live",
-            Icons.Filled.CheckCircle,
-            Icons.Outlined.CheckCircle,
-            false
+            "Inventory",
+            Icons.Filled.Inventory,
+            Icons.Outlined.Inventory,
+            lootState.lootBoxes.any { it.count > 0 },
+            Routes.INVENTORY
         ),
         BottomNavigationItem(
             "Stats",
             Icons.Filled.BarChart,
             Icons.Outlined.BarChart,
-            false
+            false,
+            Routes.STATS
         ),
         BottomNavigationItem(
             "Cards",
             Icons.Filled.Star,
             Icons.Outlined.Star,
-            false
+            false,
+            Routes.CARDS
         ),
         BottomNavigationItem(
             "Settings",
             Icons.Filled.Settings,
             Icons.Outlined.Settings,
-            false
+            false,
+            Routes.SETTINGS
         )
     )
 
-    var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
-
     Scaffold(
         bottomBar = {
-            NavigationBar {
-                items.forEachIndexed { index, item ->
-                    NavigationBarItem(
-                        selected = selectedTabIndex == index,
-                        onClick = { selectedTabIndex = index },
-                        label = {
-                            Text(text = item.title)
-                        },
-                        icon = {
-                            BadgedBox(
-                                badge = {
-                                    if (item.hasNews) {
-                                        Badge()
+            // Always show bottom bar unless on card detail
+            if (currentRoute != "${Routes.CARD_DETAIL}/{cardName}") {
+                NavigationBar {
+                    items.forEach { item ->
+                        val selected = currentRoute == item.route
+                        NavigationBarItem(
+                            selected = selected,
+                            onClick = {
+                                if (selected) {
+                                    // Deselect by navigating to background TRAINING screen
+                                    navController.navigate(Routes.TRAINING) {
+                                        popUpTo(navController.graph.startDestinationId) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                } else {
+                                    navController.navigate(item.route) {
+                                        popUpTo(navController.graph.startDestinationId) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
                                     }
                                 }
-                            ) {
-                                Icon(
-                                    imageVector = if (index == selectedTabIndex) {
-                                        item.selectedIcon
-                                    } else {
-                                        item.unselectedIcon
-                                    },
-                                    contentDescription = item.title
-                                )
+                            },
+                            label = {
+                                Text(text = item.title)
+                            },
+                            icon = {
+                                BadgedBox(
+                                    badge = {
+                                        if (item.hasNews) {
+                                            Badge()
+                                        }
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = if (selected) {
+                                            item.selectedIcon
+                                        } else {
+                                            item.unselectedIcon
+                                        },
+                                        contentDescription = item.title
+                                    )
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }
     ) { innerPadding ->
-        // Switch screens based on selected tab
-        when (selectedTabIndex) {
-            0 -> LiveScreen(
-                    modifier = Modifier.padding(innerPadding),
-                    skillViewModel = skillListViewModel
+        NavHost(
+            navController = navController,
+            startDestination = Routes.TRAINING,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable(Routes.TRAINING) {
+                val skillsState by trainingViewModel.skillsState.collectAsStateWithLifecycle()
+                val sessionState by trainingViewModel.sessionState.collectAsStateWithLifecycle()
+                val activeStateState = trainingViewModel.activeTrainingState.collectAsStateWithLifecycle()
+                
+                TrainingScreen(
+                    skillsState = skillsState,
+                    lootState = lootState,
+                    sessionState = sessionState,
+                    activeStateProvider = { activeStateState.value },
+                    onSkillSelect = { skill -> trainingViewModel.selectSkill(skill) },
+                    onMethodSelect = { method -> trainingViewModel.selectTrainingMethod(method) },
+                    onRegionClick = { /* Handle region change */ },
+                    onSpriteClick = { trainingViewModel.onSpriteClick() },
+                    onDismissOfflineProgress = { trainingViewModel.dismissOfflineProgress() },
+                    onSetScreenVisible = { trainingViewModel.setScreenVisible(it) }
                 )
-            1 -> StatsScreen(
-                    modifier = Modifier.padding(innerPadding),
-                    skillViewModel = skillListViewModel
+            }
+            composable(Routes.INVENTORY) {
+                InventoryScreen(viewModel = trainingViewModel)
+            }
+            composable(Routes.STATS) {
+                StatsScreen(viewModel = trainingViewModel)
+            }
+            composable(Routes.CARDS) {
+                CardsScreen(
+                    viewModel = cardViewModel,
+                    navController = navController
                 )
-            2 -> CardsScreen(modifier = Modifier.padding(innerPadding))
-            3 -> SettingsScreen(modifier = Modifier.padding(innerPadding))
+            }
+            composable(Routes.SETTINGS) {
+                SettingsScreen(viewModel = trainingViewModel)
+            }
+            composable("${Routes.CARD_DETAIL}/{cardName}") { backStackEntry ->
+                val cardName = backStackEntry.arguments?.getString("cardName")
+                val uiState by cardViewModel.uiState.collectAsStateWithLifecycle()
+                val card = uiState.cardsBySkill.values.flatten().find { it.name == cardName }
+                
+                if (card != null) {
+                    CardDetailScreen(
+                        card = card,
+                        onBack = { navController.popBackStack() },
+                        onUpgrade = { cardViewModel.upgradeCard(it) }
+                    )
+                }
+            }
         }
     }
 }
@@ -204,9 +293,9 @@ fun MainNavigationPreview() {
             )
 
             NavigationBar {
-                val items = listOf("Live", "Stats", "Cards", "Settings")
+                val items = listOf("Inventory", "Stats", "Cards", "Settings")
                 val icons = listOf(
-                    Icons.Filled.CheckCircle,
+                    Icons.Filled.Inventory,
                     Icons.Filled.BarChart,
                     Icons.Filled.Star,
                     Icons.Filled.Settings
@@ -214,7 +303,7 @@ fun MainNavigationPreview() {
 
                 items.forEachIndexed { index, item ->
                     NavigationBarItem(
-                        selected = index == 0,
+                        selected = index == -1, // None selected for preview of background state
                         onClick = { },
                         icon = { Icon(icons[index], contentDescription = item) },
                         label = { Text(item) }

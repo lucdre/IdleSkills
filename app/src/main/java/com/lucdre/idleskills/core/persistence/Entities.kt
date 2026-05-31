@@ -5,20 +5,38 @@ import androidx.room3.PrimaryKey
 import com.lucdre.idleskills.region.domain.Region
 
 /**
- * Entity representing the player's profile and current state.
+ * Entity representing the player's core profile.
  * One row, one character. (ID = 0)
  */
 @Entity(tableName = "player_profile")
 data class ProfileEntity(
     @PrimaryKey val id: Int = 0,
-    val username: String = "",
+    val username: String = ""
+)
+
+/**
+ * Entity representing the current session and volatile state.
+ * One row. (ID = 0)
+ */
+@Entity(tableName = "player_session")
+data class SessionEntity(
+    @PrimaryKey val id: Int = 0,
     val currentRegion: Region = Region.FIRST_REGION,
-    val availablePrestigePoints: Int = 0,
-    val totalPrestigePoints: Int = 0,
-    val unlockedSkillTreeNodes: Set<String> = emptySet(),
     val activeSkillName: String? = null,
     val activeMethodName: String? = null,
     val lastSavedTimestamp: Long = System.currentTimeMillis()
+)
+
+/**
+ * Entity representing the player's prestige and progression.
+ * One row. (ID = 0)
+ */
+@Entity(tableName = "prestige_state")
+data class PrestigeEntity(
+    @PrimaryKey val id: Int = 0,
+    val availablePrestigePoints: Int = 0,
+    val totalPrestigePoints: Int = 0,
+    val unlockedSkillTreeNodes: Set<String> = emptySet()
 )
 
 /**
@@ -50,4 +68,13 @@ data class CardEntity(
 data class LootBoxEntity(
     @PrimaryKey val skillName: String,
     val count: Int
+)
+
+/**
+ * Entity representing stackable items in the inventory.
+ */
+@Entity(tableName = "inventory")
+data class InventoryEntity(
+    @PrimaryKey val itemId: Int,
+    val quantity: Int
 )

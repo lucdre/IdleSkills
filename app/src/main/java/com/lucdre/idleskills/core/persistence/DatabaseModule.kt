@@ -20,11 +20,19 @@ object DatabaseModule {
             context,
             AppDatabase::class.java,
             "idleskills.db"
-        ).build()
+        )
+        .fallbackToDestructiveMigration()
+        .build()
     }
 
     @Provides
     fun provideProfileDao(db: AppDatabase): ProfileDao = db.profileDao()
+
+    @Provides
+    fun provideSessionDao(db: AppDatabase): SessionDao = db.sessionDao()
+
+    @Provides
+    fun providePrestigeDao(db: AppDatabase): PrestigeDao = db.prestigeDao()
 
     @Provides
     fun provideSkillDao(db: AppDatabase): SkillDao = db.skillDao()

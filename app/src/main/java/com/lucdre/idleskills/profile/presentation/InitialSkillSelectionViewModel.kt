@@ -27,9 +27,8 @@ class InitialSkillSelectionViewModel @Inject constructor(
      * Attempts to set up the player profile.
      *
      * @param username The player's chosen username.
-     * @param favoriteSkill The name of the skill to select as the favorite.
      */
-    fun setupProfile(username: String, favoriteSkill: String) {
+    fun setupProfile(username: String) {
         if (username.isBlank()) {
             _uiState.value = _uiState.value.copy(errorMessage = "Username cannot be empty.")
             return
@@ -38,7 +37,7 @@ class InitialSkillSelectionViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
-            val success = setupPlayerProfileUseCase(username, favoriteSkill)
+            val success = setupPlayerProfileUseCase(username)
 
             if (success) {
                 _uiState.value = _uiState.value.copy(

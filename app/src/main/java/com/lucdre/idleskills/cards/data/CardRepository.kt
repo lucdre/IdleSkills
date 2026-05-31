@@ -24,9 +24,7 @@ class CardRepository @Inject constructor(
     override fun getOwnedCards(): Flow<List<Card>> {
         return cardDao.observeAllCards()
             .onStart {
-                // TODO potential Database Callback
-                val existing = cardDao.getCardByType(CardType.WOODCUTTING_AXE.name)
-                if (existing == null) {
+                if (cardDao.getCount() == 0) {
                     initializeDatabase()
                 }
             }
@@ -62,21 +60,26 @@ class CardRepository @Inject constructor(
     }
 
     override suspend fun addCards(cardType: CardType, quantity: Int) {
-        val currentEntity = cardDao.getCardByType(cardType.name)
-        if (currentEntity != null) {
-            cardDao.insertOrUpdate(currentEntity.copy(quantity = currentEntity.quantity + quantity))
-        } else {
-            // Use metadata from CardType to create the entity if it doesn't exist
-            val newEntity = CardEntity(
-                cardType = cardType.name,
-                name = cardType.displayName,
-                quantity = quantity,
-                level = 1,
-                efficiencyBonus = cardType.initialEfficiencyBonus,
-                iconResId = cardType.iconResId
-            )
-            cardDao.insertOrUpdate(newEntity)
+        addCardsBatch(mapOf(cardType to quantity))
+    }
+
+    override suspend fun addCardsBatch(cards: Map<CardType, Int>) {
+        val types = cards.keys.map { it.name }
+        val existingEntities = cardDao.getCardsByTypes(types).associateBy { it.cardType }
+        
+        val updatedEntities = cards.map { (cardType, quantity) ->
+            val currentEntity = existingEntities[cardType.name]
+            currentEntity?.copy(quantity = currentEntity.quantity + quantity)
+                ?: CardEntity(
+                    cardType = cardType.name,
+                    name = cardType.displayName,
+                    quantity = quantity,
+                    level = 1,
+                    efficiencyBonus = cardType.initialEfficiencyBonus,
+                    iconResId = cardType.iconResId
+                )
         }
+        cardDao.insertAll(updatedEntities)
     }
 
     private fun Card.toEntity(): CardEntity {

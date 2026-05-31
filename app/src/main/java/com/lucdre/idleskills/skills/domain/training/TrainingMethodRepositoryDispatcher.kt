@@ -32,6 +32,6 @@ class TrainingMethodRepositoryDispatcher @Inject constructor(
      *         Returns an empty list if the skill is not supported.
      */
     override fun getTrainingMethodsForSkill(skill: SkillType, region: Region): List<TrainingMethod> {
-        return repositories[skill.displayName]?.get()?.getTrainingMethodsForSkill(skill, region) ?: emptyList()
+        return repositories[skill.name]?.get()?.getTrainingMethodsForSkill(skill, region) ?: emptyList()
     }
 }

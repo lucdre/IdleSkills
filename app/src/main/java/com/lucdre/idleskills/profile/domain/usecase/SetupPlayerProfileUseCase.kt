@@ -11,18 +11,16 @@ class SetupPlayerProfileUseCase @Inject constructor(
     private val profileRepository: ProfileRepositoryInterface
 ) {
     /**
-     * Initializes the player profile with the provided username and favorite skill.
+     * Initializes the player profile with the provided username.
      * 
      * @param username The player's name.
-     * @param favoriteSkill The favorite skill.
      * @return True if setup was successful.
      */
-    suspend operator fun invoke(username: String, favoriteSkill: String): Boolean {
+    suspend operator fun invoke(username: String): Boolean {
         if (username.isBlank()) return false
         
         val profile = PlayerProfile(
-            username = username,
-            favoriteSkill = favoriteSkill
+            username = username
         )
         
         profileRepository.updateProfile(profile)

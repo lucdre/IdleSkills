@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.lucdre.idleskills.R
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillMetadata
+import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
 /**
@@ -150,12 +151,9 @@ fun SkillItem(
 fun StatsSkillsScreenPreview() {
     IdleSkillsTheme {
         val previewSkills = listOf(
-            Skill("Woodcutting", level = 10, xp = 1500),
-            Skill("Mining", level = 15, xp = 2800),
-            Skill("Fishing", level = 20, xp = 4200),
-            Skill("Smelting", level = 5, xp = 500),
-            Skill("Cooking", level = 30, xp = 8100),
-            Skill("Smithing", level = 1, xp = 0)
+            Skill(SkillType.WOODCUTTING, level = 10, xp = 1500),
+            Skill(SkillType.MINING, level = 15, xp = 2800),
+            Skill(SkillType.FISHING, level = 20, xp = 4200)
         )
         StatsSkillsScreen(
             modifier = Modifier.fillMaxSize(),

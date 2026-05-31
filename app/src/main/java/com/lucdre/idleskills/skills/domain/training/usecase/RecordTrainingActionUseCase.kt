@@ -1,6 +1,7 @@
 package com.lucdre.idleskills.skills.domain.training.usecase
 
 import com.lucdre.idleskills.profile.domain.StatisticsRepositoryInterface
+import com.lucdre.idleskills.skills.domain.skill.SkillType
 import javax.inject.Inject
 
 /**
@@ -14,10 +15,10 @@ class RecordTrainingActionUseCase @Inject constructor(
     /**
      * Records a completed training action for a specific skill and method.
      *
-     * @param skillName The name of the skill being trained.
+     * @param skill The skill being trained.
      * @param methodName The name of the training method used.
      */
-    suspend operator fun invoke(skillName: String, methodName: String) {
-        statisticsRepository.incrementCount(skillName, methodName)
+    suspend operator fun invoke(skill: SkillType, methodName: String) {
+        statisticsRepository.incrementCount(skill, methodName)
     }
 }

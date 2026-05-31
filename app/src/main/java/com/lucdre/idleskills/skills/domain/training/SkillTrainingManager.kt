@@ -2,6 +2,7 @@ package com.lucdre.idleskills.skills.domain.training
 
 import android.util.Log
 import com.lucdre.idleskills.cards.domain.Card
+import com.lucdre.idleskills.inventory.domain.InventoryRepositoryInterface
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import com.lucdre.idleskills.skills.domain.training.usecase.RecordTrainingActionUseCase
@@ -11,10 +12,12 @@ import kotlinx.coroutines.flow.*
 /**
  * Manages the active training process for a specific skill.
  *
- * Updates XP, records actions via [RecordTrainingActionUseCase],
+ * Updates XP, records actions, awards items,
  * and notifies listeners about progress and skill state changes.
  *
+ * @property skillRepository Interface for the skill repository.
  * @property recordTrainingActionUseCase The use case responsible for recording training actions.
+ * @property inventoryRepository Interface for the inventory repository.
  * @property coroutineScope The scope used to launch and manage the training coroutine.
  * @property onProgressUpdate A callback lambda function invoked periodically during a training
  *                            action to report progress (0.0f to 1.0f).
@@ -24,6 +27,7 @@ import kotlinx.coroutines.flow.*
 class SkillTrainingManager(
     private val skillRepository: SkillRepositoryInterface,
     private val recordTrainingActionUseCase: RecordTrainingActionUseCase,
+    private val inventoryRepository: InventoryRepositoryInterface,
     private val coroutineScope: CoroutineScope,
     private val onProgressUpdate: (Float) -> Unit,
     private val onSkillUpdate: (Skill) -> Unit
@@ -36,10 +40,6 @@ class SkillTrainingManager(
     private val _config = MutableStateFlow<TrainingConfig?>(null)
     private var activeSkillName: String? = null
     private var trainingJob: Job? = null
-
-    private companion object {
-        const val PROGRESS_UPDATE_INTERVAL_MS = 100L // 10 FPS for battery efficiency
-    }
 
     /**
      * Starts training a skill using a specific [TrainingMethod] and a list of [Card]s.
@@ -56,20 +56,28 @@ class SkillTrainingManager(
         Log.d("SkillTrainingManager", "Starting training for ${skill.name} with ${method.name}")
 
         trainingJob = coroutineScope.launch {
+            val localSkillName = skill.name
+            
             while (isActive) {
+                val config = _config.value ?: break
+                val actionDuration = config.method.getEffectiveActionDuration(config.cards)
                 val startTime = System.currentTimeMillis()
                 
                 // 1. Action Phase
                 while (isActive) {
-                    val config = _config.value ?: break
-                    val actionDuration = config.method.getEffectiveActionDuration(config.cards)
                     val currentTime = System.currentTimeMillis()
                     val elapsed = currentTime - startTime
                     
                     if (elapsed >= actionDuration) break
 
                     onProgressUpdate((elapsed.toFloat() / actionDuration).coerceIn(0f, 1f))
-                    delay(PROGRESS_UPDATE_INTERVAL_MS)
+                    
+                    // Dynamic delay: update progress frequently but not too often.
+                    // Aim for ~30 FPS for progress bar if duration is short, 
+                    // or 10 FPS if duration is long.
+                    val remaining = actionDuration - elapsed
+                    val nextDelay = if (actionDuration < 1000) 16L else 100L
+                    delay(nextDelay.coerceAtMost(remaining.toLong()))
                 }
 
                 if (!isActive) break
@@ -78,12 +86,17 @@ class SkillTrainingManager(
                 // 2. Completion Phase
                 val currentConfig = _config.value ?: break
                 try {
-                    // Atomic XP addition - no local 'currentSkill' state used
-                    skillRepository.addXp(activeSkillName!!, currentConfig.method.xpPerAction)
-                    recordTrainingActionUseCase(currentConfig.method.skill.displayName, currentConfig.method.name)
-                    
-                    // Fetch latest state just to notify UI (purely informational)
-                    val updatedSkill = skillRepository.getSkills().find { it.name == activeSkillName }
+                    skillRepository.addXp(localSkillName, currentConfig.method.xpPerAction)
+
+                    currentConfig.method.producedItemType?.let { itemType ->
+                        inventoryRepository.addItem(itemType, 1)
+                    }
+
+                    recordTrainingActionUseCase(currentConfig.method.skill, currentConfig.method.name)
+
+                    // Notify listeners
+                    // SSOT: Always get the latest skill state from the repository
+                    val updatedSkill = skillRepository.getSkills().find { it.name == localSkillName }
                     if (updatedSkill != null) {
                         onSkillUpdate(updatedSkill)
                     }

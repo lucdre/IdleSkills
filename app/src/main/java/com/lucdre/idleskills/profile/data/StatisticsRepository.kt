@@ -2,6 +2,7 @@ package com.lucdre.idleskills.profile.data
 
 import com.lucdre.idleskills.profile.domain.PlayerStatistics
 import com.lucdre.idleskills.profile.domain.StatisticsRepositoryInterface
+import com.lucdre.idleskills.skills.domain.skill.SkillType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,15 +26,15 @@ class StatisticsRepository @Inject constructor() : StatisticsRepositoryInterface
         return _statistics.value
     }
 
-    override suspend fun incrementCount(skillName: String, methodName: String) {
+    override suspend fun incrementCount(skill: SkillType, methodName: String) {
         _statistics.update { currentStats ->
             val updatedStatsMap = currentStats.stats.toMutableMap()
-            val skillStatsMap = updatedStatsMap[skillName]?.toMutableMap() ?: mutableMapOf()
+            val skillStatsMap = updatedStatsMap[skill.name]?.toMutableMap() ?: mutableMapOf()
             
             val currentCount = skillStatsMap[methodName] ?: 0
             skillStatsMap[methodName] = currentCount + 1
             
-            updatedStatsMap[skillName] = skillStatsMap
+            updatedStatsMap[skill.name] = skillStatsMap
             currentStats.copy(stats = updatedStatsMap)
         }
     }

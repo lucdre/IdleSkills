@@ -68,8 +68,14 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
 
+    // Navigation
+    implementation(libs.androidx.navigation.compose)
+
     // Process Phoenix (for clean restart)
     implementation(libs.process.phoenix)
+
+    // Coil-Compose
+    implementation(libs.coil.compose)
 
     // Testing
     testImplementation(libs.junit)

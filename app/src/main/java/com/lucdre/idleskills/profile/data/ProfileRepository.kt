@@ -2,10 +2,13 @@ package com.lucdre.idleskills.profile.data
 
 import com.lucdre.idleskills.core.persistence.ProfileDao
 import com.lucdre.idleskills.core.persistence.ProfileEntity
+import com.lucdre.idleskills.core.persistence.SessionDao
+import com.lucdre.idleskills.core.persistence.SessionEntity
 import com.lucdre.idleskills.profile.domain.PlayerProfile
 import com.lucdre.idleskills.profile.domain.ProfileRepositoryInterface
+import com.lucdre.idleskills.region.domain.Region
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -14,34 +17,38 @@ import javax.inject.Singleton
  */
 @Singleton
 class ProfileRepository @Inject constructor(
-    private val profileDao: ProfileDao
+    private val profileDao: ProfileDao,
+    private val sessionDao: SessionDao,
 ) : ProfileRepositoryInterface {
 
     override fun observeProfile(): Flow<PlayerProfile> {
-        return profileDao.observeProfile().map { entity ->
-            entity?.toDomain() ?: PlayerProfile()
+        return profileDao.observeProfile().combine(sessionDao.observeSession()) { profile, session ->
+            PlayerProfile(
+                username = profile?.username ?: "",
+                currentRegion = session?.currentRegion ?: Region.FIRST_REGION
+            )
         }
     }
 
     override suspend fun getProfile(): PlayerProfile {
-        return profileDao.getProfile()?.toDomain() ?: PlayerProfile()
-    }
-
-    override suspend fun updateProfile(profile: PlayerProfile) {
-        val currentEntity = profileDao.getProfile() ?: ProfileEntity()
-        profileDao.insertOrUpdate(
-            currentEntity.copy(
-                username = profile.username,
-                currentRegion = profile.currentRegion,
-                lastSavedTimestamp = System.currentTimeMillis()
-            )
+        val profile = profileDao.getProfile()
+        val session = sessionDao.getSession()
+        return PlayerProfile(
+            username = profile?.username ?: "",
+            currentRegion = session?.currentRegion ?: Region.FIRST_REGION
         )
     }
 
-    private fun ProfileEntity.toDomain(): PlayerProfile {
-        return PlayerProfile(
-            username = username,
-            currentRegion = currentRegion
+    override suspend fun updateProfile(profile: PlayerProfile) {
+        val currentProfile = profileDao.getProfile() ?: ProfileEntity()
+        profileDao.insertOrUpdate(currentProfile.copy(username = profile.username))
+        
+        val currentSession = sessionDao.getSession() ?: SessionEntity()
+        sessionDao.insertOrUpdate(
+            currentSession.copy(
+                currentRegion = profile.currentRegion,
+                lastSavedTimestamp = System.currentTimeMillis()
+            )
         )
     }
 }

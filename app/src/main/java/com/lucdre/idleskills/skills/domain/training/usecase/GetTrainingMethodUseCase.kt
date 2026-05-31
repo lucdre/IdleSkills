@@ -22,13 +22,13 @@ class GetTrainingMethodUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(skillName: String): List<TrainingMethod> {
         val region = profileRepository.getProfile().currentRegion
-        val skill = SkillType.fromString(skillName) ?: return emptyList()
+        val skill = SkillType.fromString(skillName) ?: SkillType.fromString(skillName) ?: return emptyList()
         return trainingMethodRepository.getTrainingMethodsForSkill(skill, region)
     }
 
     suspend fun getBestAvailableMethod(skillName: String, currentLevel: Int): TrainingMethod? {
         val region = profileRepository.getProfile().currentRegion
-        val skill = SkillType.fromString(skillName) ?: return null
+        val skill = SkillType.fromString(skillName) ?: SkillType.fromString(skillName) ?: return null
         val methods = trainingMethodRepository.getTrainingMethodsForSkill(skill, region)
 
         // Get all methods that user has the level for

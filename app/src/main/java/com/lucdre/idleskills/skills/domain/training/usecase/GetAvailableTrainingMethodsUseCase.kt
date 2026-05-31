@@ -14,7 +14,7 @@ class GetAvailableTrainingMethodsUseCase @Inject constructor(
      * Returns a list of training methods for the given skill that are available at its current level.
      */
     suspend operator fun invoke(skill: Skill): List<TrainingMethod> {
-        val allMethods = getTrainingMethodUseCase(skill.name)
+        val allMethods = getTrainingMethodUseCase(skill.type.name)
         return allMethods.filter { it.requiredLevel <= skill.level }
     }
 }

@@ -9,8 +9,8 @@ enum class SkillType(val displayName: String) {
     FISHING("Fishing");
 
     companion object {
-        fun fromString(name: String): SkillType? {
-            return entries.find { it.displayName.equals(name, ignoreCase = true) }
+        fun fromString(id: String): SkillType? {
+            return entries.find { it.name.equals(id, ignoreCase = true) }
         }
     }
 }

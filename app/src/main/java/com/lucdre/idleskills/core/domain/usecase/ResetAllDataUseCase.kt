@@ -12,6 +12,6 @@ class ResetAllDataUseCase @Inject constructor(
     private val database: AppDatabase
 ) {
     suspend operator fun invoke() = withContext(Dispatchers.IO) {
-        database.resetAllData()
+        database.clearAllTables()
     }
 }

@@ -10,9 +10,12 @@ import androidx.room3.TypeConverters
 @Database(
     entities = [
         ProfileEntity::class,
+        SessionEntity::class,
+        PrestigeEntity::class,
         SkillEntity::class,
         CardEntity::class,
-        LootBoxEntity::class
+        LootBoxEntity::class,
+        InventoryEntity::class,
     ],
     version = 1,
     exportSchema = true // Enabled to support auto-migrations in the future
@@ -20,15 +23,11 @@ import androidx.room3.TypeConverters
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun profileDao(): ProfileDao
+    abstract fun sessionDao(): SessionDao
+    abstract fun prestigeDao(): PrestigeDao
     abstract fun skillDao(): SkillDao
     abstract fun cardDao(): CardDao
     abstract fun lootBoxDao(): LootBoxDao
     abstract fun offlineProgressDao(): OfflineProgressDao
-
-    /**
-     * Resets the entire database by clearing all tables.
-     */
-    suspend fun resetAllData() {
-        clearAllTables()
-    }
+    abstract fun inventoryDao(): InventoryDao
 }

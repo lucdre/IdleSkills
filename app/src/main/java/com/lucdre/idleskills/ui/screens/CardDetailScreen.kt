@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.sp
 import com.lucdre.idleskills.R
 import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.cards.domain.CardType
-import com.lucdre.idleskills.skills.domain.skill.SkillType
+import com.lucdre.idleskills.skills.domain.skill.SkillMetadata
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 import com.lucdre.idleskills.ui.components.CustomLinearProgressIndicator
 
@@ -34,12 +34,8 @@ fun CardDetailScreen(
     onBack: () -> Unit,
     onUpgrade: (Card) -> Unit = {}
 ) {
-    val skillColor = when (card.type.skill) {
-        SkillType.WOODCUTTING -> Color(0xFF2E7D32)
-        SkillType.MINING -> Color(0xFF455A64)
-        SkillType.FISHING -> Color(0xFF0277BD)
-        else -> MaterialTheme.colorScheme.primary
-    }
+    val skillTheme = SkillMetadata.getTheme(card.type.skill)
+    val skillColor = skillTheme.primaryColor
 
     Scaffold(
         topBar = {

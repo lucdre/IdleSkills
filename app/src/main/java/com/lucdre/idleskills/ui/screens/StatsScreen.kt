@@ -33,7 +33,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lucdre.idleskills.profile.domain.PlayerStatistics
 import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
 import com.lucdre.idleskills.skills.domain.skill.Skill
-import com.lucdre.idleskills.skills.presentation.SkillListViewModel
+import com.lucdre.idleskills.skills.domain.skill.SkillType
+import com.lucdre.idleskills.main.presentation.TrainingViewModel
 import com.lucdre.idleskills.ui.util.formatNumber
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
@@ -41,33 +42,34 @@ import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
  * Screen displaying all available stats. Your skill details and unlocked tools.
  *
  * @param modifier Modifier
- * @param skillViewModel ViewModel that provides all skills data
+ * @param viewModel ViewModel that provides all skills data
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatsScreen(
     modifier: Modifier = Modifier,
-    skillViewModel: SkillListViewModel = hiltViewModel()
+    viewModel: TrainingViewModel = hiltViewModel()
 ) {
-    val skillUiState by skillViewModel.uiState.collectAsStateWithLifecycle()
+    val skillsState by viewModel.skillsState.collectAsStateWithLifecycle()
+    val sessionState by viewModel.sessionState.collectAsStateWithLifecycle()
 
     // Bottom Sheet State for Skill onClick
-    var selectedSkillName by remember { mutableStateOf<String?>(null) }
+    var selectedSkillType by remember { mutableStateOf<SkillType?>(null) }
     val sheetState = rememberModalBottomSheetState()
     var isSheetOpen by remember { mutableStateOf(false) }
 
     // Get live skill data from the ViewModel state
-    val selectedSkill = selectedSkillName?.let { name ->
-        skillUiState.skills.find { it.name == name }
+    val selectedSkill = selectedSkillType?.let { type ->
+        skillsState.skills.find { it.type == type }
     }
 
     Box(modifier = modifier.fillMaxSize()) {
         StatsScreenContent(
             modifier = Modifier.fillMaxSize(),
-            playerStatistics = skillUiState.playerStatistics,
-            skills = skillUiState.skills
+            playerStatistics = sessionState.playerStatistics,
+            skills = skillsState.skills
         ) { skill ->
-            selectedSkillName = skill.name //it is read
+            selectedSkillType = skill.type
             isSheetOpen = true
         }
 
@@ -126,7 +128,7 @@ private fun StatsScreenContent(
                 ) {
                     Text(text = "Trees cut", style = MaterialTheme.typography.bodyLarge)
                     Text(
-                        text = playerStatistics.getCountForSkill("Woodcutting").formatNumber(),
+                        text = playerStatistics.getCountForSkill(SkillType.WOODCUTTING).formatNumber(),
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -140,7 +142,7 @@ private fun StatsScreenContent(
                 ) {
                     Text(text = "Rocks mined", style = MaterialTheme.typography.bodyLarge)
                     Text(
-                        text = playerStatistics.getCountForSkill("Mining").formatNumber(),
+                        text = playerStatistics.getCountForSkill(SkillType.MINING).formatNumber(),
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -154,7 +156,7 @@ private fun StatsScreenContent(
                 ) {
                     Text(text = "Fish fished", style = MaterialTheme.typography.bodyLarge)
                     Text(
-                        text = playerStatistics.getCountForSkill("Fishing").formatNumber(),
+                        text = playerStatistics.getCountForSkill(SkillType.FISHING).formatNumber(),
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -250,17 +252,15 @@ fun DetailItem(label: String, value: String) {
 fun StatsScreenPreview() {
     IdleSkillsTheme {
         val previewSkills = listOf(
-            Skill("Woodcutting", level = 10, xp = 1500),
-            Skill("Mining", level = 15, xp = 2800),
-            Skill("Fishing", level = 20, xp = 4200),
-            Skill("Firemaking", level = 1, xp = 0),
-            Skill("Cooking", level = 30, xp = 8100)
+            Skill(SkillType.WOODCUTTING, level = 10, xp = 1500),
+            Skill(SkillType.MINING, level = 15, xp = 2800),
+            Skill(SkillType.FISHING, level = 20, xp = 4200)
         )
         val previewStatistics = PlayerStatistics(
             stats = mapOf(
-                "Woodcutting" to mapOf("Oak" to 42),
-                "Mining" to mapOf("Iron" to 15),
-                "Fishing" to mapOf("Shrimp" to 100)
+                SkillType.WOODCUTTING.name to mapOf("Oak" to 42),
+                SkillType.MINING.name to mapOf("Iron" to 15),
+                SkillType.FISHING.name to mapOf("Shrimp" to 100)
             )
         )
         StatsScreenContent(
@@ -277,7 +277,7 @@ fun StatsScreenPreview() {
 fun SkillDetailSheetPreview() {
     IdleSkillsTheme {
         SkillDetailSheetContent(
-            skill = Skill("Woodcutting", level = 42, xp = 4500)
+            skill = Skill(SkillType.WOODCUTTING, level = 42, xp = 4500)
         )
     }
 }

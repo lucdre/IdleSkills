@@ -15,6 +15,7 @@ import javax.inject.Inject
  * - Maintains skill tree progress and unlocked upgrades
  *
  * @property prestigeRepository The repository for prestige data.
+ * @property skillRepository The repository for skill data.
  * @property getPrestigeStateUseCase Use case to see the complete state of the prestige.
  * @property resetSkillsUseCase Use case to reset all skills to initial state.
  */

@@ -3,7 +3,6 @@ package com.lucdre.idleskills.skills.domain.training
 import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
-import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.skills.domain.training.usecase.RecordTrainingActionUseCase
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -19,10 +18,11 @@ import javax.inject.Singleton
  * @property isPaused Whether training is currently paused.
  */
 data class TrainingState(
-    val activeSkill: Skill? = null,
+    val activeSkillName: String? = null,
     val activeMethod: TrainingMethod? = null,
     val progress: Float = 0f,
-    val isPaused: Boolean = true
+    val isPaused: Boolean = true,
+    val sessionXpGained: Int = 0
 )
 
 /**
@@ -32,7 +32,8 @@ data class TrainingState(
 class TrainingService @Inject constructor(
     private val recordTrainingActionUseCase: RecordTrainingActionUseCase,
     private val getActiveCardsUseCase: GetActiveCardsUseCase,
-    private val skillRepository: SkillRepositoryInterface
+    private val skillRepository: SkillRepositoryInterface,
+    private val inventoryRepository: com.lucdre.idleskills.inventory.domain.InventoryRepositoryInterface
 ) {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     
@@ -41,24 +42,58 @@ class TrainingService @Inject constructor(
 
     private var trainingManager: SkillTrainingManager? = null
     private var cardsJob: Job? = null
+    private var startXp = mutableMapOf<String, Int>()
+    
+    private var isAppVisible = true
 
     init {
         trainingManager = SkillTrainingManager(
             skillRepository = skillRepository,
             recordTrainingActionUseCase = recordTrainingActionUseCase,
+            inventoryRepository = inventoryRepository,
             coroutineScope = serviceScope,
             onProgressUpdate = { progress ->
                 _trainingState.update { it.copy(progress = progress) }
             },
             onSkillUpdate = { updatedSkill ->
-                _trainingState.update { it.copy(activeSkill = updatedSkill) }
+                // Calculate session XP
+                if (!startXp.containsKey(updatedSkill.name)) {
+                    startXp[updatedSkill.name] = updatedSkill.xp
+                }
+                val currentSessionXp = updatedSkill.xp - (startXp[updatedSkill.name] ?: updatedSkill.xp)
+                
+                _trainingState.update { 
+                    it.copy(
+                        activeSkillName = updatedSkill.name,
+                        sessionXpGained = currentSessionXp
+                    ) 
+                }
             }
         )
     }
 
+    fun setAppVisibility(visible: Boolean) {
+        isAppVisible = visible
+        if (!visible) {
+            trainingManager?.cancelTraining()
+        } else {
+            // Re-start training if we have an active skill/method
+            val state = _trainingState.value
+            val skillName = state.activeSkillName
+            val method = state.activeMethod
+            if (skillName != null && method != null) {
+                serviceScope.launch {
+                    val skill = skillRepository.getSkills().find { it.name == skillName } ?: return@launch
+                    // Restart logic (re-uses existing jobs if any, but startTraining handles it)
+                    startTraining(skill, method)
+                }
+            }
+        }
+    }
+
     fun toggleTraining(skill: Skill, method: TrainingMethod) {
         val currentState = _trainingState.value
-        if (currentState.activeSkill?.name == skill.name && currentState.activeMethod?.name == method.name) {
+        if (currentState.activeSkillName == skill.name && currentState.activeMethod?.name == method.name) {
             stopTraining()
         } else {
             startTraining(skill, method)
@@ -68,12 +103,18 @@ class TrainingService @Inject constructor(
     fun startTraining(skill: Skill, method: TrainingMethod) {
         stopTraining()
 
+        if (!startXp.containsKey(skill.name)) {
+            startXp[skill.name] = skill.xp
+        }
+        val currentSessionXp = skill.xp - (startXp[skill.name] ?: skill.xp)
+
         _trainingState.update { 
             it.copy(
-                activeSkill = skill,
+                activeSkillName = skill.name,
                 activeMethod = method,
                 isPaused = false,
-                progress = 0f
+                progress = 0f,
+                sessionXpGained = currentSessionXp
             )
         }
 
@@ -82,8 +123,7 @@ class TrainingService @Inject constructor(
         }
 
         cardsJob = serviceScope.launch {
-            val skillType = SkillType.fromString(skill.name) ?: SkillType.WOODCUTTING
-            getActiveCardsUseCase(skillType, method.name).collect { cards ->
+            getActiveCardsUseCase(skill.type, method.name).collect { cards ->
                 if (trainingManager?.isTraining(skill.name) == false) {
                     trainingManager?.startTraining(skill, method, cards)
                 } else {
@@ -99,7 +139,7 @@ class TrainingService @Inject constructor(
         
         _trainingState.update { 
             it.copy(
-                activeSkill = null,
+                activeSkillName = null,
                 activeMethod = null,
                 isPaused = true,
                 progress = 0f

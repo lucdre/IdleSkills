@@ -31,4 +31,11 @@ interface CardRepositoryInterface {
      * @param quantity The number of cards to add.
      */
     suspend fun addCards(cardType: CardType, quantity: Int)
+
+    /**
+     * Adds multiple types of cards to the player's collection in a batch.
+     *
+     * @param cards A map of card types to the quantity to add.
+     */
+    suspend fun addCardsBatch(cards: Map<CardType, Int>)
 }

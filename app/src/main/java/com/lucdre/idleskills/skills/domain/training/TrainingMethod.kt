@@ -24,16 +24,9 @@ data class TrainingMethod(
     val actionDurationMs: Long,
     val requiredLevel: Int = 1,
     val requiredCardType: CardType? = null,
-    val availableRegions: List<Region> = emptyList()
+    val availableRegions: List<Region> = emptyList(),
+    val producedItemType: com.lucdre.idleskills.inventory.domain.ItemType? = null
 ) {
-    /**
-     * @return The XP per hour for this training method.
-     */
-    fun calculateXpPerHour(): Int {
-        val actionsPerHour = (3600 * 1000) / actionDurationMs
-        return (actionsPerHour * xpPerAction).toInt()
-    }
-
     /**
      * @param cards List of cards that affect action speed through efficiency bonuses
      * @return The XP per hour for this training method with card bonuses applied.

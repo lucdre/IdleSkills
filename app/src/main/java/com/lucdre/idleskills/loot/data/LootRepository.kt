@@ -1,7 +1,6 @@
 package com.lucdre.idleskills.loot.data
 
 import com.lucdre.idleskills.core.persistence.LootBoxDao
-import com.lucdre.idleskills.core.persistence.LootBoxEntity
 import com.lucdre.idleskills.loot.domain.LootBox
 import com.lucdre.idleskills.loot.domain.LootRepositoryInterface
 import com.lucdre.idleskills.skills.domain.skill.SkillType
@@ -24,15 +23,13 @@ class LootRepository @Inject constructor(
     override fun observeLootBoxes(): Flow<List<LootBox>> = lootBoxDao.observeLootBoxes()
         .map { entities ->
             entities.mapNotNull { 
-                val skill = runCatching { SkillType.valueOf(it.skillName) }.getOrNull()
-                    ?: SkillType.fromString(it.skillName)
+                val skill = SkillType.fromString(it.skillName)
                 if (skill != null) LootBox(skill, it.count) else null
             }
         }
         .flowOn(Dispatchers.IO)
 
     override suspend fun collectLootBox(skill: SkillType) = withContext(Dispatchers.IO) {
-        ensureRowExists(skill)
         lootBoxDao.updateLootBoxCount(skill.name, 1)
     }
 
@@ -43,13 +40,6 @@ class LootRepository @Inject constructor(
             true
         } else {
             false
-        }
-    }
-
-    private suspend fun ensureRowExists(skill: SkillType) {
-        val existing = lootBoxDao.getLootBoxBySkill(skill.name)
-        if (existing == null) {
-            lootBoxDao.insertOrUpdate(LootBoxEntity(skillName = skill.name, count = 0))
         }
     }
 }
