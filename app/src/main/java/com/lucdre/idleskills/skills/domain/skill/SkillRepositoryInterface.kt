@@ -18,6 +18,12 @@ interface SkillRepositoryInterface {
     suspend fun getSkills(): List<Skill>
 
     /**
+     * @param name The name of the skill to fetch.
+     * @return The skill with the given name, or null if not found.
+     */
+    suspend fun getSkillByName(name: String): Skill?
+
+    /**
      * Updates a skill in the repository.
      *
      * @param skill The skill to be updated.

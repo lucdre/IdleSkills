@@ -111,7 +111,7 @@ class SkillTrainingManager(
 
                     // Notify listeners
                     // SSOT: Always get the latest skill state from the repository
-                    val updatedSkill = skillRepository.getSkills().find { it.name == localSkillName }
+                    val updatedSkill = skillRepository.getSkillByName(localSkillName)
                     if (updatedSkill != null) {
                         onSkillUpdate(updatedSkill)
                     }
