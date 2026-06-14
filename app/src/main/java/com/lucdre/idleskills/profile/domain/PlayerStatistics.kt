@@ -1,5 +1,6 @@
 package com.lucdre.idleskills.profile.domain
 
+import androidx.compose.runtime.Immutable
 import com.lucdre.idleskills.skills.domain.skill.SkillType
 
 /**
@@ -8,6 +9,7 @@ import com.lucdre.idleskills.skills.domain.skill.SkillType
  * @property stats A nested map where the first key is the skill name, the second key is the
  *                training method name, and the value is the total number of actions completed.
  */
+@Immutable
 data class PlayerStatistics(
     val stats: Map<String, Map<String, Int>> = emptyMap()
 ) {

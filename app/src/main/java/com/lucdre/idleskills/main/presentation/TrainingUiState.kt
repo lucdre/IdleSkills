@@ -1,5 +1,6 @@
 package com.lucdre.idleskills.main.presentation
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Offset
 import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.cards.domain.CardType
@@ -15,6 +16,7 @@ import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 /**
  * Information about a skill's level and XP progress.
  */
+@Immutable
 data class LevelInfo(
     val currentLevel: Int = 1,
     val totalXp: Int = 0,
@@ -26,6 +28,7 @@ data class LevelInfo(
 /**
  * Highly volatile training state that updates frequently (e.g., progress bar).
  */
+@Immutable
 data class ActiveTrainingState(
     val trainingProgress: Float = 0f,
     val sessionXpGained: Int = 0,
@@ -36,6 +39,7 @@ data class ActiveTrainingState(
 /**
  * State related to skills and their training methods.
  */
+@Immutable
 data class TrainingSkillsState(
     val skills: List<Skill> = emptyList(),
     val trainingMethods: List<TrainingMethod> = emptyList(),
@@ -51,6 +55,7 @@ data class TrainingSkillsState(
 /**
  * State related to loot boxes and rewards.
  */
+@Immutable
 data class TrainingLootState(
     val lootBoxes: List<LootBox> = emptyList(),
     val lastRewards: Map<CardType, Int>? = null,
@@ -61,6 +66,7 @@ data class TrainingLootState(
 /**
  * State related to the player session, profile, and inventory.
  */
+@Immutable
 data class TrainingSessionState(
     val playerProfile: PlayerProfile = PlayerProfile(),
     val playerStatistics: PlayerStatistics = PlayerStatistics(),

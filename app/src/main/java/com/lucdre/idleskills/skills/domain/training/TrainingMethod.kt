@@ -1,5 +1,6 @@
 package com.lucdre.idleskills.skills.domain.training
 
+import androidx.compose.runtime.Immutable
 import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.cards.domain.CardType
 import com.lucdre.idleskills.region.domain.Region
@@ -17,6 +18,7 @@ import kotlin.math.roundToInt
  * @property requiredCardType The type of card required to train with this method, if any.
  * @property availableRegions The list of regions where this training method is available.
  */
+@Immutable
 data class TrainingMethod(
     val skill: SkillType,
     val name: String,
@@ -33,12 +35,12 @@ data class TrainingMethod(
      */
     fun calculateXpPerHour(cards: List<Card> = emptyList()): Int {
         val effectiveActionDuration = getEffectiveActionDuration(cards)
-        val actionsPerHour = (3600 * 1000) / effectiveActionDuration
+        val actionsPerHour = (3600.0 * 1000.0) / effectiveActionDuration
         return (actionsPerHour * xpPerAction).roundToInt()
     }
 
-    fun getEffectiveActionDuration(cards: List<Card> = emptyList()): Float {
-        val totalEfficiency = 1.0f + cards.sumOf { it.efficiencyBonus.toDouble() }.toFloat()
-        return actionDurationMs / totalEfficiency
+    fun getEffectiveActionDuration(cards: List<Card> = emptyList()): Double {
+        val totalEfficiency = 1.0 + cards.sumOf { it.efficiencyBonus.toDouble() }
+        return actionDurationMs.toDouble() / totalEfficiency
     }
 }

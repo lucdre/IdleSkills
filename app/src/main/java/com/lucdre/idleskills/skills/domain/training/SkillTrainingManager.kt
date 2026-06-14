@@ -8,6 +8,7 @@ import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import com.lucdre.idleskills.skills.domain.training.usecase.RecordTrainingActionUseCase
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Manages the active training process for a specific skill.
@@ -41,6 +42,10 @@ class SkillTrainingManager(
     private var activeSkillName: String? = null
     private var trainingJob: Job? = null
 
+    companion object {
+        private const val MIN_TICK_DURATION_MS = 100.0
+    }
+
     /**
      * Starts training a skill using a specific [TrainingMethod] and a list of [Card]s.
      *
@@ -60,7 +65,19 @@ class SkillTrainingManager(
             
             while (isActive) {
                 val config = _config.value ?: break
-                val actionDuration = config.method.getEffectiveActionDuration(config.cards)
+                val effectiveDuration = config.method.getEffectiveActionDuration(config.cards)
+                
+                // Safety: If actions are faster than MIN_TICK_DURATION_MS, batch them into a MIN_TICK_DURATION_MS tick
+                val actionsInTick: Int
+                val tickDuration: Double
+                if (effectiveDuration < MIN_TICK_DURATION_MS) {
+                    actionsInTick = (MIN_TICK_DURATION_MS / effectiveDuration).toInt().coerceAtLeast(1)
+                    tickDuration = effectiveDuration * actionsInTick
+                } else {
+                    actionsInTick = 1
+                    tickDuration = effectiveDuration
+                }
+
                 val startTime = System.currentTimeMillis()
                 
                 // 1. Action Phase
@@ -68,16 +85,14 @@ class SkillTrainingManager(
                     val currentTime = System.currentTimeMillis()
                     val elapsed = currentTime - startTime
                     
-                    if (elapsed >= actionDuration) break
+                    if (elapsed >= tickDuration) break
 
-                    onProgressUpdate((elapsed.toFloat() / actionDuration).coerceIn(0f, 1f))
+                    onProgressUpdate((elapsed.toDouble() / tickDuration).coerceIn(0.0, 1.0).toFloat())
                     
                     // Dynamic delay: update progress frequently but not too often.
-                    // Aim for ~30 FPS for progress bar if duration is short, 
-                    // or 10 FPS if duration is long.
-                    val remaining = actionDuration - elapsed
-                    val nextDelay = if (actionDuration < 1000) 16L else 100L
-                    delay(nextDelay.coerceAtMost(remaining.toLong()))
+                    val remaining = tickDuration - elapsed
+                    val nextDelay = if (tickDuration < 1000) 16L else 100L
+                    delay(nextDelay.coerceAtMost(remaining.toLong()).milliseconds)
                 }
 
                 if (!isActive) break
@@ -86,13 +101,13 @@ class SkillTrainingManager(
                 // 2. Completion Phase
                 val currentConfig = _config.value ?: break
                 try {
-                    skillRepository.addXp(localSkillName, currentConfig.method.xpPerAction)
+                    skillRepository.addXp(localSkillName, currentConfig.method.xpPerAction * actionsInTick)
 
                     currentConfig.method.producedItemType?.let { itemType ->
-                        inventoryRepository.addItem(itemType, 1)
+                        inventoryRepository.addItem(itemType, actionsInTick)
                     }
 
-                    recordTrainingActionUseCase(currentConfig.method.skill, currentConfig.method.name)
+                    recordTrainingActionUseCase(currentConfig.method.skill, currentConfig.method.name, actionsInTick)
 
                     // Notify listeners
                     // SSOT: Always get the latest skill state from the repository

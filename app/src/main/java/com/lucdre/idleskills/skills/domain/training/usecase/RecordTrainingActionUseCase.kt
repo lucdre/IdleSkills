@@ -13,12 +13,13 @@ class RecordTrainingActionUseCase @Inject constructor(
     private val statisticsRepository: StatisticsRepositoryInterface
 ) {
     /**
-     * Records a completed training action for a specific skill and method.
+     * Records completed training actions for a specific skill and method.
      *
      * @param skill The skill being trained.
      * @param methodName The name of the training method used.
+     * @param amount The number of actions completed.
      */
-    suspend operator fun invoke(skill: SkillType, methodName: String) {
-        statisticsRepository.incrementCount(skill, methodName)
+    suspend operator fun invoke(skill: SkillType, methodName: String, amount: Int = 1) {
+        statisticsRepository.incrementCount(skill, methodName, amount)
     }
 }

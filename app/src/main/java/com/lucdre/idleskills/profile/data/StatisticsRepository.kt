@@ -26,13 +26,13 @@ class StatisticsRepository @Inject constructor() : StatisticsRepositoryInterface
         return _statistics.value
     }
 
-    override suspend fun incrementCount(skill: SkillType, methodName: String) {
+    override suspend fun incrementCount(skill: SkillType, methodName: String, amount: Int) {
         _statistics.update { currentStats ->
             val updatedStatsMap = currentStats.stats.toMutableMap()
             val skillStatsMap = updatedStatsMap[skill.name]?.toMutableMap() ?: mutableMapOf()
             
             val currentCount = skillStatsMap[methodName] ?: 0
-            skillStatsMap[methodName] = currentCount + 1
+            skillStatsMap[methodName] = currentCount + amount
             
             updatedStatsMap[skill.name] = skillStatsMap
             currentStats.copy(stats = updatedStatsMap)

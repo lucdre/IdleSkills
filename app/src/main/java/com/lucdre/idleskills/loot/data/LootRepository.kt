@@ -34,12 +34,7 @@ class LootRepository @Inject constructor(
     }
 
     override suspend fun consumeLootBox(skill: SkillType): Boolean = withContext(Dispatchers.IO) {
-        val existing = lootBoxDao.getLootBoxBySkill(skill.name)
-        if (existing != null && existing.count > 0) {
-            lootBoxDao.updateLootBoxCount(skill.name, -1)
-            true
-        } else {
-            false
-        }
+        val affected = lootBoxDao.decrementLootBoxCount(skill.name)
+        affected > 0
     }
 }

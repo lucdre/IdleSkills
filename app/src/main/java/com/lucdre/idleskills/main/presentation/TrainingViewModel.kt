@@ -1,6 +1,8 @@
 package com.lucdre.idleskills.main.presentation
 
 import androidx.compose.ui.geometry.Offset
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
@@ -50,7 +52,7 @@ class TrainingViewModel @Inject constructor(
     private val trainingService: TrainingService,
     private val skillRepository: SkillRepositoryInterface,
     private val resetAllDataUseCase: ResetAllDataUseCase
-) : ViewModel() {
+) : ViewModel(), DefaultLifecycleObserver {
 
     private val _expandedSkillName = MutableStateFlow<String?>(null)
     private val _isScreenVisible = MutableStateFlow(value = false)
@@ -116,13 +118,22 @@ class TrainingViewModel @Inject constructor(
     init {
         observeVisibilityAndManageTimer()
         resumeInitialTraining()
+    }
+
+    override fun onStart(owner: LifecycleOwner) {
+        setAppVisibility(true)
         checkOfflineProgress()
+    }
+
+    override fun onStop(owner: LifecycleOwner) {
+        setAppVisibility(false)
     }
 
     private fun buildSkillsPipeline(): Flow<TrainingSkillsState> {
         val skillsFlow = getVisibleSkillsUseCase.observeVisibleSkills()
-        val trainingFlow = trainingService.trainingState.map { 
-            Triple(it.activeSkillName, it.activeMethod, it.isPaused) 
+
+        val activeSelectionFlow = trainingService.trainingState.map { 
+            it.activeSkillName to it.activeMethod
         }.distinctUntilChanged()
 
         val availableMethodsFlow = _expandedSkillName.flatMapLatest { expandedName ->
@@ -136,7 +147,7 @@ class TrainingViewModel @Inject constructor(
             }
         }
 
-        val activeCardsFlow = trainingFlow.map { it.first to it.second?.name }
+        val activeCardsFlow = activeSelectionFlow.map { it.first to it.second?.name }
             .distinctUntilChanged()
             .flatMapLatest { (skillName, methodName) ->
                 if (skillName != null && methodName != null) {
@@ -148,9 +159,9 @@ class TrainingViewModel @Inject constructor(
             }
 
         return combine(
-            skillsFlow, trainingFlow, availableMethodsFlow, activeCardsFlow, _expandedSkillName
-        ) { skills, training, methods, cards, expanded ->
-            val activeSkillName = training.first
+            skillsFlow, activeSelectionFlow, availableMethodsFlow, activeCardsFlow, _expandedSkillName
+        ) { skills, selection, methods, cards, expanded ->
+            val activeSkillName = selection.first
             val activeSkill = activeSkillName?.let { name -> skills.find { it.name == name } }
             val levelInfo = activeSkill?.let { LevelCalculator.getLevelInfo(it.xp) } ?: LevelInfo()
 
@@ -159,7 +170,7 @@ class TrainingViewModel @Inject constructor(
                 trainingMethods = methods,
                 expandedSkillName = expanded,
                 activeTrainingSkill = activeSkill?.type,
-                activeTrainingMethod = training.second,
+                activeTrainingMethod = selection.second,
                 activeCards = cards,
                 levelInfo = levelInfo,
                 isLoading = false

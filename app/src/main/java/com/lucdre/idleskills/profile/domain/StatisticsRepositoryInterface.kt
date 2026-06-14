@@ -25,6 +25,7 @@ interface StatisticsRepositoryInterface {
      *
      * @param skill The skill type.
      * @param methodName The name of the training method.
+     * @param amount The amount to increment by, defaults to 1.
      */
-    suspend fun incrementCount(skill: com.lucdre.idleskills.skills.domain.skill.SkillType, methodName: String)
+    suspend fun incrementCount(skill: com.lucdre.idleskills.skills.domain.skill.SkillType, methodName: String, amount: Int = 1)
 }

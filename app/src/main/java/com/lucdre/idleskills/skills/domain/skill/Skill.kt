@@ -1,5 +1,7 @@
 package com.lucdre.idleskills.skills.domain.skill
 
+import androidx.compose.runtime.Immutable
+
 /**
  * Basic representation of a skill.
  *
@@ -9,6 +11,7 @@ package com.lucdre.idleskills.skills.domain.skill
  * @property level The level of the skill.
  * @property xp the experience points of the skill.
  */
+@Immutable
 data class Skill(
     val type: SkillType,
     val level: Int = 1, // Default level to 1

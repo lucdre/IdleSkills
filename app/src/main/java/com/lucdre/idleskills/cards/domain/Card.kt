@@ -1,5 +1,6 @@
 package com.lucdre.idleskills.cards.domain
 
+import androidx.compose.runtime.Immutable
 import com.lucdre.idleskills.R
 
 /**
@@ -12,6 +13,7 @@ import com.lucdre.idleskills.R
  * @property efficiencyBonus The efficiency bonus provided by this card (e.g., 0.1f for 10% bonus).
  * @property iconResId The resource ID of the card's icon, which can change based on level.
  */
+@Immutable
 data class Card(
     val name: String,
     val type: CardType,

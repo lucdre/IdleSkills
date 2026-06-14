@@ -147,6 +147,13 @@ interface LootBoxDao {
     suspend fun incrementLootBoxCount(skillName: String, amount: Int): Int
 
     /**
+     * Atomically decrements the loot box count by 1 if it's greater than 0.
+     * Returns the number of affected rows (1 if successful, 0 if count was 0).
+     */
+    @Query("UPDATE loot_boxes SET count = count - 1 WHERE skillName = :skillName AND count > 0")
+    suspend fun decrementLootBoxCount(skillName: String): Int
+
+    /**
      * Atomically updates the loot box count, creating the row if it doesn't exist.
      */
     @Transaction

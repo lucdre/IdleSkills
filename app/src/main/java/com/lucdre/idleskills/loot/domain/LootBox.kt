@@ -1,5 +1,6 @@
 package com.lucdre.idleskills.loot.domain
 
+import androidx.compose.runtime.Immutable
 import com.lucdre.idleskills.skills.domain.skill.SkillType
 
 /**
@@ -8,6 +9,7 @@ import com.lucdre.idleskills.skills.domain.skill.SkillType
  * @property skill The skill this box originated from.
  * @property count The number of boxes of this type owned.
  */
+@Immutable
 data class LootBox(
     val skill: SkillType,
     val count: Int = 0

@@ -1,6 +1,7 @@
 package com.lucdre.idleskills.core.domain
 
 import android.util.Log
+import androidx.compose.runtime.Immutable
 import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
 import com.lucdre.idleskills.core.persistence.OfflineProgressDao
 import com.lucdre.idleskills.core.persistence.SessionDao
@@ -19,6 +20,7 @@ import javax.inject.Singleton
  * @property earnedXp The total XP earned during the offline period.
  * @property elapsedMs The time elapsed in milliseconds, capped at 48 hours.
  */
+@Immutable
 data class OfflineProgressResult(
     val skillName: String,
     val earnedXp: Int,
@@ -76,7 +78,7 @@ class OfflineProgressManager @Inject constructor(
         val effectiveDuration = method.getEffectiveActionDuration(cards)
 
         // Calculate XP: (Diff / EffectiveActionDuration) * XpPerAction
-        val actionsCompleted = (diffMs / effectiveDuration).toLong()
+        val actionsCompleted = (diffMs.toDouble() / effectiveDuration).toLong()
         val earnedXp = (actionsCompleted * method.xpPerAction).toInt()
         
         val earnedItems = mutableMapOf<com.lucdre.idleskills.inventory.domain.ItemType, Int>()
