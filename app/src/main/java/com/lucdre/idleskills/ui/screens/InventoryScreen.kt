@@ -42,7 +42,7 @@ fun InventoryScreen(
         sessionState = sessionState,
         onOpenBoxClick = { viewModel.onOpenBoxClick(it) },
         clearRewards = { viewModel.clearRewards() },
-        isLoading = lootState.lootBoxes.isEmpty() && sessionState.inventoryItems.isEmpty(),
+        isLoading = lootState.isLoading || sessionState.isLoading,
         modifier = modifier
     )
 }

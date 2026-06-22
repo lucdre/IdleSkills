@@ -90,6 +90,32 @@ object LevelCalculator {
     }
 
     /**
+     * Calculates the XP needed to go from a specific level to the next.
+     *
+     * @param currentLevel The level to calculate from.
+     * @return XP difference between currentLevel and currentLevel + 1.
+     */
+    fun xpForNextLevel(currentLevel: Int): Int {
+        if (currentLevel >= MAX_LEVEL) return 0
+        return totalXpForLevel(currentLevel + 1) - totalXpForLevel(currentLevel)
+    }
+
+    /**
+     * Checks if a skill's level should be updated based on its XP.
+     *
+     * @param skill The skill to check.
+     * @return A new Skill object with the updated level if a level-up occurred, or the original skill.
+     */
+    fun checkForLevelUp(skill: Skill): Skill {
+        val calculatedLevel = calculateLevelFromTotalXp(skill.xp)
+        return if (calculatedLevel > skill.level) {
+            skill.copy(level = calculatedLevel)
+        } else {
+            skill
+        }
+    }
+
+    /**
      * Returns comprehensive information about a skill's level and XP progress.
      */
     fun getLevelInfo(totalXp: Int): LevelInfo {

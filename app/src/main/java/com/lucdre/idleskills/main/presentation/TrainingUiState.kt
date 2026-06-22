@@ -75,7 +75,8 @@ data class TrainingLootState(
     val lootBoxes: List<LootBox> = emptyList(),
     val lastRewards: Map<CardType, Int>? = null,
     val isSpriteVisible: Boolean = false,
-    val spritePosition: Offset = Offset(0.5f, 0.5f)
+    val spritePosition: Offset = Offset(0.5f, 0.5f),
+    val isLoading: Boolean = false
 )
 
 /**
@@ -93,5 +94,6 @@ data class TrainingSessionState(
     val playerStatistics: PlayerStatistics = PlayerStatistics(),
     val offlineProgress: OfflineProgressResult? = null,
     val regionName: String = "",
-    val inventoryItems: List<Item> = emptyList()
+    val inventoryItems: List<Item> = emptyList(),
+    val isLoading: Boolean = false
 )

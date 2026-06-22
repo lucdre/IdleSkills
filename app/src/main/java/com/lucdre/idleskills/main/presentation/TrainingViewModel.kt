@@ -81,13 +81,13 @@ class TrainingViewModel @Inject constructor(
      * State for loot boxes and rewards.
      */
     val lootState: StateFlow<TrainingLootState> = buildLootPipeline()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), TrainingLootState())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), TrainingLootState(isLoading = true))
 
     /**
      * State for player profile, stats, and inventory.
      */
     val sessionState: StateFlow<TrainingSessionState> = buildSessionPipeline()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), TrainingSessionState())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), TrainingSessionState(isLoading = true))
 
     /**
      * High-frequency training state (progress ticker).
@@ -190,7 +190,8 @@ class TrainingViewModel @Inject constructor(
                 lootBoxes = loot,
                 lastRewards = rewards,
                 isSpriteVisible = spriteVisible,
-                spritePosition = pos
+                spritePosition = pos,
+                isLoading = false
             )
         }
     }
@@ -207,7 +208,8 @@ class TrainingViewModel @Inject constructor(
                 playerStatistics = stats,
                 offlineProgress = offline,
                 regionName = profile.currentRegion.displayName,
-                inventoryItems = inventory
+                inventoryItems = inventory,
+                isLoading = false
             )
         }
     }
