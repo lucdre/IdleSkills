@@ -12,7 +12,7 @@ import javax.inject.Singleton
 /**
  * UI state representing the current training status.
  *
- * @property activeSkill The skill currently being trained, or null if idle.
+ * @property activeSkillName The skill currently being trained, or null if idle.
  * @property activeMethod The training method currently being used, or null if idle.
  * @property progress The progress of the current training action (0 to 1.0).
  * @property isPaused Whether training is currently paused.
@@ -88,15 +88,6 @@ class TrainingService @Inject constructor(
                     startTraining(skill, method)
                 }
             }
-        }
-    }
-
-    fun toggleTraining(skill: Skill, method: TrainingMethod) {
-        val currentState = _trainingState.value
-        if (currentState.activeSkillName == skill.name && currentState.activeMethod?.name == method.name) {
-            stopTraining()
-        } else {
-            startTraining(skill, method)
         }
     }
 

@@ -20,10 +20,4 @@ class ObserveStatisticsUseCase @Inject constructor(
         return statisticsRepository.observeStatistics()
     }
 
-    /**
-     * Gets the current player statistics snapshot.
-     */
-    suspend operator fun invoke(): PlayerStatistics {
-        return statisticsRepository.getStatistics()
-    }
 }

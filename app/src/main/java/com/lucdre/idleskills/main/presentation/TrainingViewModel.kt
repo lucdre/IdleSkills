@@ -15,10 +15,8 @@ import com.lucdre.idleskills.profile.domain.usecase.GetPlayerProfileUseCase
 import com.lucdre.idleskills.profile.domain.usecase.ObserveStatisticsUseCase
 import com.lucdre.idleskills.region.domain.usecase.GetVisibleSkillsUseCase
 import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
-import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import com.lucdre.idleskills.skills.domain.skill.SkillType
-import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 import com.lucdre.idleskills.skills.domain.training.TrainingService
 import com.lucdre.idleskills.skills.domain.training.usecase.GetAvailableTrainingMethodsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -290,8 +288,6 @@ class TrainingViewModel @Inject constructor(
         trainingService.startTraining(skill, method)
     }
 
-    fun toggleTraining(skill: Skill, method: TrainingMethod) = trainingService.toggleTraining(skill, method)
-
     fun setScreenVisible(visible: Boolean) { _isScreenVisible.value = visible }
     fun dismissOfflineProgress() { _offlineProgress.value = null }
     fun clearRewards() { _lastRewards.value = null }
@@ -317,9 +313,5 @@ class TrainingViewModel @Inject constructor(
             resetAllDataUseCase()
             _effect.send(Effect.TriggerRebirth)
         }
-    }
-    
-    fun setOfflineProgress(result: com.lucdre.idleskills.core.domain.OfflineProgressResult) {
-        _offlineProgress.value = result
     }
 }

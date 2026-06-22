@@ -24,14 +24,6 @@ interface SkillRepositoryInterface {
     suspend fun getSkillByName(name: String): Skill?
 
     /**
-     * Updates a skill in the repository.
-     *
-     * @param skill The skill to be updated.
-     * @return The updated skill.
-     */
-    suspend fun updateSkill(skill: Skill): Skill
-
-    /**
      * Atomically adds XP to a skill.
      *
      * @param skillName The name of the skill.

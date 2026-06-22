@@ -38,6 +38,16 @@ data class ActiveTrainingState(
 
 /**
  * State related to skills and their training methods.
+ *
+ * @property skills List of all visible skills.
+ * @property trainingMethods List of training methods for the currently expanded skill.
+ * @property expandedSkillName The name of the skill that is currently expanded in the UI.
+ * @property activeTrainingSkill The type of the skill currently being trained.
+ * @property activeTrainingMethod The method currently being used for training.
+ * @property activeCards The list of cards currently providing bonuses to the active training.
+ * @property levelInfo XP and level progress information for the active skill.
+ * @property isLoading Whether the skills state is currently being loaded.
+ * @property error An optional error message to display in the UI.
  */
 @Immutable
 data class TrainingSkillsState(
@@ -54,6 +64,11 @@ data class TrainingSkillsState(
 
 /**
  * State related to loot boxes and rewards.
+ *
+ * @property lootBoxes List of all owned loot boxes.
+ * @property lastRewards The rewards obtained from the last opened loot box.
+ * @property isSpriteVisible Whether the loot sprite is currently visible on screen.
+ * @property spritePosition The screen position of the loot sprite.
  */
 @Immutable
 data class TrainingLootState(
@@ -65,6 +80,12 @@ data class TrainingLootState(
 
 /**
  * State related to the player session, profile, and inventory.
+ *
+ * @property playerProfile The current player profile data.
+ * @property playerStatistics Accumulated player statistics.
+ * @property offlineProgress The result of the last offline progress calculation.
+ * @property regionName The display name of the current region.
+ * @property inventoryItems The list of items currently in the player's inventory.
  */
 @Immutable
 data class TrainingSessionState(

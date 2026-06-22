@@ -12,17 +12,8 @@ interface InventoryRepositoryInterface {
     fun observeItems(): Flow<List<Item>>
 
     /**
-     * Gets all items in the inventory.
-     */
-    suspend fun getItems(): List<Item>
-
-    /**
      * Adds a quantity of an item to the inventory.
      */
     suspend fun addItem(itemType: ItemType, quantity: Int)
 
-    /**
-     * Resets the inventory by clearing all items.
-     */
-    suspend fun resetInventory()
 }

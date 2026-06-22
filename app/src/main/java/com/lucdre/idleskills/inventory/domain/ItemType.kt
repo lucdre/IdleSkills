@@ -16,7 +16,7 @@ enum class ItemType(
     val iconResId: Int
 ) {
     // Woodcutting (1000-1999)
-    NORMAL_LOGS(1001, "Logs", R.drawable.ic_tree),
+    NORMAL_LOGS(1001, "Logs", R.drawable.ic_tree), // TODO: Replace with woodcutting icons
     OAK_LOGS(1002, "Oak Logs", R.drawable.ic_tree),
     WILLOW_LOGS(1003, "Willow Logs", R.drawable.ic_tree),
     MAPLE_LOGS(1004, "Maple Logs", R.drawable.ic_tree),

@@ -21,16 +21,8 @@ class InventoryRepository @Inject constructor(
         }
     }
 
-    override suspend fun getItems(): List<Item> {
-        return inventoryDao.getItems().mapNotNull { it.toDomain() }
-    }
-
     override suspend fun addItem(itemType: ItemType, quantity: Int) {
         inventoryDao.addItem(itemType.id, quantity)
-    }
-
-    override suspend fun resetInventory() {
-        inventoryDao.clearInventory()
     }
 
     private fun InventoryEntity.toDomain(): Item? {

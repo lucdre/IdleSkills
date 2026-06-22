@@ -20,10 +20,4 @@ class GetPlayerProfileUseCase @Inject constructor(
         return profileRepository.observeProfile()
     }
 
-    /**
-     * Gets the current player profile snapshot.
-     */
-    suspend operator fun invoke(): PlayerProfile {
-        return profileRepository.getProfile()
-    }
 }

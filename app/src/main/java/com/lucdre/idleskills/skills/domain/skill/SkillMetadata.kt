@@ -80,7 +80,7 @@ object SkillMetadata {
      * Get the icon for a specific training method.
      */
     fun getMethodIcon(skillName: String, methodName: String): Int {
-        // Placeholder implementation
+        // TODO: Replace with specific training method icons
         return R.drawable.ic_tree
     }
 }

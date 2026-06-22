@@ -63,13 +63,6 @@ class SkillRepository @Inject constructor(
         return skillDao.getSkillByName(name)?.toDomain()
     }
 
-    override suspend fun updateSkill(skill: Skill): Skill {
-        skillDao.insertOrUpdate(SkillEntity(skill.name, skill.xp))
-        // Update the timestamp in session whenever something important happens (like XP gain)
-        updateLastSavedTimestamp()
-        return skill
-    }
-
     override suspend fun addXp(skillName: String, amount: Int) {
         skillDao.addXpAtomically(skillName, amount, com.lucdre.idleskills.core.util.Constants.MAX_XP)
         updateLastSavedTimestamp()
