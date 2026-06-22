@@ -11,10 +11,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import com.lucdre.idleskills.ui.util.FontScalePreviews
+import com.lucdre.idleskills.ui.util.IdleSkillsPreviews
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.lucdre.idleskills.skills.domain.skill.SkillMetadata
 import com.lucdre.idleskills.skills.domain.skill.SkillType
+import com.lucdre.idleskills.ui.components.AutoSizeText
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
 @Composable
@@ -70,11 +73,13 @@ fun SkillSelector(
                             tint = if (isSelected) theme.primaryColor else MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text(
+                        AutoSizeText(
                             text = skill.displayName,
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                            color = if (isSelected) theme.primaryColor else MaterialTheme.colorScheme.onSurfaceVariant
+                            color = if (isSelected) theme.primaryColor else MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            minFontSize = 8.sp
                         )
                     }
                 }
@@ -83,7 +88,8 @@ fun SkillSelector(
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFF121212)
+@IdleSkillsPreviews
+@FontScalePreviews
 @Composable
 fun SkillSelectorPreview() {
     IdleSkillsTheme {

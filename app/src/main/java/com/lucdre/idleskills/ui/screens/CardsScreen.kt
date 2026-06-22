@@ -2,8 +2,10 @@ package com.lucdre.idleskills.ui.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -13,7 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import com.lucdre.idleskills.ui.util.IdleSkillsPreviews
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -69,15 +71,17 @@ fun CardsScreenContent(
                 CircularProgressIndicator()
             }
         } else {
-            LazyColumn(
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 100.dp),
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(bottom = 80.dp) // Space for bottom nav
             ) {
                 uiState.cardsBySkill.forEach { (skillName, cards) ->
                     val isExpanded = expandedSkills[skillName] ?: true
                     
-                    item(key = skillName) {
+                    item(key = skillName, span = { GridItemSpan(maxLineSpan) }) {
                         SkillGroupHeader(
                             skillName = skillName,
                             isExpanded = isExpanded,
@@ -86,32 +90,11 @@ fun CardsScreenContent(
                     }
 
                     if (isExpanded) {
-                        // Display cards in rows of 2 within the LazyColumn
-                        val columns = 3
-                        val rows = cards.chunked(columns)
-
-                        items(rows) { rowCards ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 4.dp),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                rowCards.forEach { card ->
-                                    TradingCardItem(
-                                        modifier = Modifier.weight(1f),
-                                        card = card,
-                                        onClick = { onCardClick(card) }
-                                    )
-                                }
-
-                                // Fill empty cells if the last row is not full
-                                if (rowCards.size < columns) {
-                                    repeat(columns - rowCards.size) {
-                                        Spacer(modifier = Modifier.weight(1f))
-                                    }
-                                }
-                            }
+                        items(cards, key = { it.name }) { card ->
+                            TradingCardItem(
+                                card = card,
+                                onClick = { onCardClick(card) }
+                            )
                         }
                     }
                 }
@@ -151,7 +134,7 @@ fun SkillGroupHeader(
     }
 }
 
-@Preview(showBackground = true)
+@IdleSkillsPreviews
 @Composable
 fun CardsScreenPreview() {
     IdleSkillsTheme {
@@ -159,16 +142,42 @@ fun CardsScreenPreview() {
             uiState = CardUiState(
                 cardsBySkill = mapOf(
                     "Woodcutting" to listOf(
-                        Card("Bronze Axe", com.lucdre.idleskills.cards.domain.CardType.WOODCUTTING_AXE, 2, 5, 0.05f)
+                        Card(
+                            name = "Bronze Axe",
+                            type = com.lucdre.idleskills.cards.domain.CardType.WOODCUTTING_AXE,
+                            level = 1,
+                            quantity = 5,
+                            efficiencyBonus = 0.05f,
+                            iconResId = com.lucdre.idleskills.R.drawable.ic_tree
+                        )
                     ),
                     "Mining" to listOf(
-                        Card("Bronze Pickaxe", com.lucdre.idleskills.cards.domain.CardType.MINING_PICKAXE, 1, 2, 0.05f) ,
-                        Card("Bronze Pickaxe", com.lucdre.idleskills.cards.domain.CardType.MINING_PICKAXE, 1, 2, 0.05f)
+                        Card(
+                            name = "Bronze Pickaxe",
+                            type = com.lucdre.idleskills.cards.domain.CardType.MINING_PICKAXE,
+                            level = 1,
+                            quantity = 2,
+                            efficiencyBonus = 0.05f,
+                            iconResId = com.lucdre.idleskills.R.drawable.ic_tree
+                        ),
+                        Card(
+                            name = "Steel Pickaxe",
+                            type = com.lucdre.idleskills.cards.domain.CardType.MINING_PICKAXE,
+                            level = 2,
+                            quantity = 1,
+                            efficiencyBonus = 0.10f,
+                            iconResId = com.lucdre.idleskills.R.drawable.ic_tree
+                        )
                     ),
                     "Fishing" to listOf(
-                        Card("Bronze Pickaxe", com.lucdre.idleskills.cards.domain.CardType.MINING_PICKAXE, 1, 2, 0.05f) ,
-                        Card("Bronze Pickaxe", com.lucdre.idleskills.cards.domain.CardType.MINING_PICKAXE, 1, 2, 0.05f),
-                        Card("Bronze Pickaxe", com.lucdre.idleskills.cards.domain.CardType.MINING_PICKAXE, 1, 2, 0.05f)
+                        Card(
+                            name = "Small Net",
+                            type = com.lucdre.idleskills.cards.domain.CardType.FISHING_NET,
+                            level = 1,
+                            quantity = 10,
+                            efficiencyBonus = 0.05f,
+                            iconResId = com.lucdre.idleskills.R.drawable.ic_tree
+                        )
                     )
                 )
             ),

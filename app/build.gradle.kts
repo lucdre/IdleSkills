@@ -72,6 +72,11 @@ dependencies {
     // Navigation
     implementation(libs.androidx.navigation.compose)
 
+    // Adaptive UI
+    implementation(libs.androidx.compose.material3.adaptive)
+    implementation(libs.androidx.compose.material3.adaptive.layout)
+    implementation(libs.androidx.compose.material3.adaptive.navigation.suite)
+
     // Process Phoenix (for clean restart)
     implementation(libs.process.phoenix)
 

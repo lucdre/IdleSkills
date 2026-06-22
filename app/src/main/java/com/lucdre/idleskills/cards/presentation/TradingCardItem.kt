@@ -44,8 +44,8 @@ fun TradingCardItem(
 
     Card(
         modifier = modifier
-            .width(120.dp)
-            .height(180.dp)
+            .fillMaxWidth()
+            .aspectRatio(0.7f)
             .clickable { onClick() }
             .border(2.dp, cardColor.copy(alpha = 0.5f), RoundedCornerShape(12.dp)),
         shape = RoundedCornerShape(12.dp),
@@ -55,7 +55,7 @@ fun TradingCardItem(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(8.dp),
+                .padding(4.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
@@ -76,7 +76,7 @@ fun TradingCardItem(
                 Icon(
                     painter = painterResource(id = card.iconResId),
                     contentDescription = null,
-                    modifier = Modifier.size(64.dp),
+                    modifier = Modifier.fillMaxSize(0.6f),
                     tint = cardColor
                 )
 
@@ -85,13 +85,13 @@ fun TradingCardItem(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(4.dp)
-                        .background(Color.Gray, RoundedCornerShape(4.dp))
+                        .background(Color.Gray.copy(alpha = 0.8f), RoundedCornerShape(4.dp))
                         .padding(horizontal = 2.dp, vertical = 2.dp)
                 ) {
                     Icon(
                         painter = painterResource(id = card.iconResId),
                         contentDescription = null,
-                        modifier = Modifier.size(24.dp),
+                        modifier = Modifier.size(16.dp),
                         tint = cardColor
                     )
                 }
@@ -100,14 +100,14 @@ fun TradingCardItem(
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(4.dp)
+                        .padding(bottom = 4.dp)
                         .background(cardColor, RoundedCornerShape(4.dp))
-                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                        .padding(horizontal = 6.dp, vertical = 2.dp)
                 ) {
                     Text(
-                        text = "LEVEL ${card.level}",
+                        text = "LVL ${card.level}",
                         color = Color.White,
-                        fontSize = 10.sp,
+                        fontSize = 9.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }

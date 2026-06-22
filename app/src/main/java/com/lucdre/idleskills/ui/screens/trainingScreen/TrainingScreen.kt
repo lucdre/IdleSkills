@@ -10,8 +10,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import com.lucdre.idleskills.ui.util.IdleSkillsPreviews
 import androidx.compose.ui.unit.dp
+import androidx.window.core.layout.WindowSizeClass
+import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
 import com.lucdre.idleskills.main.presentation.ActiveTrainingState
 import com.lucdre.idleskills.main.presentation.TrainingLootState
 import com.lucdre.idleskills.main.presentation.TrainingSessionState
@@ -33,7 +35,8 @@ fun TrainingScreen(
     onRegionClick: () -> Unit,
     onSpriteClick: () -> Unit,
     onDismissOfflineProgress: () -> Unit,
-    onSetScreenVisible: (Boolean) -> Unit = {}
+    onSetScreenVisible: (Boolean) -> Unit = {},
+    windowSizeClass: WindowSizeClass? = null
 ) {
     androidx.compose.runtime.DisposableEffect(Unit) {
         onSetScreenVisible(true)
@@ -46,12 +49,137 @@ fun TrainingScreen(
         .fillMaxSize()
         .background(MaterialTheme.colorScheme.background)
     ) {
+        val isWideScreen = windowSizeClass != null && 
+            windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)
+
+        if (isWideScreen) {
+            TwoColumnTrainingLayout(
+                skillsState = skillsState,
+                lootState = lootState,
+                sessionState = sessionState,
+                activeStateProvider = activeStateProvider,
+                onSkillSelect = onSkillSelect,
+                onMethodSelect = onMethodSelect,
+                onRegionClick = onRegionClick
+            )
+        } else {
+            SingleColumnTrainingLayout(
+                skillsState = skillsState,
+                lootState = lootState,
+                sessionState = sessionState,
+                activeStateProvider = activeStateProvider,
+                onSkillSelect = onSkillSelect,
+                onMethodSelect = onMethodSelect,
+                onRegionClick = onRegionClick
+            )
+        }
+
+        // Random Loot Sprite
+        if (lootState.isSpriteVisible) {
+            LootSpriteOverlay(
+                position = lootState.spritePosition,
+                onSpriteClick = onSpriteClick
+            )
+        }
+
+        // Offline Progress Popup
+        sessionState.offlineProgress?.let { result ->
+            OfflineProgressPopup(
+                result = result,
+                onDismiss = onDismissOfflineProgress
+            )
+        }
+    }
+}
+
+@Composable
+private fun SingleColumnTrainingLayout(
+    skillsState: TrainingSkillsState,
+    lootState: TrainingLootState,
+    sessionState: TrainingSessionState,
+    activeStateProvider: () -> ActiveTrainingState,
+    onSkillSelect: (SkillType) -> Unit,
+    onMethodSelect: (String) -> Unit,
+    onRegionClick: () -> Unit
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(16.dp)
+    ) {
+        // Game Scene - Volatile (reads activeStateProvider)
+        item {
+            TrainingSceneCard(
+                regionName = sessionState.regionName,
+                activeSkill = skillsState.activeTrainingSkill,
+                methodName = skillsState.activeTrainingMethod?.name,
+                progressProvider = { activeStateProvider().trainingProgress },
+                onRegionClick = onRegionClick
+            )
+        }
+
+        // Skill Selection - Stable
+        item {
+            SkillSelector(
+                skills = SkillType.entries,
+                selectedSkill = skillsState.expandedSkillName?.let { SkillType.fromString(it) },
+                onSkillSelected = onSkillSelect
+            )
+        }
+
+        // Training Method Selection - Stable
+        if (skillsState.trainingMethods.isNotEmpty()) {
+            item {
+                Text(
+                    text = "Training Method",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+            }
+            items(skillsState.trainingMethods) { method ->
+                TrainingMethodCard(
+                    method = method,
+                    selected = skillsState.activeTrainingMethod?.name == method.name,
+                    onClick = { onMethodSelect(method.name) }
+                )
+            }
+        }
+
+        // Training Info / Stats - Mixed
+        if (skillsState.activeTrainingSkill != null) {
+            item {
+                TrainingStatsSection(
+                    skillsState = skillsState,
+                    activeStateProvider = activeStateProvider
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun TwoColumnTrainingLayout(
+    skillsState: TrainingSkillsState,
+    lootState: TrainingLootState,
+    sessionState: TrainingSessionState,
+    activeStateProvider: () -> ActiveTrainingState,
+    onSkillSelect: (SkillType) -> Unit,
+    onMethodSelect: (String) -> Unit,
+    onRegionClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Left Column: Scene and Stats
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(16.dp)
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Game Scene - Volatile (reads activeStateProvider)
             item {
                 TrainingSceneCard(
                     regionName = sessionState.regionName,
@@ -62,7 +190,21 @@ fun TrainingScreen(
                 )
             }
 
-            // Skill Selection - Stable
+            if (skillsState.activeTrainingSkill != null) {
+                item {
+                    TrainingStatsSection(
+                        skillsState = skillsState,
+                        activeStateProvider = activeStateProvider
+                    )
+                }
+            }
+        }
+
+        // Right Column: Skill and Method Selection
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
             item {
                 SkillSelector(
                     skills = SkillType.entries,
@@ -71,7 +213,6 @@ fun TrainingScreen(
                 )
             }
 
-            // Training Method Selection - Stable
             if (skillsState.trainingMethods.isNotEmpty()) {
                 item {
                     Text(
@@ -90,32 +231,6 @@ fun TrainingScreen(
                     )
                 }
             }
-
-            // Training Info / Stats - Mixed
-            if (skillsState.activeTrainingSkill != null) {
-                item {
-                    TrainingStatsSection(
-                        skillsState = skillsState,
-                        activeStateProvider = activeStateProvider
-                    )
-                }
-            }
-        }
-
-        // Random Loot Sprite
-        if (lootState.isSpriteVisible) {
-            LootSpriteOverlay(
-                position = lootState.spritePosition,
-                onSpriteClick = onSpriteClick
-            )
-        }
-
-        // Offline Progress Popup
-        sessionState.offlineProgress?.let { result ->
-            OfflineProgressPopup(
-                result = result,
-                onDismiss = onDismissOfflineProgress
-            )
         }
     }
 }
@@ -174,7 +289,7 @@ fun TrainingStatsSection(
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFF08111C)
+@IdleSkillsPreviews
 @Composable
 fun TrainingScreenPreview() {
     IdleSkillsTheme {

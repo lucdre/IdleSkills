@@ -14,6 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
+import com.lucdre.idleskills.ui.util.IdleSkillsPreviews
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lucdre.idleskills.inventory.domain.Item
@@ -29,6 +32,23 @@ fun InventoryScreen(
     val lootState by viewModel.lootState.collectAsStateWithLifecycle()
     val sessionState by viewModel.sessionState.collectAsStateWithLifecycle()
     
+    InventoryScreenContent(
+        lootState = lootState,
+        sessionState = sessionState,
+        onOpenBoxClick = { viewModel.onOpenBoxClick(it) },
+        clearRewards = { viewModel.clearRewards() },
+        modifier = modifier
+    )
+}
+
+@Composable
+fun InventoryScreenContent(
+    lootState: com.lucdre.idleskills.main.presentation.TrainingLootState,
+    sessionState: com.lucdre.idleskills.main.presentation.TrainingSessionState,
+    onOpenBoxClick: (com.lucdre.idleskills.skills.domain.skill.SkillType) -> Unit,
+    clearRewards: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -55,7 +75,7 @@ fun InventoryScreen(
                     modifier = Modifier.heightIn(max = 200.dp)
                 ) {
                     items(ownedBoxes) { box ->
-                        LootBoxItem(box = box, onOpenClick = { viewModel.onOpenBoxClick(box.skill) })
+                        LootBoxItem(box = box, onOpenClick = { onOpenBoxClick(box.skill) })
                     }
                 }
                 Spacer(modifier = Modifier.height(24.dp))
@@ -97,9 +117,9 @@ fun InventoryScreen(
         // Rewards Dialog
         lootState.lastRewards?.let { rewards ->
             AlertDialog(
-                onDismissRequest = { viewModel.clearRewards() },
+                onDismissRequest = clearRewards,
                 confirmButton = {
-                    TextButton(onClick = { viewModel.clearRewards() }) {
+                    TextButton(onClick = clearRewards) {
                         Text("Awesome!")
                     }
                 },
@@ -141,7 +161,8 @@ fun InventoryItemCard(item: Item) {
             Text(
                 text = item.type.displayName,
                 style = MaterialTheme.typography.labelSmall,
-                maxLines = 1
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
             Text(
                 text = NumberFormatter.formatNumber(item.quantity),
@@ -150,5 +171,26 @@ fun InventoryItemCard(item: Item) {
                 color = MaterialTheme.colorScheme.primary
             )
         }
+    }
+}
+
+@IdleSkillsPreviews
+@Composable
+fun InventoryScreenPreview() {
+    IdleSkillsTheme {
+        InventoryScreenContent(
+            lootState = com.lucdre.idleskills.main.presentation.TrainingLootState(
+                lootBoxes = listOf(
+                    com.lucdre.idleskills.loot.domain.LootBox(com.lucdre.idleskills.skills.domain.skill.SkillType.WOODCUTTING, 5)
+                )
+            ),
+            sessionState = com.lucdre.idleskills.main.presentation.TrainingSessionState(
+                inventoryItems = listOf(
+                    com.lucdre.idleskills.inventory.domain.Item(com.lucdre.idleskills.inventory.domain.ItemType.OAK_LOGS, 150)
+                )
+            ),
+            onOpenBoxClick = {},
+            clearRewards = {}
+        )
     }
 }

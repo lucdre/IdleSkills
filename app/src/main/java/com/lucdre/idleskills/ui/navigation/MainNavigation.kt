@@ -20,12 +20,14 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.tooling.preview.Preview
+import com.lucdre.idleskills.ui.util.IdleSkillsPreviews
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -138,6 +140,7 @@ private fun MainNavigationContent(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val lootState by trainingViewModel.lootState.collectAsStateWithLifecycle()
+    val adaptiveInfo = currentWindowAdaptiveInfo()
 
     val items = listOf(
         BottomNavigationItem(
@@ -170,66 +173,59 @@ private fun MainNavigationContent(
         )
     )
 
-    Scaffold(
-        bottomBar = {
-            // Always show bottom bar unless on card detail
-            if (currentRoute != "${Routes.CARD_DETAIL}/{cardName}") {
-                NavigationBar {
-                    items.forEach { item ->
-                        val selected = currentRoute == item.route
-                        NavigationBarItem(
-                            selected = selected,
-                            onClick = {
-                                if (selected) {
-                                    // Deselect by navigating to background TRAINING screen
-                                    navController.navigate(Routes.TRAINING) {
-                                        popUpTo(navController.graph.startDestinationId) {
-                                            saveState = true
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                } else {
-                                    navController.navigate(item.route) {
-                                        popUpTo(navController.graph.startDestinationId) {
-                                            saveState = true
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
+    NavigationSuiteScaffold(
+        modifier = Modifier.statusBarsPadding(),
+        navigationSuiteItems = {
+            items.forEach { item ->
+                val selected = currentRoute == item.route
+                item(
+                    selected = selected,
+                    onClick = {
+                        if (selected) {
+                            navController.navigate(Routes.TRAINING) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
                                 }
-                            },
-                            label = {
-                                Text(text = item.title)
-                            },
-                            icon = {
-                                BadgedBox(
-                                    badge = {
-                                        if (item.hasNews) {
-                                            Badge()
-                                        }
-                                    }
-                                ) {
-                                    Icon(
-                                        imageVector = if (selected) {
-                                            item.selectedIcon
-                                        } else {
-                                            item.unselectedIcon
-                                        },
-                                        contentDescription = item.title
-                                    )
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        } else {
+                            navController.navigate(item.route) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    },
+                    label = { Text(text = item.title) },
+                    icon = {
+                        BadgedBox(
+                            badge = {
+                                if (item.hasNews) {
+                                    Badge()
                                 }
                             }
-                        )
+                        ) {
+                            Icon(
+                                imageVector = if (selected) {
+                                    item.selectedIcon
+                                } else {
+                                    item.unselectedIcon
+                                },
+                                contentDescription = item.title
+                            )
+                        }
                     }
-                }
+                )
             }
         }
-    ) { innerPadding ->
+    ) {
         NavHost(
             navController = navController,
             startDestination = Routes.TRAINING,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.fillMaxSize()
         ) {
             composable(Routes.TRAINING) {
                 val skillsState by trainingViewModel.skillsState.collectAsStateWithLifecycle()
@@ -246,7 +242,8 @@ private fun MainNavigationContent(
                     onRegionClick = { /* Handle region change */ },
                     onSpriteClick = { trainingViewModel.onSpriteClick() },
                     onDismissOfflineProgress = { trainingViewModel.dismissOfflineProgress() },
-                    onSetScreenVisible = { trainingViewModel.setScreenVisible(it) }
+                    onSetScreenVisible = { trainingViewModel.setScreenVisible(it) },
+                    windowSizeClass = adaptiveInfo.windowSizeClass
                 )
             }
             composable(Routes.INVENTORY) {
@@ -282,7 +279,7 @@ private fun MainNavigationContent(
 }
 
 @Composable
-@Preview(showBackground = true)
+@IdleSkillsPreviews
 fun MainNavigationPreview() {
     IdleSkillsTheme {
         Column {

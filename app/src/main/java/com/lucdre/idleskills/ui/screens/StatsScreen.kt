@@ -3,12 +3,15 @@ package com.lucdre.idleskills.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -26,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import com.lucdre.idleskills.ui.util.IdleSkillsPreviews
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -92,6 +96,7 @@ fun StatsScreen(
  * @param modifier Modifier
  * @param skills List of all skills to display
  */
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun StatsScreenContent(
     modifier: Modifier = Modifier,
@@ -122,43 +127,22 @@ private fun StatsScreenContent(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Row(
+                FlowRow(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.spacedBy(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text(text = "Trees cut", style = MaterialTheme.typography.bodyLarge)
-                    Text(
-                        text = playerStatistics.getCountForSkill(SkillType.WOODCUTTING).formatNumber(),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold
+                    StatisticItem(
+                        label = "Trees cut",
+                        value = playerStatistics.getCountForSkill(SkillType.WOODCUTTING).formatNumber()
                     )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = "Rocks mined", style = MaterialTheme.typography.bodyLarge)
-                    Text(
-                        text = playerStatistics.getCountForSkill(SkillType.MINING).formatNumber(),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold
+                    StatisticItem(
+                        label = "Rocks mined",
+                        value = playerStatistics.getCountForSkill(SkillType.MINING).formatNumber()
                     )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = "Fish fished", style = MaterialTheme.typography.bodyLarge)
-                    Text(
-                        text = playerStatistics.getCountForSkill(SkillType.FISHING).formatNumber(),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold
+                    StatisticItem(
+                        label = "Fish fished",
+                        value = playerStatistics.getCountForSkill(SkillType.FISHING).formatNumber()
                     )
                 }
             }
@@ -182,6 +166,18 @@ private fun StatsScreenContent(
                 onSkillSelect = onSkillClick
             )
         }
+    }
+}
+
+@Composable
+fun StatisticItem(label: String, value: String) {
+    Column(modifier = Modifier.widthIn(min = 100.dp)) {
+        Text(text = label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Bold
+        )
     }
 }
 
@@ -247,7 +243,7 @@ fun DetailItem(label: String, value: String) {
     }
 }
 
-@Preview(showBackground = true)
+@IdleSkillsPreviews
 @Composable
 fun StatsScreenPreview() {
     IdleSkillsTheme {
