@@ -64,7 +64,7 @@ class SkillRepository @Inject constructor(
     }
 
     override suspend fun addXp(skillName: String, amount: Int) {
-        skillDao.addXpAtomically(skillName, amount, com.lucdre.idleskills.core.util.Constants.MAX_XP)
+        skillDao.addXpAtomically(skillName, amount, LevelCalculator.MAX_XP)
         updateLastSavedTimestamp()
     }
 

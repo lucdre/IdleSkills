@@ -15,12 +15,12 @@ object LevelCalculator {
     /**
      * Maximum level.
      */
-    private const val MAX_LEVEL = Constants.MAX_LEVEL
+    const val MAX_LEVEL = Constants.MAX_LEVEL
 
     /**
      * Maximum XP.
      */
-    private const val MAX_XP = Constants.MAX_XP
+    const val MAX_XP = Constants.MAX_XP
 
     /**
      * Precomputed XP table for levels 1 to 126.

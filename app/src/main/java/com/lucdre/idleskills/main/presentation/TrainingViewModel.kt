@@ -5,9 +5,12 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lucdre.idleskills.cards.domain.CardType
 import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
+import com.lucdre.idleskills.core.domain.OfflineProgressResult
 import com.lucdre.idleskills.core.domain.usecase.CalculateOfflineProgressUseCase
 import com.lucdre.idleskills.core.domain.usecase.ResetAllDataUseCase
+import com.lucdre.idleskills.inventory.domain.InventoryRepositoryInterface
 import com.lucdre.idleskills.loot.domain.usecase.CollectLootBoxUseCase
 import com.lucdre.idleskills.loot.domain.usecase.ObserveLootBoxCountUseCase
 import com.lucdre.idleskills.loot.domain.usecase.OpenLootBoxUseCase
@@ -46,7 +49,7 @@ class TrainingViewModel @Inject constructor(
     private val getPlayerProfileUseCase: GetPlayerProfileUseCase,
     private val observeStatisticsUseCase: ObserveStatisticsUseCase,
     private val calculateOfflineProgressUseCase: CalculateOfflineProgressUseCase,
-    private val inventoryRepository: com.lucdre.idleskills.inventory.domain.InventoryRepositoryInterface,
+    private val inventoryRepository: InventoryRepositoryInterface,
     private val trainingService: TrainingService,
     private val skillRepository: SkillRepositoryInterface,
     private val resetAllDataUseCase: ResetAllDataUseCase
@@ -56,8 +59,8 @@ class TrainingViewModel @Inject constructor(
     private val _isScreenVisible = MutableStateFlow(value = false)
     private val _spriteVisible = MutableStateFlow(false)
     private val _spritePosition = MutableStateFlow(Offset(0.5f, 0.5f))
-    private val _lastRewards = MutableStateFlow<Map<com.lucdre.idleskills.cards.domain.CardType, Int>?>(null)
-    private val _offlineProgress = MutableStateFlow<com.lucdre.idleskills.core.domain.OfflineProgressResult?>(null)
+    private val _lastRewards = MutableStateFlow<Map<CardType, Int>?>(null)
+    private val _offlineProgress = MutableStateFlow<OfflineProgressResult?>(null)
 
     // Side Effects
     sealed class Effect {

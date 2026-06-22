@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
 import com.lucdre.idleskills.ui.components.CustomLinearProgressIndicator
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 import com.lucdre.idleskills.ui.util.NumberFormatter
@@ -43,7 +44,7 @@ fun LevelProgressCard(
             verticalAlignment = Alignment.Bottom
         ) {
             Text(
-                text = if (level >= com.lucdre.idleskills.core.util.Constants.MAX_LEVEL) "XP to Cap" else "XP to Next Level",
+                text = if (level >= LevelCalculator.MAX_LEVEL) "XP to Cap" else "XP to Next Level",
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

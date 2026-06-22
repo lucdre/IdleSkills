@@ -5,6 +5,11 @@ import androidx.compose.runtime.Immutable
 import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
 import com.lucdre.idleskills.core.persistence.OfflineProgressDao
 import com.lucdre.idleskills.core.persistence.SessionDao
+import com.lucdre.idleskills.core.persistence.InventoryDao
+import com.lucdre.idleskills.core.persistence.InventoryEntity
+import com.lucdre.idleskills.inventory.domain.ItemType
+import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
+import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryDispatcher
 import kotlinx.coroutines.flow.first
@@ -25,7 +30,7 @@ data class OfflineProgressResult(
     val skillName: String,
     val earnedXp: Int,
     val elapsedMs: Long,
-    val earnedItems: Map<com.lucdre.idleskills.inventory.domain.ItemType, Int> = emptyMap()
+    val earnedItems: Map<ItemType, Int> = emptyMap()
 )
 
 /**
@@ -35,10 +40,10 @@ data class OfflineProgressResult(
 class OfflineProgressManager @Inject constructor(
     private val sessionDao: SessionDao,
     private val offlineProgressDao: OfflineProgressDao,
-    private val inventoryDao: com.lucdre.idleskills.core.persistence.InventoryDao,
+    private val inventoryDao: InventoryDao,
     private val trainingMethodDispatcher: TrainingMethodRepositoryDispatcher,
     private val getActiveCardsUseCase: GetActiveCardsUseCase,
-    private val skillRepository: com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
+    private val skillRepository: SkillRepositoryInterface
 ) {
 
     private val mutex = Mutex()
@@ -85,10 +90,10 @@ class OfflineProgressManager @Inject constructor(
         val earnedXp = (actionsCompleted * method.xpPerAction).toInt()
         
         // Calculate actual gain accounting for 200M cap
-        val maxGain = (com.lucdre.idleskills.core.util.Constants.MAX_XP - currentSkill.xp).coerceAtLeast(0)
+        val maxGain = (LevelCalculator.MAX_XP - currentSkill.xp).coerceAtLeast(0)
         val actualXpGain = earnedXp.coerceAtMost(maxGain)
         
-        val earnedItems = mutableMapOf<com.lucdre.idleskills.inventory.domain.ItemType, Int>()
+        val earnedItems = mutableMapOf<ItemType, Int>()
         method.producedItemType?.let { itemType ->
             if (actionsCompleted > 0) {
                 earnedItems[itemType] = actionsCompleted.toInt()
@@ -101,13 +106,13 @@ class OfflineProgressManager @Inject constructor(
                 skillType.name,
                 actualXpGain,
                 now,
-                com.lucdre.idleskills.core.util.Constants.MAX_XP
+                LevelCalculator.MAX_XP
             )
             
             // Apply Items
             if (earnedItems.isNotEmpty()) {
                 val inventoryEntities = earnedItems.map { (type, qty) ->
-                    com.lucdre.idleskills.core.persistence.InventoryEntity(type.id, qty)
+                    InventoryEntity(type.id, qty)
                 }
                 inventoryDao.addItems(inventoryEntities)
             }
