@@ -2,7 +2,7 @@ package com.lucdre.idleskills.core.persistence
 
 import androidx.room3.Database
 import androidx.room3.RoomDatabase
-import androidx.room3.TypeConverters
+import androidx.room3.ColumnTypeConverters
 
 /**
  * Main database for the application.
@@ -20,7 +20,7 @@ import androidx.room3.TypeConverters
     version = 1,
     exportSchema = true // Enabled to support auto-migrations in the future
 )
-@TypeConverters(Converters::class)
+@ColumnTypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun profileDao(): ProfileDao
     abstract fun sessionDao(): SessionDao

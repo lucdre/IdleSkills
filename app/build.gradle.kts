@@ -55,6 +55,8 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.material.icons.extended)
+    implementation(libs.androidx.compose.runtime)
+    implementation(libs.androidx.sqlite.bundled)
 
     // Hilt & KSP
     implementation(libs.hilt.android)

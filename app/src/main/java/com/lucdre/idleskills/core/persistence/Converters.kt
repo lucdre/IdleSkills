@@ -1,18 +1,18 @@
 package com.lucdre.idleskills.core.persistence
 
-import androidx.room3.TypeConverter
+import androidx.room3.ColumnTypeConverter
 import com.lucdre.idleskills.region.domain.Region
 
 /**
  * Type converters for Room to handle non-primitive types.
  */
 class Converters {
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromRegion(value: Region): String {
         return value.name
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun toRegion(value: String): Region {
         // Use runCatching to handle cases where an enum value was renamed in code 
         // but still exists in the user's database.
@@ -20,12 +20,12 @@ class Converters {
             .getOrElse { Region.FIRST_REGION }
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromStringSet(value: Set<String>): String {
         return value.joinToString("|")
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun toStringSet(value: String): Set<String> {
         return if (value.isEmpty()) emptySet() else value.split("|").toSet()
     }
