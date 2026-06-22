@@ -37,7 +37,8 @@ class OfflineProgressManager @Inject constructor(
     private val offlineProgressDao: OfflineProgressDao,
     private val inventoryDao: com.lucdre.idleskills.core.persistence.InventoryDao,
     private val trainingMethodDispatcher: TrainingMethodRepositoryDispatcher,
-    private val getActiveCardsUseCase: GetActiveCardsUseCase
+    private val getActiveCardsUseCase: GetActiveCardsUseCase,
+    private val skillRepository: com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 ) {
 
     private val mutex = Mutex()
@@ -67,9 +68,11 @@ class OfflineProgressManager @Inject constructor(
             Log.d("OfflineProgressManager", "Offline progress capped at 48 hours")
         }
 
-        // Get the training method to determine XP rate
-        // SSOT: skillName in session is now expected to be SkillType.name
+        // Get current skill state to check XP cap
+        val currentSkill = skillRepository.getSkillByName(activeSkillName) ?: return null
         val skillType = SkillType.fromString(activeSkillName) ?: return null
+
+        // Get the training method to determine XP rate
         val methods = trainingMethodDispatcher.getTrainingMethodsForSkill(skillType, session.currentRegion)
         val method = methods.find { it.name == activeMethodName } ?: return null
 
@@ -81,6 +84,10 @@ class OfflineProgressManager @Inject constructor(
         val actionsCompleted = (diffMs.toDouble() / effectiveDuration).toLong()
         val earnedXp = (actionsCompleted * method.xpPerAction).toInt()
         
+        // Calculate actual gain accounting for 200M cap
+        val maxGain = (com.lucdre.idleskills.core.util.Constants.MAX_XP - currentSkill.xp).coerceAtLeast(0)
+        val actualXpGain = earnedXp.coerceAtMost(maxGain)
+        
         val earnedItems = mutableMapOf<com.lucdre.idleskills.inventory.domain.ItemType, Int>()
         method.producedItemType?.let { itemType ->
             if (actionsCompleted > 0) {
@@ -88,11 +95,11 @@ class OfflineProgressManager @Inject constructor(
             }
         }
 
-        if (earnedXp > 0 || earnedItems.isNotEmpty()) {
+        if (actualXpGain > 0 || earnedItems.isNotEmpty()) {
             // Apply XP
             offlineProgressDao.applyOfflineProgress(
                 skillType.name,
-                earnedXp,
+                actualXpGain,
                 now,
                 com.lucdre.idleskills.core.util.Constants.MAX_XP
             )
@@ -105,8 +112,8 @@ class OfflineProgressManager @Inject constructor(
                 inventoryDao.addItems(inventoryEntities)
             }
             
-            Log.d("OfflineProgressManager", "Applied $earnedXp offline XP and items to ${skillType.name}.")
-            return OfflineProgressResult(skillType.name, earnedXp, diffMs, earnedItems)
+            Log.d("OfflineProgressManager", "Applied $actualXpGain offline XP and items to ${skillType.name}.")
+            return OfflineProgressResult(skillType.name, actualXpGain, diffMs, earnedItems)
         } else {
             // Even if no progress earned, update timestamp to prevent redundant checks
             offlineProgressDao.updateSession(session.copy(lastSavedTimestamp = now))

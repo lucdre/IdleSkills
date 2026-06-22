@@ -55,12 +55,21 @@ fun OfflineProgressPopup(
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
-                        Text(
-                            text = "+${result.earnedXp.formatNumber()} XP",
-                            style = MaterialTheme.typography.headlineMedium,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            fontWeight = FontWeight.Black
-                        )
+                        if (result.earnedXp > 0) {
+                            Text(
+                                text = "+${result.earnedXp.formatNumber()} XP",
+                                style = MaterialTheme.typography.headlineMedium,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                fontWeight = FontWeight.Black
+                            )
+                        } else {
+                            Text(
+                                text = "XP Cap Reached",
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.secondary,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
                 

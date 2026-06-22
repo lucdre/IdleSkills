@@ -94,9 +94,20 @@ object LevelCalculator {
      */
     fun getLevelInfo(totalXp: Int): LevelInfo {
         val currentLevel = calculateLevelFromTotalXp(totalXp)
-        val nextLevelXpTotal = totalXpForLevel(currentLevel + 1)
+        
+        val nextLevelXpTotal = if (currentLevel < MAX_LEVEL) {
+            totalXpForLevel(currentLevel + 1)
+        } else {
+            MAX_XP
+        }
+        
         val currentLevelXpTotal = totalXpForLevel(currentLevel)
-        val xpToNextLevel = xpToNextLevelFromTotal(totalXp, currentLevel)
+        
+        val xpToNextLevel = if (currentLevel < MAX_LEVEL) {
+            xpToNextLevelFromTotal(totalXp, currentLevel)
+        } else {
+            (MAX_XP - totalXp).coerceAtLeast(0)
+        }
 
         val levelProgress = if (nextLevelXpTotal > currentLevelXpTotal) {
             val totalXpInLevel = nextLevelXpTotal - currentLevelXpTotal
