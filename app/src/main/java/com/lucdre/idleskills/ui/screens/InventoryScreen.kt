@@ -6,11 +6,13 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -18,11 +20,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 import com.lucdre.idleskills.ui.util.IdleSkillsPreviews
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lucdre.idleskills.inventory.domain.Item
 import com.lucdre.idleskills.main.presentation.TrainingViewModel
 import com.lucdre.idleskills.ui.screens.trainingScreen.components.LootBoxItem
 import com.lucdre.idleskills.ui.util.NumberFormatter
+import com.lucdre.idleskills.ui.components.shimmer
+import com.lucdre.idleskills.ui.components.AutoSizeText
 
 @Composable
 fun InventoryScreen(
@@ -37,6 +42,7 @@ fun InventoryScreen(
         sessionState = sessionState,
         onOpenBoxClick = { viewModel.onOpenBoxClick(it) },
         clearRewards = { viewModel.clearRewards() },
+        isLoading = lootState.lootBoxes.isEmpty() && sessionState.inventoryItems.isEmpty(),
         modifier = modifier
     )
 }
@@ -47,6 +53,7 @@ fun InventoryScreenContent(
     sessionState: com.lucdre.idleskills.main.presentation.TrainingSessionState,
     onOpenBoxClick: (com.lucdre.idleskills.skills.domain.skill.SkillType) -> Unit,
     clearRewards: () -> Unit,
+    isLoading: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -61,54 +68,58 @@ fun InventoryScreenContent(
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            // Loot Boxes Section
-            val ownedBoxes = lootState.lootBoxes.filter { it.count > 0 }
-            if (ownedBoxes.isNotEmpty()) {
+            if (isLoading) {
+                InventorySkeleton()
+            } else {
+                // Loot Boxes Section
+                val ownedBoxes = lootState.lootBoxes.filter { it.count > 0 }
+                if (ownedBoxes.isNotEmpty()) {
+                    Text(
+                        text = "Loot Boxes",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.heightIn(max = 200.dp)
+                    ) {
+                        items(ownedBoxes) { box ->
+                            LootBoxItem(box = box, onOpenClick = { onOpenBoxClick(box.skill) })
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+
+                // Collected Items Section
                 Text(
-                    text = "Loot Boxes",
+                    text = "Collected Items",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.heightIn(max = 200.dp)
-                ) {
-                    items(ownedBoxes) { box ->
-                        LootBoxItem(box = box, onOpenClick = { onOpenBoxClick(box.skill) })
+                
+                if (sessionState.inventoryItems.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No items gathered yet.",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.outline
+                        )
                     }
-                }
-                Spacer(modifier = Modifier.height(24.dp))
-            }
-
-            // Collected Items Section
-            Text(
-                text = "Collected Items",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            
-            if (sessionState.inventoryItems.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxWidth().weight(1f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "No items gathered yet.",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.outline
-                    )
-                }
-            } else {
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(80.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    items(sessionState.inventoryItems) { item ->
-                        InventoryItemCard(item)
+                } else {
+                    LazyVerticalGrid(
+                        columns = GridCells.Adaptive(80.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        items(sessionState.inventoryItems) { item ->
+                            InventoryItemCard(item)
+                        }
                     }
                 }
             }
@@ -141,13 +152,54 @@ fun InventoryScreenContent(
 }
 
 @Composable
+private fun InventorySkeleton() {
+    Column(modifier = Modifier.fillMaxSize()) {
+        Text(
+            text = "Loot Boxes",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .shimmer()
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = "Collected Items",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(80.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.weight(1f)
+        ) {
+            items(15) {
+                Box(
+                    modifier = Modifier
+                        .aspectRatio(1f)
+                        .clip(RoundedCornerShape(8.dp))
+                        .shimmer()
+                )
+            }
+        }
+    }
+}
+
+@Composable
 fun InventoryItemCard(item: Item) {
     Card(
         modifier = Modifier.aspectRatio(1f),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(8.dp),
+            modifier = Modifier.fillMaxSize().padding(4.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -157,18 +209,21 @@ fun InventoryItemCard(item: Item) {
                 modifier = Modifier.size(32.dp),
                 tint = Color.Unspecified
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
+            Spacer(modifier = Modifier.height(2.dp))
+            AutoSizeText(
                 text = item.type.displayName,
                 style = MaterialTheme.typography.labelSmall,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                minFontSize = 8.sp
             )
-            Text(
+            AutoSizeText(
                 text = NumberFormatter.formatNumber(item.quantity),
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
+                maxLines = 1,
+                minFontSize = 8.sp
             )
         }
     }

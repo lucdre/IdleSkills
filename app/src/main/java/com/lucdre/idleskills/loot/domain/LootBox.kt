@@ -22,7 +22,6 @@ data class LootBox(
             SkillType.WOODCUTTING -> "Bird's Nest"
             SkillType.MINING -> "Geode"
             SkillType.FISHING -> "Treasure Chest"
-            else -> "${skill.displayName} SHOULD NEVER APPEAR"
         }
     }
 }
