@@ -21,9 +21,13 @@ import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 import com.lucdre.idleskills.ui.util.IdleSkillsPreviews
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lucdre.idleskills.cards.domain.CardType
 import com.lucdre.idleskills.inventory.domain.Item
-import com.lucdre.idleskills.main.presentation.TrainingViewModel
+import com.lucdre.idleskills.inventory.presentation.InventoryViewModel
+import com.lucdre.idleskills.loot.domain.LootBox
+import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.ui.screens.trainingScreen.components.LootBoxItem
 import com.lucdre.idleskills.ui.util.NumberFormatter
 import com.lucdre.idleskills.ui.components.shimmer
@@ -31,27 +35,28 @@ import com.lucdre.idleskills.ui.components.AutoSizeText
 
 @Composable
 fun InventoryScreen(
-    viewModel: TrainingViewModel,
+    viewModel: InventoryViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
-    val lootState by viewModel.lootState.collectAsStateWithLifecycle()
-    val sessionState by viewModel.sessionState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     
     InventoryScreenContent(
-        lootState = lootState,
-        sessionState = sessionState,
+        inventoryItems = uiState.inventoryItems,
+        lootBoxes = uiState.lootBoxes,
+        lastRewards = uiState.lastRewards,
         onOpenBoxClick = { viewModel.onOpenBoxClick(it) },
         clearRewards = { viewModel.clearRewards() },
-        isLoading = lootState.isLoading || sessionState.isLoading,
+        isLoading = uiState.isLoading,
         modifier = modifier
     )
 }
 
 @Composable
 fun InventoryScreenContent(
-    lootState: com.lucdre.idleskills.main.presentation.TrainingLootState,
-    sessionState: com.lucdre.idleskills.main.presentation.TrainingSessionState,
-    onOpenBoxClick: (com.lucdre.idleskills.skills.domain.skill.SkillType) -> Unit,
+    inventoryItems: List<Item>,
+    lootBoxes: List<LootBox>,
+    lastRewards: Map<CardType, Int>?,
+    onOpenBoxClick: (SkillType) -> Unit,
     clearRewards: () -> Unit,
     isLoading: Boolean = false,
     modifier: Modifier = Modifier
@@ -72,7 +77,7 @@ fun InventoryScreenContent(
                 InventorySkeleton()
             } else {
                 // Loot Boxes Section
-                val ownedBoxes = lootState.lootBoxes.filter { it.count > 0 }
+                val ownedBoxes = lootBoxes.filter { it.count > 0 }
                 if (ownedBoxes.isNotEmpty()) {
                     Text(
                         text = "Loot Boxes",
@@ -99,7 +104,7 @@ fun InventoryScreenContent(
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 
-                if (sessionState.inventoryItems.isEmpty()) {
+                if (inventoryItems.isEmpty()) {
                     Box(
                         modifier = Modifier.fillMaxWidth().weight(1f),
                         contentAlignment = Alignment.Center
@@ -117,7 +122,7 @@ fun InventoryScreenContent(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.weight(1f)
                     ) {
-                        items(sessionState.inventoryItems) { item ->
+                        items(inventoryItems) { item ->
                             InventoryItemCard(item)
                         }
                     }
@@ -126,7 +131,7 @@ fun InventoryScreenContent(
         }
 
         // Rewards Dialog
-        lootState.lastRewards?.let { rewards ->
+        lastRewards?.let { rewards ->
             AlertDialog(
                 onDismissRequest = clearRewards,
                 confirmButton = {
@@ -234,16 +239,13 @@ fun InventoryItemCard(item: Item) {
 fun InventoryScreenPreview() {
     IdleSkillsTheme {
         InventoryScreenContent(
-            lootState = com.lucdre.idleskills.main.presentation.TrainingLootState(
-                lootBoxes = listOf(
-                    com.lucdre.idleskills.loot.domain.LootBox(com.lucdre.idleskills.skills.domain.skill.SkillType.WOODCUTTING, 5)
-                )
+            lootBoxes = listOf(
+                LootBox(SkillType.WOODCUTTING, 5)
             ),
-            sessionState = com.lucdre.idleskills.main.presentation.TrainingSessionState(
-                inventoryItems = listOf(
-                    com.lucdre.idleskills.inventory.domain.Item(com.lucdre.idleskills.inventory.domain.ItemType.OAK_LOGS, 150)
-                )
+            inventoryItems = listOf(
+                Item(com.lucdre.idleskills.inventory.domain.ItemType.OAK_LOGS, 150)
             ),
+            lastRewards = null,
             onOpenBoxClick = {},
             clearRewards = {}
         )

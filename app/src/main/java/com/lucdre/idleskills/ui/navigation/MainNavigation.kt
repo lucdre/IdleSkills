@@ -143,7 +143,7 @@ private fun MainNavigationContent(
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val lootState by trainingViewModel.lootState.collectAsStateWithLifecycle()
+    val navUiState by hiltViewModel<MainNavigationViewModel>().uiState.collectAsStateWithLifecycle()
     val adaptiveInfo = currentWindowAdaptiveInfo()
 
     val items = listOf(
@@ -151,7 +151,7 @@ private fun MainNavigationContent(
             "Inventory",
             Icons.Filled.Inventory,
             Icons.Outlined.Inventory,
-            lootState.lootBoxes.any { it.count > 0 },
+            navUiState.hasLootBoxes,
             Routes.INVENTORY
         ),
         BottomNavigationItem(
@@ -233,12 +233,13 @@ private fun MainNavigationContent(
         ) {
             composable(Routes.TRAINING) {
                 val skillsState by trainingViewModel.skillsState.collectAsStateWithLifecycle()
+                val sceneState by trainingViewModel.sceneState.collectAsStateWithLifecycle()
                 val sessionState by trainingViewModel.sessionState.collectAsStateWithLifecycle()
                 val activeStateState = trainingViewModel.activeTrainingState.collectAsStateWithLifecycle()
                 
                 TrainingScreen(
                     skillsState = skillsState,
-                    lootState = lootState,
+                    sceneState = sceneState,
                     sessionState = sessionState,
                     activeStateProvider = { activeStateState.value },
                     onSkillSelect = { skill -> trainingViewModel.selectSkill(skill) },
@@ -251,7 +252,7 @@ private fun MainNavigationContent(
                 )
             }
             composable(Routes.INVENTORY) {
-                InventoryScreen(viewModel = trainingViewModel)
+                InventoryScreen()
             }
             composable(Routes.STATS) {
                 StatsScreen()

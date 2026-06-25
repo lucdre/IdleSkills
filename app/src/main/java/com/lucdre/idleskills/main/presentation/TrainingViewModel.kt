@@ -5,15 +5,11 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lucdre.idleskills.cards.domain.CardType
 import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
 import com.lucdre.idleskills.core.domain.OfflineProgressResult
 import com.lucdre.idleskills.core.domain.SessionRepositoryInterface
 import com.lucdre.idleskills.core.domain.usecase.CalculateOfflineProgressUseCase
-import com.lucdre.idleskills.inventory.domain.InventoryRepositoryInterface
 import com.lucdre.idleskills.loot.domain.usecase.CollectLootBoxUseCase
-import com.lucdre.idleskills.loot.domain.usecase.ObserveLootBoxCountUseCase
-import com.lucdre.idleskills.loot.domain.usecase.OpenLootBoxUseCase
 import com.lucdre.idleskills.profile.domain.usecase.GetPlayerProfileUseCase
 import com.lucdre.idleskills.region.domain.usecase.GetVisibleSkillsUseCase
 import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
@@ -49,15 +45,12 @@ import kotlin.random.Random
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class TrainingViewModel @Inject constructor(
-    private val observeLootBoxCountUseCase: ObserveLootBoxCountUseCase,
     private val collectLootBoxUseCase: CollectLootBoxUseCase,
-    private val openLootBoxUseCase: OpenLootBoxUseCase,
     private val getVisibleSkillsUseCase: GetVisibleSkillsUseCase,
     private val getAvailableTrainingMethodsUseCase: GetAvailableTrainingMethodsUseCase,
     private val getActiveCardsUseCase: GetActiveCardsUseCase,
     private val getPlayerProfileUseCase: GetPlayerProfileUseCase,
     private val calculateOfflineProgressUseCase: CalculateOfflineProgressUseCase,
-    private val inventoryRepository: InventoryRepositoryInterface,
     private val trainingService: TrainingService,
     private val sessionRepository: SessionRepositoryInterface
 ) : ViewModel(), DefaultLifecycleObserver {
@@ -66,7 +59,6 @@ class TrainingViewModel @Inject constructor(
     private val _isScreenVisible = MutableStateFlow(value = false)
     private val _spriteVisible = MutableStateFlow(false)
     private val _spritePosition = MutableStateFlow(Offset(0.5f, 0.5f))
-    private val _lastRewards = MutableStateFlow<Map<CardType, Int>?>(null)
     private val _offlineProgress = MutableStateFlow<OfflineProgressResult?>(null)
 
     private var spawnJob: Job? = null
@@ -78,13 +70,13 @@ class TrainingViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), TrainingSkillsState(isLoading = true))
 
     /**
-     * State for loot boxes and rewards.
+     * State for the training scene elements.
      */
-    val lootState: StateFlow<TrainingLootState> = buildLootPipeline()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), TrainingLootState(isLoading = true))
+    val sceneState: StateFlow<TrainingSceneState> = buildScenePipeline()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), TrainingSceneState(isLoading = true))
 
     /**
-     * State for player profile, stats, and inventory.
+     * State for player profile and session info.
      */
     val sessionState: StateFlow<TrainingSessionState> = buildSessionPipeline()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), TrainingSessionState(isLoading = true))
@@ -179,16 +171,12 @@ class TrainingViewModel @Inject constructor(
         }
     }
 
-    private fun buildLootPipeline(): Flow<TrainingLootState> {
+    private fun buildScenePipeline(): Flow<TrainingSceneState> {
         return combine(
-            observeLootBoxCountUseCase(),
-            _lastRewards,
             _spriteVisible,
             _spritePosition
-        ) { loot, rewards, spriteVisible, pos ->
-            TrainingLootState(
-                lootBoxes = loot,
-                lastRewards = rewards,
+        ) { spriteVisible, pos ->
+            TrainingSceneState(
                 isSpriteVisible = spriteVisible,
                 spritePosition = pos,
                 isLoading = false
@@ -200,14 +188,12 @@ class TrainingViewModel @Inject constructor(
         return combine(
             getPlayerProfileUseCase.observeProfile(),
             _offlineProgress,
-            inventoryRepository.observeItems(),
             sessionRepository.observeCurrentRegion()
-        ) { profile, offline, inventory, region ->
+        ) { profile, offline, region ->
             TrainingSessionState(
                 playerProfile = profile,
                 offlineProgress = offline,
                 regionName = region.displayName,
-                inventoryItems = inventory,
                 isLoading = false
             )
         }
@@ -294,7 +280,6 @@ class TrainingViewModel @Inject constructor(
 
     fun setScreenVisible(visible: Boolean) { _isScreenVisible.value = visible }
     fun dismissOfflineProgress() { _offlineProgress.value = null }
-    fun clearRewards() { _lastRewards.value = null }
 
     fun onSpriteClick() {
         val skill = skillsState.value.activeTrainingSkill ?: return
@@ -302,12 +287,6 @@ class TrainingViewModel @Inject constructor(
         viewModelScope.launch {
             collectLootBoxUseCase(skill)
             _spriteVisible.value = false
-        }
-    }
-
-    fun onOpenBoxClick(skill: SkillType) {
-        viewModelScope.launch {
-            openLootBoxUseCase(skill).onSuccess { rewards -> _lastRewards.value = rewards }
         }
     }
 }

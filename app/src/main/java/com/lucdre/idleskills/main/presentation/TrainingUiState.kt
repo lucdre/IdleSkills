@@ -3,11 +3,8 @@ package com.lucdre.idleskills.main.presentation
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Offset
 import com.lucdre.idleskills.cards.domain.Card
-import com.lucdre.idleskills.cards.domain.CardType
-import com.lucdre.idleskills.inventory.domain.Item
-import com.lucdre.idleskills.loot.domain.LootBox
-import com.lucdre.idleskills.profile.domain.PlayerProfile
 import com.lucdre.idleskills.core.domain.OfflineProgressResult
+import com.lucdre.idleskills.profile.domain.PlayerProfile
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
@@ -62,35 +59,30 @@ data class TrainingSkillsState(
 )
 
 /**
- * State related to loot boxes and rewards.
+ * State related to the training scene elements.
  *
- * @property lootBoxes List of all owned loot boxes.
- * @property lastRewards The rewards obtained from the last opened loot box.
  * @property isSpriteVisible Whether the loot sprite is currently visible on screen.
  * @property spritePosition The screen position of the loot sprite.
+ * @property isLoading Whether the state is currently being loaded.
  */
 @Immutable
-data class TrainingLootState(
-    val lootBoxes: List<LootBox> = emptyList(),
-    val lastRewards: Map<CardType, Int>? = null,
+data class TrainingSceneState(
     val isSpriteVisible: Boolean = false,
     val spritePosition: Offset = Offset(0.5f, 0.5f),
     val isLoading: Boolean = false
 )
 
 /**
- * State related to the player session, profile, and inventory.
+ * State related to the player session and profile.
  *
  * @property playerProfile The current player profile data.
  * @property offlineProgress The result of the last offline progress calculation.
  * @property regionName The display name of the current region.
- * @property inventoryItems The list of items currently in the player's inventory.
  */
 @Immutable
 data class TrainingSessionState(
     val playerProfile: PlayerProfile = PlayerProfile(),
     val offlineProgress: OfflineProgressResult? = null,
     val regionName: String = "",
-    val inventoryItems: List<Item> = emptyList(),
     val isLoading: Boolean = false
 )

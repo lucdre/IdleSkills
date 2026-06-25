@@ -2,6 +2,7 @@ package com.lucdre.idleskills.ui.navigation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lucdre.idleskills.loot.domain.usecase.ObserveLootBoxCountUseCase
 import com.lucdre.idleskills.profile.domain.ProfileRepositoryInterface
 import com.lucdre.idleskills.profile.domain.usecase.IsGameFreshUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,11 +18,14 @@ import javax.inject.Inject
  *
  * @property isGameFreshUseCase To check if the game is fresh.
  * @property profileRepository The repository for player profile data to observe reset.
+ * @property observeLootBoxCountUseCase To be able to show badges when there is a new lootbox.
+ *
  */
 @HiltViewModel
 class MainNavigationViewModel @Inject constructor(
     private val isGameFreshUseCase: IsGameFreshUseCase,
-    private val profileRepository: ProfileRepositoryInterface
+    private val profileRepository: ProfileRepositoryInterface,
+    private val observeLootBoxCountUseCase: ObserveLootBoxCountUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainNavigationUiState())
@@ -30,6 +34,7 @@ class MainNavigationViewModel @Inject constructor(
     init {
         checkGameFreshState()
         observeProfile()
+        observeLootBoxes()
     }
 
     /**
@@ -62,6 +67,18 @@ class MainNavigationViewModel @Inject constructor(
     }
 
     /**
+     * Observes the loot boxes to update the navigation badge.
+     */
+    private fun observeLootBoxes() {
+        viewModelScope.launch {
+            observeLootBoxCountUseCase().collect { lootBoxes ->
+                val hasLoot = lootBoxes.any { it.count > 0 }
+                _uiState.update { it.copy(hasLootBoxes = hasLoot) }
+            }
+        }
+    }
+
+    /**
      * Call when initial skill has been selected to proceed to main app.
      */
     fun onInitialSkillSelected() {
@@ -74,8 +91,10 @@ class MainNavigationViewModel @Inject constructor(
  *
  * @property isLoading Whether the navigation state is being determined.
  * @property isGameFresh Whether this is a fresh game requiring initial skill selection.
+ * @property hasLootBoxes Whether there are loot boxes available to open.
  */
 data class MainNavigationUiState(
     val isLoading: Boolean = true,
     val isGameFresh: Boolean = false,
+    val hasLootBoxes: Boolean = false
 )

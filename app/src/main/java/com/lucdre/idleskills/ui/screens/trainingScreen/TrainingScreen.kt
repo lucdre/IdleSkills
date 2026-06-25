@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
 import com.lucdre.idleskills.main.presentation.ActiveTrainingState
-import com.lucdre.idleskills.main.presentation.TrainingLootState
+import com.lucdre.idleskills.main.presentation.TrainingSceneState
 import com.lucdre.idleskills.main.presentation.TrainingSessionState
 import com.lucdre.idleskills.main.presentation.TrainingSkillsState
 import com.lucdre.idleskills.skills.domain.skill.SkillType
@@ -27,7 +27,7 @@ import com.lucdre.idleskills.ui.util.NumberFormatter
 @Composable
 fun TrainingScreen(
     skillsState: TrainingSkillsState,
-    lootState: TrainingLootState,
+    sceneState: TrainingSceneState,
     sessionState: TrainingSessionState,
     activeStateProvider: () -> ActiveTrainingState,
     onSkillSelect: (SkillType) -> Unit,
@@ -55,7 +55,7 @@ fun TrainingScreen(
         if (isWideScreen) {
             TwoColumnTrainingLayout(
                 skillsState = skillsState,
-                lootState = lootState,
+                sceneState = sceneState,
                 sessionState = sessionState,
                 activeStateProvider = activeStateProvider,
                 onSkillSelect = onSkillSelect,
@@ -65,7 +65,7 @@ fun TrainingScreen(
         } else {
             SingleColumnTrainingLayout(
                 skillsState = skillsState,
-                lootState = lootState,
+                sceneState = sceneState,
                 sessionState = sessionState,
                 activeStateProvider = activeStateProvider,
                 onSkillSelect = onSkillSelect,
@@ -75,9 +75,9 @@ fun TrainingScreen(
         }
 
         // Random Loot Sprite
-        if (lootState.isSpriteVisible) {
+        if (sceneState.isSpriteVisible) {
             LootSpriteOverlay(
-                position = lootState.spritePosition,
+                position = sceneState.spritePosition,
                 onSpriteClick = onSpriteClick
             )
         }
@@ -95,7 +95,7 @@ fun TrainingScreen(
 @Composable
 private fun SingleColumnTrainingLayout(
     skillsState: TrainingSkillsState,
-    lootState: TrainingLootState,
+    sceneState: TrainingSceneState,
     sessionState: TrainingSessionState,
     activeStateProvider: () -> ActiveTrainingState,
     onSkillSelect: (SkillType) -> Unit,
@@ -158,7 +158,7 @@ private fun SingleColumnTrainingLayout(
 @Composable
 private fun TwoColumnTrainingLayout(
     skillsState: TrainingSkillsState,
-    lootState: TrainingLootState,
+    sceneState: TrainingSceneState,
     sessionState: TrainingSessionState,
     activeStateProvider: () -> ActiveTrainingState,
     onSkillSelect: (SkillType) -> Unit,
@@ -308,7 +308,7 @@ fun TrainingScreenPreview() {
 
         TrainingScreen(
             skillsState = skillsState,
-            lootState = TrainingLootState(),
+            sceneState = TrainingSceneState(),
             sessionState = TrainingSessionState(regionName = "Region 1"),
             activeStateProvider = { activeState },
             onSkillSelect = {},
