@@ -3,10 +3,6 @@ package com.lucdre.idleskills.core.domain
 import android.util.Log
 import androidx.compose.runtime.Immutable
 import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
-import com.lucdre.idleskills.core.persistence.OfflineProgressDao
-import com.lucdre.idleskills.core.persistence.SessionDao
-import com.lucdre.idleskills.core.persistence.InventoryDao
-import com.lucdre.idleskills.core.persistence.InventoryEntity
 import com.lucdre.idleskills.inventory.domain.ItemType
 import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
@@ -19,11 +15,12 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Result of the offline progress calculation.
+ * Calculation result for offline gains.
  *
  * @property skillName The name of the skill that was trained.
  * @property earnedXp The total XP earned during the offline period.
  * @property elapsedMs The time elapsed in milliseconds, capped at 48 hours.
+ * @property earnedItems Map of items earned during the offline period.
  */
 @Immutable
 data class OfflineProgressResult(
@@ -34,13 +31,12 @@ data class OfflineProgressResult(
 )
 
 /**
- * Manages the calculation and application of offline progress.
+ * Syncs progress made while the app was closed.
  */
 @Singleton
 class OfflineProgressManager @Inject constructor(
-    private val sessionDao: SessionDao,
-    private val offlineProgressDao: OfflineProgressDao,
-    private val inventoryDao: InventoryDao,
+    private val sessionRepository: SessionRepositoryInterface,
+    private val gameActionRepository: GameActionRepositoryInterface,
     private val trainingMethodDispatcher: TrainingMethodRepositoryDispatcher,
     private val getActiveCardsUseCase: GetActiveCardsUseCase,
     private val skillRepository: SkillRepositoryInterface
@@ -49,13 +45,12 @@ class OfflineProgressManager @Inject constructor(
     private val mutex = Mutex()
 
     /**
-     * Calculates and applies XP earned while the player was away.
-     * Capped at 48 hours of progress.
+     * Calculates and applies gains. Capped at 48h.
      *
      * @return The result of the calculation, or null if no progress was made.
      */
     suspend fun calculateAndApplyOfflineProgress(): OfflineProgressResult? = mutex.withLock {
-        val session = sessionDao.getSession() ?: return null
+        val session = sessionRepository.getSessionData() ?: return null
         val activeSkillName = session.activeSkillName ?: return null
         val activeMethodName = session.activeMethodName ?: return null
 
@@ -101,27 +96,19 @@ class OfflineProgressManager @Inject constructor(
         }
 
         if (actualXpGain > 0 || earnedItems.isNotEmpty()) {
-            // Apply XP
-            offlineProgressDao.applyOfflineProgress(
-                skillType.name,
-                actualXpGain,
-                now,
-                LevelCalculator.MAX_XP
+            // Atomic multi-domain application via repository
+            gameActionRepository.applyOfflineProgress(
+                skillName = skillType.name,
+                xpAmount = actualXpGain,
+                items = earnedItems,
+                now = now
             )
-            
-            // Apply Items
-            if (earnedItems.isNotEmpty()) {
-                val inventoryEntities = earnedItems.map { (type, qty) ->
-                    InventoryEntity(type.id, qty)
-                }
-                inventoryDao.addItems(inventoryEntities)
-            }
             
             Log.d("OfflineProgressManager", "Applied $actualXpGain offline XP and items to ${skillType.name}.")
             return OfflineProgressResult(skillType.name, actualXpGain, diffMs, earnedItems)
         } else {
             // Even if no progress earned, update timestamp to prevent redundant checks
-            offlineProgressDao.updateSession(session.copy(lastSavedTimestamp = now))
+            sessionRepository.updateLastSavedTimestamp()
         }
 
         return null

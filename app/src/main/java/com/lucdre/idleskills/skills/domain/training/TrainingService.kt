@@ -1,6 +1,8 @@
 package com.lucdre.idleskills.skills.domain.training
 
+import com.lucdre.idleskills.core.domain.SessionRepositoryInterface
 import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
+import com.lucdre.idleskills.inventory.domain.InventoryRepositoryInterface
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import com.lucdre.idleskills.skills.domain.training.usecase.RecordTrainingActionUseCase
@@ -33,7 +35,8 @@ class TrainingService @Inject constructor(
     private val recordTrainingActionUseCase: RecordTrainingActionUseCase,
     private val getActiveCardsUseCase: GetActiveCardsUseCase,
     private val skillRepository: SkillRepositoryInterface,
-    private val inventoryRepository: com.lucdre.idleskills.inventory.domain.InventoryRepositoryInterface
+    private val inventoryRepository: InventoryRepositoryInterface,
+    private val sessionRepository: SessionRepositoryInterface
 ) {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     
@@ -110,7 +113,7 @@ class TrainingService @Inject constructor(
         }
 
         serviceScope.launch {
-            skillRepository.setActiveTraining(ActiveTraining(skill.name, method.name))
+            sessionRepository.setActiveTraining(ActiveTraining(skill.name, method.name))
         }
 
         cardsJob = serviceScope.launch {
@@ -138,7 +141,7 @@ class TrainingService @Inject constructor(
         }
 
         serviceScope.launch {
-            skillRepository.setActiveTraining(null)
+            sessionRepository.setActiveTraining(null)
         }
     }
 }

@@ -1,6 +1,6 @@
 package com.lucdre.idleskills.region.domain.usecase
 
-import com.lucdre.idleskills.profile.domain.ProfileRepositoryInterface
+import com.lucdre.idleskills.core.domain.SessionRepositoryInterface
 import com.lucdre.idleskills.region.domain.RegionRepositoryInterface
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
@@ -14,12 +14,12 @@ import javax.inject.Inject
  * Visible skills are determined by the current region the player is in.
  *
  * @property skillRepository The repository for skill data.
- * @property profileRepository The repository for profile data.
+ * @property sessionRepository The repository for session data.
  * @property regionRepository The repository for region data.
  */
 class GetVisibleSkillsUseCase @Inject constructor(
     private val skillRepository: SkillRepositoryInterface,
-    private val profileRepository: ProfileRepositoryInterface,
+    private val sessionRepository: SessionRepositoryInterface,
     private val regionRepository: RegionRepositoryInterface
 ) {
     /**
@@ -29,9 +29,7 @@ class GetVisibleSkillsUseCase @Inject constructor(
      */
     suspend operator fun invoke(): List<Skill> {
         val skills = skillRepository.getSkills()
-        val profile = profileRepository.getProfile()
-        
-        val currentRegion = profile.currentRegion
+        val currentRegion = sessionRepository.getCurrentRegion()
         val regionSkills = regionRepository.getSkillsForRegion(currentRegion)
 
         val skillMap = skills.associateBy { it.type }
@@ -49,9 +47,8 @@ class GetVisibleSkillsUseCase @Inject constructor(
     fun observeVisibleSkills(): Flow<List<Skill>> {
         return combine(
             skillRepository.observeSkills(),
-            profileRepository.observeProfile()
-        ) { skills, profile ->
-            val currentRegion = profile.currentRegion
+            sessionRepository.observeCurrentRegion()
+        ) { skills, currentRegion ->
             val regionSkills = regionRepository.getSkillsForRegion(currentRegion)
             
             val skillMap = skills.associateBy { it.type }

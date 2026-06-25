@@ -1,14 +1,13 @@
 package com.lucdre.idleskills.skills.domain.skill
 
-import com.lucdre.idleskills.skills.domain.training.ActiveTraining
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Interface for managing skill data.
+ * Skill repository interface.
  */
 interface SkillRepositoryInterface {
     /**
-     * @return A [Flow] of the list of skills that updates when data changes.
+     * Observe skills.
      */
     fun observeSkills(): Flow<List<Skill>>
 
@@ -24,7 +23,7 @@ interface SkillRepositoryInterface {
     suspend fun getSkillByName(name: String): Skill?
 
     /**
-     * Atomically adds XP to a skill.
+     * Adds XP to a skill.
      *
      * @param skillName The name of the skill.
      * @param amount The amount of XP to add.
@@ -38,14 +37,4 @@ interface SkillRepositoryInterface {
      * @return The reset list of skills.
      */
     suspend fun resetSkills(skills: List<Skill>): List<Skill>
-
-    /**
-     * Observes the current active training session.
-     */
-    fun observeActiveTraining(): Flow<ActiveTraining?>
-
-    /**
-     * Sets the current active training session.
-     */
-    suspend fun setActiveTraining(training: ActiveTraining?)
 }

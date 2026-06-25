@@ -11,7 +11,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lucdre.idleskills.profile.domain.PlayerProfile
-import com.lucdre.idleskills.region.domain.Region
 import com.lucdre.idleskills.main.presentation.TrainingViewModel
 import com.jakewharton.processphoenix.ProcessPhoenix
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
@@ -44,6 +43,7 @@ fun SettingsScreen(
     SettingsScreenContent(
         modifier = modifier,
         playerProfile = sessionState.playerProfile,
+        regionName = sessionState.regionName,
         onResetClick = { showResetDialog = true }
     )
 
@@ -78,9 +78,9 @@ fun SettingsScreenPreview() {
     IdleSkillsTheme {
         SettingsScreenContent(
             playerProfile = PlayerProfile(
-                username = "IdleMaster",
-                currentRegion = Region.FIRST_REGION
+                username = "IdleMaster"
             ),
+            regionName = "Region 1",
             onResetClick = {}
         )
     }
@@ -90,6 +90,7 @@ fun SettingsScreenPreview() {
 fun SettingsScreenContent(
     modifier: Modifier = Modifier,
     playerProfile: PlayerProfile,
+    regionName: String,
     onResetClick: () -> Unit
 ) {
     Column(
@@ -138,7 +139,7 @@ fun SettingsScreenContent(
                 ) {
                     Text(text = "Current Region", style = MaterialTheme.typography.bodyLarge)
                     Text(
-                        text = playerProfile.currentRegion.displayName,
+                        text = regionName,
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Bold
                     )

@@ -28,6 +28,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun skillDao(): SkillDao
     abstract fun cardDao(): CardDao
     abstract fun lootBoxDao(): LootBoxDao
-    abstract fun offlineProgressDao(): OfflineProgressDao
     abstract fun inventoryDao(): InventoryDao
+    abstract fun progressApplicationDao(): ProgressApplicationDao
 }

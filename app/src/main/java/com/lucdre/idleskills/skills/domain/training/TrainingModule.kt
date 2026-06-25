@@ -1,5 +1,6 @@
 package com.lucdre.idleskills.skills.domain.training
 
+import com.lucdre.idleskills.core.domain.SessionRepositoryInterface
 import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
 import com.lucdre.idleskills.inventory.domain.InventoryRepositoryInterface
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
@@ -23,13 +24,15 @@ object TrainingModule {
         recordTrainingActionUseCase: RecordTrainingActionUseCase,
         getActiveCardsUseCase: GetActiveCardsUseCase,
         skillRepository: SkillRepositoryInterface,
-        inventoryRepository: InventoryRepositoryInterface
+        inventoryRepository: InventoryRepositoryInterface,
+        sessionRepository: SessionRepositoryInterface
     ): TrainingService {
         return TrainingService(
             recordTrainingActionUseCase,
             getActiveCardsUseCase,
             skillRepository,
-            inventoryRepository
+            inventoryRepository,
+            sessionRepository
         )
     }
 }

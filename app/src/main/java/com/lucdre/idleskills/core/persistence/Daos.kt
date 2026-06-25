@@ -57,13 +57,13 @@ interface SkillDao {
     suspend fun insertAll(skills: List<SkillEntity>)
 
     /**
-     * Internal helper to increment XP if row exists.
+     * Increment XP if row exists.
      */
     @Query("UPDATE skills SET xp = MIN(xp + :amount, :cap) WHERE name = :name")
     suspend fun incrementXp(name: String, amount: Int, cap: Int): Int
 
     /**
-     * Atomically adds XP to a skill, creating the row if it doesn't exist.
+     * Adds XP, creates row if missing.
      */
     @Transaction
     suspend fun addXpAtomically(name: String, amount: Int, cap: Int) {
@@ -75,37 +75,6 @@ interface SkillDao {
 
     @Query("DELETE FROM skills")
     suspend fun clearSkills()
-}
-
-/**
- * Specialized DAO for operations involving multiple tables that must be atomic.
- */
-@Dao
-interface OfflineProgressDao {
-    @Query("UPDATE skills SET xp = MIN(xp + :amount, :cap) WHERE name = :name")
-    suspend fun incrementXp(name: String, amount: Int, cap: Int): Int
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertOrUpdateSkill(skill: SkillEntity)
-
-    @Query("SELECT * FROM player_session WHERE id = 0")
-    suspend fun getSession(): SessionEntity?
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun updateSession(session: SessionEntity)
-
-    /**
-     * Atomic operation to apply offline XP and update the save timestamp.
-     */
-    @Transaction
-    suspend fun applyOfflineProgress(skillName: String, amount: Int, now: Long, cap: Int) {
-        val affected = incrementXp(skillName, amount, cap)
-        if (affected == 0) {
-            insertOrUpdateSkill(SkillEntity(skillName, amount))
-        }
-        val session = getSession() ?: SessionEntity()
-        updateSession(session.copy(lastSavedTimestamp = now))
-    }
 }
 
 @Dao
@@ -141,20 +110,19 @@ interface LootBoxDao {
     suspend fun insertOrUpdate(lootBox: LootBoxEntity)
 
     /**
-     * Internal helper to update the loot box count.
+     * Update the loot box count.
      */
     @Query("UPDATE loot_boxes SET count = count + :amount WHERE skillName = :skillName")
     suspend fun incrementLootBoxCount(skillName: String, amount: Int): Int
 
     /**
-     * Atomically decrements the loot box count by 1 if it's greater than 0.
-     * Returns the number of affected rows (1 if successful, 0 if count was 0).
+     * Decrements the loot box count.
      */
     @Query("UPDATE loot_boxes SET count = count - 1 WHERE skillName = :skillName AND count > 0")
     suspend fun decrementLootBoxCount(skillName: String): Int
 
     /**
-     * Atomically updates the loot box count, creating the row if it doesn't exist.
+     * Updates the loot box count, creating row if missing.
      */
     @Transaction
     suspend fun updateLootBoxCount(skillName: String, amount: Int) {

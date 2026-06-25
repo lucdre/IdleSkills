@@ -5,6 +5,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lucdre.idleskills.core.domain.SessionRepositoryInterface
 import com.lucdre.idleskills.cards.domain.CardType
 import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
 import com.lucdre.idleskills.core.domain.OfflineProgressResult
@@ -18,7 +19,6 @@ import com.lucdre.idleskills.profile.domain.usecase.GetPlayerProfileUseCase
 import com.lucdre.idleskills.profile.domain.usecase.ObserveStatisticsUseCase
 import com.lucdre.idleskills.region.domain.usecase.GetVisibleSkillsUseCase
 import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
-import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.skills.domain.training.TrainingService
 import com.lucdre.idleskills.skills.domain.training.usecase.GetAvailableTrainingMethodsUseCase
@@ -33,9 +33,7 @@ import javax.inject.Inject
 import kotlin.random.Random
 
 /**
- * Unified ViewModel for all training-related screens.
- *
- * Consolidates logic for skills, training sessions, loot, and player stats.
+ * Main ViewModel for training screens.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -51,7 +49,7 @@ class TrainingViewModel @Inject constructor(
     private val calculateOfflineProgressUseCase: CalculateOfflineProgressUseCase,
     private val inventoryRepository: InventoryRepositoryInterface,
     private val trainingService: TrainingService,
-    private val skillRepository: SkillRepositoryInterface,
+    private val sessionRepository: SessionRepositoryInterface,
     private val resetAllDataUseCase: ResetAllDataUseCase
 ) : ViewModel(), DefaultLifecycleObserver {
 
@@ -90,7 +88,7 @@ class TrainingViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), TrainingSessionState(isLoading = true))
 
     /**
-     * High-frequency training state (progress ticker).
+     * Progress ticker state.
      */
     val activeTrainingState: StateFlow<ActiveTrainingState> = combine(
         trainingService.trainingState,
@@ -201,13 +199,14 @@ class TrainingViewModel @Inject constructor(
             getPlayerProfileUseCase.observeProfile(),
             observeStatisticsUseCase.observeStatistics(),
             _offlineProgress,
-            inventoryRepository.observeItems()
-        ) { profile, stats, offline, inventory ->
+            inventoryRepository.observeItems(),
+            sessionRepository.observeCurrentRegion()
+        ) { profile, stats, offline, inventory, region ->
             TrainingSessionState(
                 playerProfile = profile,
                 playerStatistics = stats,
                 offlineProgress = offline,
-                regionName = profile.currentRegion.displayName,
+                regionName = region.displayName,
                 inventoryItems = inventory,
                 isLoading = false
             )
@@ -246,7 +245,7 @@ class TrainingViewModel @Inject constructor(
 
     private fun resumeInitialTraining() {
         viewModelScope.launch {
-            val activeTraining = skillRepository.observeActiveTraining().first()
+            val activeTraining = sessionRepository.observeActiveTraining().first()
             if (activeTraining != null) {
                 val skills = getVisibleSkillsUseCase()
                 val skill = skills.find { it.name == activeTraining.skillName }
