@@ -5,12 +5,11 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lucdre.idleskills.core.domain.SessionRepositoryInterface
 import com.lucdre.idleskills.cards.domain.CardType
 import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
 import com.lucdre.idleskills.core.domain.OfflineProgressResult
+import com.lucdre.idleskills.core.domain.SessionRepositoryInterface
 import com.lucdre.idleskills.core.domain.usecase.CalculateOfflineProgressUseCase
-import com.lucdre.idleskills.core.domain.usecase.ResetAllDataUseCase
 import com.lucdre.idleskills.inventory.domain.InventoryRepositoryInterface
 import com.lucdre.idleskills.loot.domain.usecase.CollectLootBoxUseCase
 import com.lucdre.idleskills.loot.domain.usecase.ObserveLootBoxCountUseCase
@@ -24,9 +23,22 @@ import com.lucdre.idleskills.skills.domain.training.usecase.GetAvailableTraining
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.random.Random
@@ -47,8 +59,7 @@ class TrainingViewModel @Inject constructor(
     private val calculateOfflineProgressUseCase: CalculateOfflineProgressUseCase,
     private val inventoryRepository: InventoryRepositoryInterface,
     private val trainingService: TrainingService,
-    private val sessionRepository: SessionRepositoryInterface,
-    private val resetAllDataUseCase: ResetAllDataUseCase
+    private val sessionRepository: SessionRepositoryInterface
 ) : ViewModel(), DefaultLifecycleObserver {
 
     private val _expandedSkillName = MutableStateFlow<String?>(null)
@@ -57,13 +68,6 @@ class TrainingViewModel @Inject constructor(
     private val _spritePosition = MutableStateFlow(Offset(0.5f, 0.5f))
     private val _lastRewards = MutableStateFlow<Map<CardType, Int>?>(null)
     private val _offlineProgress = MutableStateFlow<OfflineProgressResult?>(null)
-
-    // Side Effects
-    sealed class Effect {
-        object TriggerRebirth : Effect()
-    }
-    private val _effect = Channel<Effect>(Channel.BUFFERED)
-    val effect = _effect.receiveAsFlow()
 
     private var spawnJob: Job? = null
 
@@ -304,14 +308,6 @@ class TrainingViewModel @Inject constructor(
     fun onOpenBoxClick(skill: SkillType) {
         viewModelScope.launch {
             openLootBoxUseCase(skill).onSuccess { rewards -> _lastRewards.value = rewards }
-        }
-    }
-
-    fun resetAllData() {
-        viewModelScope.launch {
-            trainingService.stopTraining()
-            resetAllDataUseCase()
-            _effect.send(Effect.TriggerRebirth)
         }
     }
 }

@@ -11,7 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lucdre.idleskills.profile.domain.PlayerProfile
-import com.lucdre.idleskills.main.presentation.TrainingViewModel
+import com.lucdre.idleskills.profile.presentation.SettingsViewModel
 import com.jakewharton.processphoenix.ProcessPhoenix
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
@@ -19,21 +19,21 @@ import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
  * Screen displaying settings and player profile.
  *
  * @param modifier Modifier
- * @param viewModel Unified ViewModel to access profile data
+ * @param viewModel ViewModel
  */
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
-    viewModel: TrainingViewModel = hiltViewModel(),
+    viewModel: SettingsViewModel = hiltViewModel(),
 ) {
-    val sessionState by viewModel.sessionState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showResetDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
-                is TrainingViewModel.Effect.TriggerRebirth -> {
+                is SettingsViewModel.Effect.TriggerRebirth -> {
                     ProcessPhoenix.triggerRebirth(context)
                 }
             }
@@ -42,8 +42,8 @@ fun SettingsScreen(
 
     SettingsScreenContent(
         modifier = modifier,
-        playerProfile = sessionState.playerProfile,
-        regionName = sessionState.regionName,
+        playerProfile = uiState.playerProfile,
+        regionName = uiState.currentRegionName,
         onResetClick = { showResetDialog = true }
     )
 

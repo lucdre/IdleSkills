@@ -1,6 +1,11 @@
 package com.lucdre.idleskills.ui.navigation
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Inventory
@@ -18,7 +23,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
@@ -27,7 +31,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.lucdre.idleskills.ui.util.IdleSkillsPreviews
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -37,14 +40,15 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.lucdre.idleskills.cards.presentation.CardViewModel
 import com.lucdre.idleskills.main.presentation.TrainingViewModel
+import com.lucdre.idleskills.ui.screens.CardDetailScreen
 import com.lucdre.idleskills.ui.screens.CardsScreen
 import com.lucdre.idleskills.ui.screens.InitialSkillSelectionScreen
-import com.lucdre.idleskills.ui.screens.trainingScreen.TrainingScreen
+import com.lucdre.idleskills.ui.screens.InventoryScreen
 import com.lucdre.idleskills.ui.screens.SettingsScreen
 import com.lucdre.idleskills.ui.screens.StatsScreen
-import com.lucdre.idleskills.ui.screens.CardDetailScreen
-import com.lucdre.idleskills.ui.screens.InventoryScreen
+import com.lucdre.idleskills.ui.screens.trainingScreen.TrainingScreen
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
+import com.lucdre.idleskills.ui.util.IdleSkillsPreviews
 
 /**
  * Navigation routes.
@@ -259,7 +263,7 @@ private fun MainNavigationContent(
                 )
             }
             composable(Routes.SETTINGS) {
-                SettingsScreen(viewModel = trainingViewModel)
+                SettingsScreen()
             }
             composable("${Routes.CARD_DETAIL}/{cardName}") { backStackEntry ->
                 val cardName = backStackEntry.arguments?.getString("cardName")
