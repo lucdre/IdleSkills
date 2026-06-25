@@ -12,7 +12,7 @@ import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
- * Main entry point for the UI.
+ * Entry point.
  */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

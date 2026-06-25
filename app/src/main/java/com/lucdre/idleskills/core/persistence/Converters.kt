@@ -14,8 +14,7 @@ class Converters {
 
     @ColumnTypeConverter
     fun toRegion(value: String): Region {
-        // Use runCatching to handle cases where an enum value was renamed in code 
-        // but still exists in the user's database.
+        // Fallback for renamed enums
         return runCatching { Region.valueOf(value) }
             .getOrElse { Region.FIRST_REGION }
     }

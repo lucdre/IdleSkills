@@ -5,7 +5,7 @@ import com.lucdre.idleskills.skills.domain.skill.SkillType
 import javax.inject.Inject
 
 /**
- * Use case for collecting a new loot box.
+ * Collects a new loot box.
  */
 class CollectLootBoxUseCase @Inject constructor(
     private val lootRepository: LootRepositoryInterface

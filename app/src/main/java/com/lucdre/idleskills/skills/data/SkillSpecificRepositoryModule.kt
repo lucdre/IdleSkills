@@ -14,8 +14,7 @@ import dagger.multibindings.IntoMap
 import dagger.multibindings.StringKey
 
 /**
- * Dagger/Hilt module for binding skill-specific training method repositories into a map.
- * This allows the dispatcher to resolve repositories dynamically based on skill names.
+ * Hilt module for skill-specific training repositories.
  */
 @Module
 @InstallIn(SingletonComponent::class)

@@ -15,7 +15,7 @@ import javax.inject.Inject
 /**
  * ViewModel for managing main navigation state.
  *
- * @property isGameFreshUseCase Use case for checking if the game is fresh.
+ * @property isGameFreshUseCase To check if the game is fresh.
  * @property profileRepository The repository for player profile data to observe reset.
  */
 @HiltViewModel

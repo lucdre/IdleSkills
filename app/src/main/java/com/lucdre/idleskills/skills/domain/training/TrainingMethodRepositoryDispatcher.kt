@@ -7,10 +7,7 @@ import javax.inject.Provider
 import javax.inject.Singleton
 
 /**
- * Dispatches requests for training methods to the appropriate skill-specific repository.
- *
- * This class acts as a central point of access for retrieving [TrainingMethod] lists
- * for various skills. It delegates the actual data retrieval to specific repositories.
+ * Routes training method requests to the right skill repository.
  *
  * @property repositories A map of skill-specific repositories.
  */
@@ -20,10 +17,7 @@ class TrainingMethodRepositoryDispatcher @Inject constructor(
 ) : TrainingMethodRepositoryInterface {
 
     /**
-     * Retrieves a list of available [TrainingMethod]s for a given skill in a specific region.
-     *
-     * Based on the provided [skill], this method routes the request to the
-     * corresponding skill-specific repository.
+     * Fetch available methods for [skill] in [region]
      *
      * @param skill The skill for which to fetch training methods.
      * @param region The region for which to fetch training methods.

@@ -25,8 +25,8 @@ data class CardUiState(
 /**
  * ViewModel for handling skill tree interactions.
  *
- * @property getOwnedCardsUseCase Use case for observing cards.
- * @property upgradeCardUseCase Use case for upgrading cards.
+ * @property getOwnedCardsUseCase For observing cards.
+ * @property upgradeCardUseCase For upgrading cards.
  */
 @HiltViewModel
 class CardViewModel @Inject constructor(

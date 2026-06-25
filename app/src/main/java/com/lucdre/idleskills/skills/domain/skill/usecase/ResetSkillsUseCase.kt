@@ -5,7 +5,7 @@ import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import javax.inject.Inject
 
 /**
- * Use case for resetting all skills to their initial state.
+ * Use case for resetting skills to their initial state.
  *
  * @property skillRepository The repository for skills.
  */

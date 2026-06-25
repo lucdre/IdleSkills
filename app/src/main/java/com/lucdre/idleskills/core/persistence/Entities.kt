@@ -15,7 +15,7 @@ data class ProfileEntity(
 )
 
 /**
- * Entity representing the current session and volatile state.
+ * Entity representing the current session and state.
  * One row. (ID = 0)
  */
 @Entity(tableName = "player_session")

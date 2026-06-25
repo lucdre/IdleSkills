@@ -5,7 +5,7 @@ import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 import javax.inject.Inject
 
 /**
- * Use case for retrieving training methods that a skill can currently use based on its level.
+ * Get available training methods.
  */
 class GetAvailableTrainingMethodsUseCase @Inject constructor(
     private val getTrainingMethodUseCase: GetTrainingMethodUseCase

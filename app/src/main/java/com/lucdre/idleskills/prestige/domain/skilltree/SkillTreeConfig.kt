@@ -1,7 +1,7 @@
 package com.lucdre.idleskills.prestige.domain.skilltree
 
 /**
- * Configuration for the prestige skill tree defining all available upgrades.
+ * Skill tree config.
  */
 object SkillTreeConfig {
 

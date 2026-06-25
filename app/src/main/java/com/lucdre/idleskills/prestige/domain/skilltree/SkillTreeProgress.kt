@@ -1,7 +1,7 @@
 package com.lucdre.idleskills.prestige.domain.skilltree
 
 /**
- * Represents the player's progress in the prestige skill tree.
+ * Progress in the prestige skill tree.
  *
  * @property unlockedNodes Set of node IDs that have been unlocked
  */

@@ -39,7 +39,7 @@ class GetAvailableSkillTreeNodesUseCase @Inject constructor(
     }
 
     /**
-     * Data class representing the availability status of a skill tree node.
+     * Node availability status.
      */
     data class NodeAvailability(
         val node: SkillTreeNode,

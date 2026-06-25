@@ -40,8 +40,7 @@ fun TrainingSceneCard(
     val theme = if (activeSkill != null) SkillMetadata.getTheme(activeSkill) else null
     val biomeColors = theme?.biomeColors ?: listOf(Color(0xFF1B5E20), Color(0xFF2E7D32))
 
-    // Smoothly interpolate progress updates (100ms logic updates -> 60fps visuals)
-    // Snap to 0 immediately when resetting
+    // Smooth progress bar
     val animatedProgress by animateFloatAsState(
         targetValue = progressProvider(),
         animationSpec = if (progressProvider() == 0f) snap() else tween(durationMillis = 100, easing = LinearEasing),
@@ -73,7 +72,7 @@ fun TrainingSceneCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Forest, // Placeholder for region icon
+                        imageVector = Icons.Default.Forest, // TODO: Region icon
                         contentDescription = null,
                         tint = Color.White,
                         modifier = Modifier.size(16.dp)
@@ -140,7 +139,7 @@ fun TrainingSceneCard(
 fun TrainingTarget(activeSkill: SkillType?, progressProvider: () -> Float, biome: List<Color>) {
     Box(contentAlignment = Alignment.TopCenter) {
         Icon(
-            imageVector = Icons.Default.Forest, // Placeholder
+            imageVector = Icons.Default.Forest, // TODO: Target icon
             contentDescription = null,
             modifier = Modifier.size(100.dp),
             tint = Color.White.copy(alpha = 0.8f)
@@ -218,9 +217,9 @@ fun AnimatedCharacter(activeSkill: SkillType?) {
 
         // Tool icon
         val toolIcon = when (activeSkill) {
-            SkillType.WOODCUTTING -> Icons.Default.Handyman // Placeholder for Axe
-            SkillType.MINING -> Icons.Default.Hardware // Placeholder for Pickaxe
-            SkillType.FISHING -> Icons.Default.Phishing // Placeholder for Rod
+            SkillType.WOODCUTTING -> Icons.Default.Handyman // TODO: Axe icon
+            SkillType.MINING -> Icons.Default.Hardware // TODO: Pickaxe icon
+            SkillType.FISHING -> Icons.Default.Phishing // TODO: Rod icon
             else -> null
         }
 

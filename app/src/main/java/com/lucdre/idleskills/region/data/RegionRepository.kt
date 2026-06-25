@@ -8,8 +8,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Repository that provides region configuration.
- * Delegates to the static [RegionConfig] for now.
+ * Region config repo.
  */
 @Singleton
 class RegionRepository @Inject constructor() : RegionRepositoryInterface {

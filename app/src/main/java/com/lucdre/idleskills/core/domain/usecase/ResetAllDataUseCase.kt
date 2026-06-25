@@ -6,7 +6,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /**
- * Use case for resetting all game data by clearing all database tables.
+ * Wipes all game data.
  */
 class ResetAllDataUseCase @Inject constructor(
     private val database: AppDatabase

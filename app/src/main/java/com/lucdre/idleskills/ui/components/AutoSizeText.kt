@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 
 /**
- * A Text component that automatically scales its font size down to fit the available width.
+ * Text that scales to fit width.
  */
 @Composable
 fun AutoSizeText(

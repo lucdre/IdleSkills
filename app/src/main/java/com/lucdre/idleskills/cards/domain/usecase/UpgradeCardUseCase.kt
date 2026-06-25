@@ -5,10 +5,8 @@ import com.lucdre.idleskills.cards.domain.CardRepositoryInterface
 import javax.inject.Inject
 
 /**
- * Use case for upgrading a card to the next level.
- *
- * Validates if the card has enough quantity to be upgraded,
- * calculates the new stats, and updates the repository.
+ * Upgrade a card.
+ * Checks requirements, bumps stats, and saves.
  *
  * @property cardRepository The repository managing card data.
  */

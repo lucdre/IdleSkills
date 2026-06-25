@@ -1,7 +1,7 @@
 package com.lucdre.idleskills.core.util
 
 /**
- * Centralized constants for the game.
+ * Game constants.
  */
 object Constants {
     /**

@@ -4,7 +4,7 @@ import androidx.compose.runtime.Immutable
 import com.lucdre.idleskills.R
 
 /**
- * Represents a card that provides bonuses to skill training.
+ * A card that provides bonuses to skill training.
  *
  * @property name The display name of the card.
  * @property type The type/category of the card.

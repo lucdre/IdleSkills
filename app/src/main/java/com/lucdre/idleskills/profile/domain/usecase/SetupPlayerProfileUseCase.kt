@@ -5,7 +5,7 @@ import com.lucdre.idleskills.profile.domain.ProfileRepositoryInterface
 import javax.inject.Inject
 
 /**
- * Use case for setting up a new player profile.
+ * Initial profile setup.
  */
 class SetupPlayerProfileUseCase @Inject constructor(
     private val profileRepository: ProfileRepositoryInterface

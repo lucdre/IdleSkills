@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 /**
- * Use case for observing owned cards from the repository.
+ * Observe owned cards.
  */
 class GetOwnedCardsUseCase @Inject constructor(
     private val cardRepository: CardRepositoryInterface

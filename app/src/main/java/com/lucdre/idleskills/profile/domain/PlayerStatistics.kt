@@ -4,10 +4,9 @@ import androidx.compose.runtime.Immutable
 import com.lucdre.idleskills.skills.domain.skill.SkillType
 
 /**
- * Represents the player's accumulated statistics for various skills and training methods.
+ * Accumulated player statistics.
  *
- * @property stats A nested map where the first key is the skill name, the second key is the
- *                training method name, and the value is the total number of actions completed.
+ * @property stats Map of skill -> method -> action count.
  */
 @Immutable
 data class PlayerStatistics(
@@ -17,7 +16,7 @@ data class PlayerStatistics(
      * Gets the total count of actions completed for a specific skill.
      *
      * @param skill The skill type.
-     * @return The total number of actions completed.
+     * @return Total actions for [skill].
      */
     fun getCountForSkill(skill: SkillType): Int {
         return stats[skill.name]?.values?.sum() ?: 0
@@ -28,7 +27,7 @@ data class PlayerStatistics(
      *
      * @param skill The skill type.
      * @param methodName The name of the training method.
-     * @return The number of actions completed.
+     * @return Actions for [methodName] in [skill].
      */
     fun getCountForMethod(skill: SkillType, methodName: String): Int {
         val skillStats = stats[skill.name] ?: return 0

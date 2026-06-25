@@ -13,7 +13,7 @@ import javax.inject.Inject
 /**
  * ViewModel for handling initial skill selection and profile setup.
  *
- * @property setupPlayerProfileUseCase Use case for setting up the player profile.
+ * @property setupPlayerProfileUseCase To set up the player profile.
  */
 @HiltViewModel
 class InitialSkillSelectionViewModel @Inject constructor(

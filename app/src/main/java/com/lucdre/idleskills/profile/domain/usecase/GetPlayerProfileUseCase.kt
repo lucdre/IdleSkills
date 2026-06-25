@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 /**
- * Use case for observing and retrieving the player's profile.
+ * Observe player profile.
  *
  * @property profileRepository The repository where the profile is stored.
  */

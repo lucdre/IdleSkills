@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 /**
- * Use case for observing and retrieving the player's statistics.
+ * Observe player stats.
  *
  * @property statisticsRepository The repository where the statistics are stored.
  */

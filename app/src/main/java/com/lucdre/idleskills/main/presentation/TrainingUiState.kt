@@ -26,7 +26,7 @@ data class LevelInfo(
 )
 
 /**
- * Highly volatile training state that updates frequently (e.g., progress bar).
+ * Training progress and session XP.
  */
 @Immutable
 data class ActiveTrainingState(

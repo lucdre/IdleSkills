@@ -4,19 +4,17 @@ import com.lucdre.idleskills.region.domain.Region
 import com.lucdre.idleskills.skills.domain.skill.SkillType
 
 /**
- * Base repository implementation for training methods.
- * 
- * Provides common filtering logic for training methods based on the current region.
+ * Base filtering for training methods by region.
  */
 abstract class BaseTrainingMethodRepository : TrainingMethodRepositoryInterface {
 
     /**
-     * Map of training methods, where the key is the skill name.
+     * Map of training methods by skill.
      */
     protected abstract val trainingMethods: Map<SkillType, List<TrainingMethod>>
 
     /**
-     * Retrieves training methods available for the specified skill in a given region.
+     * Filters methods by [region].
      *
      * @param skill The skill to get training methods for
      * @param region The region for which to fetch training methods

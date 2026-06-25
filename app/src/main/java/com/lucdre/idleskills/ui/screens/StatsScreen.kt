@@ -46,7 +46,7 @@ import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
  * Screen displaying all available stats. Your skill details and unlocked tools.
  *
  * @param modifier Modifier
- * @param viewModel ViewModel that provides all skills data
+ * @param viewModel ViewModel for skills data
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

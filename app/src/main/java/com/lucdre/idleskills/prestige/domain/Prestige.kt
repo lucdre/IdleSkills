@@ -3,7 +3,7 @@ package com.lucdre.idleskills.prestige.domain
 import com.lucdre.idleskills.prestige.domain.skilltree.SkillTreeProgress
 
 /**
- * Represents the prestige system.
+ * Prestige system state.
  *
  * @property points Available and total prestige points
  * @property skillTreeProgress Progress in the skill tree

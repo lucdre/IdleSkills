@@ -8,7 +8,7 @@ import com.lucdre.idleskills.skills.domain.skill.SkillType
 import kotlin.math.roundToInt
 
 /**
- * Represents a training method that can be used to train a specific skill.
+ * A training method for a specific skill.
  *
  * @property skill The skill this training method is used for.
  * @property name The name of the training method.

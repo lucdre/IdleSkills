@@ -1,7 +1,7 @@
 package com.lucdre.idleskills.prestige.domain.skilltree
 
 /**
- * Represents a node in the prestige skill tree.
+ * Prestige skill tree node.
  *
  * @property id Unique identifier for this node
  * @property name Display name of the upgrade
@@ -24,17 +24,17 @@ data class SkillTreeNode(
  */
 sealed class SkillTreeNodeType {
     /**
-     * Unlocks a new tool for a specific skill.
+     * Unlocks a tool.
      */
     data class ToolUnlock(val toolId: String, val skillName: String) : SkillTreeNodeType()
 
     /**
-     * Provides a permanent bonus to experience gain.
+     * Permanent XP bonus.
      */
     data class ExperienceBonus(val multiplier: Double, val skillName: String? = null) : SkillTreeNodeType()
 
     /**
-     * Reduces training time for actions.
+     * Action speed bonus.
      */
     data class SpeedBonus(val multiplier: Double, val skillName: String? = null) : SkillTreeNodeType()
 }

@@ -13,7 +13,7 @@ import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 import com.lucdre.idleskills.ui.util.formatNumber
 
 /**
- * Dialog showing offline progress to the user.
+ * Offline gains popup.
  */
 @Composable
 fun OfflineProgressPopup(

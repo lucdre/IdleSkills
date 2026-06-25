@@ -5,8 +5,7 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 
 /**
- * A set of comprehensive previews for IdleSkills.
- * Includes small, medium, and large phones, tablets, and dark mode variations.
+ * Multi-device previews.
  */
 @Preview(name = "Small Phone", widthDp = 320, showBackground = true, group = "Devices")
 @Preview(name = "Medium Phone", device = Devices.PIXEL_4, showBackground = true, group = "Devices")
@@ -17,7 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 annotation class IdleSkillsPreviews
 
 /**
- * Previews for verifying font scaling (accessibility) issues.
+ * Font scaling checks.
  */
 @Preview(name = "Font 1.0x", fontScale = 1.0f, showBackground = true, group = "Font Scales")
 @Preview(name = "Font 1.5x", fontScale = 1.5f, showBackground = true, group = "Font Scales")

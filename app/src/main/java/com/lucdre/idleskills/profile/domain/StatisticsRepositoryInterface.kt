@@ -3,20 +3,16 @@ package com.lucdre.idleskills.profile.domain
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Interface for handling player statistics operations.
+ * Player statistics repository interface.
  */
 interface StatisticsRepositoryInterface {
     /**
-     * Observes the player statistics as a flow.
-     *
-     * @return A [Flow] of [PlayerStatistics] that updates when data changes.
+     * Observe stats.
      */
     fun observeStatistics(): Flow<PlayerStatistics>
 
     /**
-     * Gets the current player statistics snapshot.
-     *
-     * @return The current [PlayerStatistics].
+     * Get stats snapshot.
      */
     suspend fun getStatistics(): PlayerStatistics
 

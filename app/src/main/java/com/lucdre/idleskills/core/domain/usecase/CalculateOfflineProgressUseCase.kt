@@ -5,7 +5,7 @@ import com.lucdre.idleskills.core.domain.OfflineProgressResult
 import javax.inject.Inject
 
 /**
- * Use case for calculating offline progress.
+ * Calculates offline progress.
  */
 class CalculateOfflineProgressUseCase @Inject constructor(
     private val offlineProgressManager: OfflineProgressManager

@@ -52,7 +52,6 @@ fun PrestigeCard(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Prestige points display
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -93,7 +92,6 @@ fun PrestigeCard(
                 }
             }
 
-            // Requirement text
             Text(
                 text = if (prestige.canPrestige) {
                     "Ready to prestige! You'll earn points to spend in the skill tree." // TODO specify how manu points
@@ -104,7 +102,6 @@ fun PrestigeCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            // Prestige button
             Button(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = onPrestigeClick,

@@ -11,10 +11,7 @@ import kotlinx.coroutines.flow.*
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
- * Manages the active training process for a specific skill.
- *
- * Updates XP, records actions, awards items,
- * and notifies listeners about progress and skill state changes.
+ * Handles the training loop for a skill.
  *
  * @property skillRepository Interface for the skill repository.
  * @property recordTrainingActionUseCase The use case responsible for recording training actions.
@@ -47,7 +44,7 @@ class SkillTrainingManager(
     }
 
     /**
-     * Starts training a skill using a specific [TrainingMethod] and a list of [Card]s.
+     * Starts training.
      *
      * @param skill The [Skill] to start training.
      * @param method The [TrainingMethod] defining the action duration and base XP.
@@ -80,7 +77,7 @@ class SkillTrainingManager(
 
                 val startTime = System.currentTimeMillis()
                 
-                // 1. Action Phase
+                // Progress tick
                 while (isActive) {
                     val currentTime = System.currentTimeMillis()
                     val elapsed = currentTime - startTime
@@ -89,7 +86,7 @@ class SkillTrainingManager(
 
                     onProgressUpdate((elapsed.toDouble() / tickDuration).coerceIn(0.0, 1.0).toFloat())
                     
-                    // Dynamic delay: update progress frequently but not too often.
+                    // Frequent UI updates
                     val remaining = tickDuration - elapsed
                     val nextDelay = if (tickDuration < 1000) 16L else 100L
                     delay(nextDelay.coerceAtMost(remaining.toLong()).milliseconds)
@@ -98,7 +95,7 @@ class SkillTrainingManager(
                 if (!isActive) break
                 onProgressUpdate(1f)
 
-                // 2. Completion Phase
+                // Apply rewards
                 val currentConfig = _config.value ?: break
                 try {
                     skillRepository.addXp(localSkillName, currentConfig.method.xpPerAction * actionsInTick)
@@ -110,7 +107,7 @@ class SkillTrainingManager(
                     recordTrainingActionUseCase(currentConfig.method.skill, currentConfig.method.name, actionsInTick)
 
                     // Notify listeners
-                    // SSOT: Always get the latest skill state from the repository
+                    // Always get latest state from repository
                     val updatedSkill = skillRepository.getSkillByName(localSkillName)
                     if (updatedSkill != null) {
                         onSkillUpdate(updatedSkill)

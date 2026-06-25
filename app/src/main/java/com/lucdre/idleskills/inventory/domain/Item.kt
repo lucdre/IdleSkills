@@ -3,7 +3,7 @@ package com.lucdre.idleskills.inventory.domain
 import androidx.compose.runtime.Immutable
 
 /**
- * Represents a stackable item in the player's inventory.
+ * A stackable item in the player's inventory.
  */
 @Immutable
 data class Item(

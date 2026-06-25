@@ -9,7 +9,6 @@ import javax.inject.Inject
 /**
  * Use case for performing a prestige operation.
  *
- * This system:
  * - Awards 1 prestige point for each skill at level 99
  * - Resets all skills to level 1 with 0 XP
  * - Maintains skill tree progress and unlocked upgrades

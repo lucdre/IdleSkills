@@ -12,7 +12,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.IntSize
 
 /**
- * A custom modifier that applies a shimmer effect to a component.
+ * Shimmer effect modifier.
  */
 fun Modifier.shimmer(): Modifier = composed {
     var size by remember { mutableStateOf(IntSize.Zero) }

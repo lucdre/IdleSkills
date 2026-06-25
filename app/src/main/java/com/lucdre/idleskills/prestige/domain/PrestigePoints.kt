@@ -1,7 +1,7 @@
 package com.lucdre.idleskills.prestige.domain
 
 /**
- * Represents the prestige points system.
+ * Prestige points system.
  *
  * @property availablePrestigePoints Points available to spend in the skill tree
  * @property totalPrestigePoints Total points earned across all prestiges

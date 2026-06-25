@@ -3,11 +3,11 @@ package com.lucdre.idleskills.prestige.domain
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Interface for handling prestige-related operations.
+ * Prestige repository interface.
  */
 interface PrestigeRepositoryInterface {
     /**
-     * @return A [Flow] of prestige state that updates when data changes.
+     * Observe prestige state.
      */
     fun observePrestige(): Flow<Prestige>
 
@@ -17,9 +17,7 @@ interface PrestigeRepositoryInterface {
     suspend fun getPrestige(): Prestige
 
     /**
-     * Updates the prestige state in the repository.
-     *
-     * @param prestige The prestige state to be updated.
+     * Update prestige state.
      */
     suspend fun updatePrestige(prestige: Prestige)
 }

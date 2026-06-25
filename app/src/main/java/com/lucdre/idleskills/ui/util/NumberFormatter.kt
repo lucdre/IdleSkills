@@ -18,8 +18,7 @@ object NumberFormatter {
     }
 
     /**
-     * Formats a duration in milliseconds to a human-readable string.
-     * Example: 3661000 -> "1h 1m 1s"
+     * ms to "1h 1m 1s".
      */
     fun formatDuration(ms: Long): String {
         if (ms <= 0) return "N/A"

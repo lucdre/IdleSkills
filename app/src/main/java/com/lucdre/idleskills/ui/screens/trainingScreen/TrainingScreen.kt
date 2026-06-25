@@ -107,7 +107,6 @@ private fun SingleColumnTrainingLayout(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         contentPadding = PaddingValues(16.dp)
     ) {
-        // Game Scene - Volatile (reads activeStateProvider)
         item {
             TrainingSceneCard(
                 regionName = sessionState.regionName,
@@ -118,7 +117,6 @@ private fun SingleColumnTrainingLayout(
             )
         }
 
-        // Skill Selection - Stable
         item {
             SkillSelector(
                 skills = SkillType.entries,
@@ -127,7 +125,6 @@ private fun SingleColumnTrainingLayout(
             )
         }
 
-        // Training Method Selection - Stable
         if (skillsState.trainingMethods.isNotEmpty()) {
             item {
                 Text(
@@ -147,7 +144,6 @@ private fun SingleColumnTrainingLayout(
             }
         }
 
-        // Training Info / Stats - Mixed
         if (skillsState.activeTrainingSkill != null) {
             item {
                 TrainingStatsSection(
@@ -259,7 +255,7 @@ fun TrainingStatsSection(
         
         Spacer(modifier = Modifier.height(12.dp))
         
-        // Stats Grid - Volatile (reads activeStateProvider)
+        // Stats Grid
         Row(modifier = Modifier.fillMaxWidth()) {
             StatsCard(
                 modifier = Modifier.weight(1f),

@@ -4,7 +4,7 @@ import androidx.compose.runtime.Immutable
 import com.lucdre.idleskills.skills.domain.skill.SkillType
 
 /**
- * Represents a loot box that players can collect and open.
+ * A loot box that players can collect and open.
  *
  * @property skill The skill this box originated from.
  * @property count The number of boxes of this type owned.

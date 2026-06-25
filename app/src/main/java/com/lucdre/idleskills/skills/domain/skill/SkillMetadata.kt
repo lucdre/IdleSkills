@@ -17,7 +17,7 @@ data class SkillTheme(
 )
 
 /**
- * Central registry for skill metadata, including themes and icons.
+ * Skill themes and icons.
  */
 object SkillMetadata {
     private val themes = mapOf(

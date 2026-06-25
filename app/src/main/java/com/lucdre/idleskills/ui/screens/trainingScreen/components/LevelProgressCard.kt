@@ -28,7 +28,7 @@ fun LevelProgressCard(
     xpToNextLevel: Int,
     progress: Float
 ) {
-    // Smoothly interpolate XP gain and level ups
+    // Smooth progress bar
     val animatedProgress by animateFloatAsState(
         targetValue = progress,
         animationSpec = if (progress == 0f) snap() else tween(durationMillis = 300, easing = LinearEasing),

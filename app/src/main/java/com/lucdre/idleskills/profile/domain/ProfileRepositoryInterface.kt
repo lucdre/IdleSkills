@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
  */
 interface ProfileRepositoryInterface {
     /**
-     * @return A [Flow] of the player profile that updates when data changes.
+     * Observe profile.
      */
     fun observeProfile(): Flow<PlayerProfile>
 
@@ -17,9 +17,7 @@ interface ProfileRepositoryInterface {
     suspend fun getProfile(): PlayerProfile
 
     /**
-     * Updates the player profile in the repository.
-     *
-     * @param profile The profile to be updated.
+     * Update profile.
      */
     suspend fun updateProfile(profile: PlayerProfile)
 }

@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 /**
- * Use case for observing all owned loot boxes.
+ * Observe owned loot boxes.
  */
 class ObserveLootBoxCountUseCase @Inject constructor(
     private val lootRepository: LootRepositoryInterface

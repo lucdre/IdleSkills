@@ -15,8 +15,8 @@ import javax.inject.Inject
 /**
  * ViewModel for handling skill tree interactions.
  *
- * @property getAvailableSkillTreeNodesUseCase Use case for getting available nodes.
- * @property purchaseSkillTreeNodeUseCase Use case for purchasing nodes.
+ * @property getAvailableSkillTreeNodesUseCase To get available nodes.
+ * @property purchaseSkillTreeNodeUseCase To purchase nodes.
  * @property prestigeRepository Repository for prestige data.
  */
 @HiltViewModel

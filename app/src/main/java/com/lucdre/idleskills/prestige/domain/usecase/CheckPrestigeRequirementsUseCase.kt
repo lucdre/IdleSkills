@@ -4,7 +4,7 @@ import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import javax.inject.Inject
 
 /**
- * Use case for checking if the player meets prestige requirements.
+ * Checks prestige requirements.
  */
 class CheckPrestigeRequirementsUseCase @Inject constructor(
     private val skillRepository: SkillRepositoryInterface

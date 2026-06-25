@@ -7,8 +7,7 @@ import com.lucdre.idleskills.core.util.Constants
 import com.lucdre.idleskills.main.presentation.LevelInfo
 
 /**
- * Utility object to calculate everything related to XP and skill levels.
- *
+ * XP and level calculations.
  */
 object LevelCalculator {
 
@@ -30,9 +29,6 @@ object LevelCalculator {
     }
 
     /**
-     * Calculates the exact total XP required for a specific level.
-     * 
-     * Internal implementation of formula:
      * XP(L) = floor(1/4 * sum_{i=1 to L-1} floor(i + 300 * 2^(i/7)))
      */
     private fun calculateXpForLevel(level: Int): Int {
@@ -47,10 +43,8 @@ object LevelCalculator {
     }
 
     /**
-     * Calculates the total XP required to reach a specific level starting from level 1 (0 XP).
-     *
      * @param targetLevel The target level to reach.
-     * @return Total XP required for the target level.
+     * @return Total XP required for [targetLevel].
      */
     fun totalXpForLevel(targetLevel: Int): Int {
         if (targetLevel > MAX_LEVEL) return MAX_XP
@@ -58,10 +52,8 @@ object LevelCalculator {
     }
 
     /**
-     * Calculates the skill level based on total XP.
-     *
      * @param totalXp The total accumulated XP.
-     * @return The current level based on total XP.
+     * @return Level derived from [totalXp].
      */
     fun calculateLevelFromTotalXp(totalXp: Int): Int {
         val xp = totalXp.coerceIn(0, MAX_XP)
@@ -77,11 +69,9 @@ object LevelCalculator {
     }
 
     /**
-     * Calculates XP required to reach the next level from current total XP.
-     *
      * @param currentTotalXp The total accumulated XP.
      * @param currentLevel The current level.
-     * @return XP needed to reach the next level (how much more XP is needed beyond current total).
+     * @return XP remaining until [currentLevel] + 1.
      */
     fun xpToNextLevelFromTotal(currentTotalXp: Int, currentLevel: Int): Int {
         if (currentLevel >= MAX_LEVEL) return 0
@@ -90,10 +80,8 @@ object LevelCalculator {
     }
 
     /**
-     * Calculates the XP needed to go from a specific level to the next.
-     *
      * @param currentLevel The level to calculate from.
-     * @return XP difference between currentLevel and currentLevel + 1.
+     * @return Total XP needed for one full level.
      */
     fun xpForNextLevel(currentLevel: Int): Int {
         if (currentLevel >= MAX_LEVEL) return 0
@@ -101,10 +89,8 @@ object LevelCalculator {
     }
 
     /**
-     * Checks if a skill's level should be updated based on its XP.
-     *
      * @param skill The skill to check.
-     * @return A new Skill object with the updated level if a level-up occurred, or the original skill.
+     * @return skill level with current XP.
      */
     fun checkForLevelUp(skill: Skill): Skill {
         val calculatedLevel = calculateLevelFromTotalXp(skill.xp)
@@ -116,7 +102,7 @@ object LevelCalculator {
     }
 
     /**
-     * Returns comprehensive information about a skill's level and XP progress.
+     * Returns information about a skill's level and XP progress.
      */
     fun getLevelInfo(totalXp: Int): LevelInfo {
         val currentLevel = calculateLevelFromTotalXp(totalXp)
