@@ -16,7 +16,6 @@ import com.lucdre.idleskills.loot.domain.usecase.CollectLootBoxUseCase
 import com.lucdre.idleskills.loot.domain.usecase.ObserveLootBoxCountUseCase
 import com.lucdre.idleskills.loot.domain.usecase.OpenLootBoxUseCase
 import com.lucdre.idleskills.profile.domain.usecase.GetPlayerProfileUseCase
-import com.lucdre.idleskills.profile.domain.usecase.ObserveStatisticsUseCase
 import com.lucdre.idleskills.region.domain.usecase.GetVisibleSkillsUseCase
 import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
 import com.lucdre.idleskills.skills.domain.skill.SkillType
@@ -45,7 +44,6 @@ class TrainingViewModel @Inject constructor(
     private val getAvailableTrainingMethodsUseCase: GetAvailableTrainingMethodsUseCase,
     private val getActiveCardsUseCase: GetActiveCardsUseCase,
     private val getPlayerProfileUseCase: GetPlayerProfileUseCase,
-    private val observeStatisticsUseCase: ObserveStatisticsUseCase,
     private val calculateOfflineProgressUseCase: CalculateOfflineProgressUseCase,
     private val inventoryRepository: InventoryRepositoryInterface,
     private val trainingService: TrainingService,
@@ -197,14 +195,12 @@ class TrainingViewModel @Inject constructor(
     private fun buildSessionPipeline(): Flow<TrainingSessionState> {
         return combine(
             getPlayerProfileUseCase.observeProfile(),
-            observeStatisticsUseCase.observeStatistics(),
             _offlineProgress,
             inventoryRepository.observeItems(),
             sessionRepository.observeCurrentRegion()
-        ) { profile, stats, offline, inventory, region ->
+        ) { profile, offline, inventory, region ->
             TrainingSessionState(
                 playerProfile = profile,
-                playerStatistics = stats,
                 offlineProgress = offline,
                 regionName = region.displayName,
                 inventoryItems = inventory,

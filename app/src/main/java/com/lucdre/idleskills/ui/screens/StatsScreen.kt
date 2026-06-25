@@ -38,7 +38,7 @@ import com.lucdre.idleskills.profile.domain.PlayerStatistics
 import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillType
-import com.lucdre.idleskills.main.presentation.TrainingViewModel
+import com.lucdre.idleskills.profile.presentation.StatsViewModel
 import com.lucdre.idleskills.ui.util.formatNumber
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
@@ -52,10 +52,9 @@ import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 @Composable
 fun StatsScreen(
     modifier: Modifier = Modifier,
-    viewModel: TrainingViewModel = hiltViewModel()
+    viewModel: StatsViewModel = hiltViewModel()
 ) {
-    val skillsState by viewModel.skillsState.collectAsStateWithLifecycle()
-    val sessionState by viewModel.sessionState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     // Bottom Sheet State for Skill onClick
     var selectedSkillType by remember { mutableStateOf<SkillType?>(null) }
@@ -64,14 +63,14 @@ fun StatsScreen(
 
     // Get live skill data from the ViewModel state
     val selectedSkill = selectedSkillType?.let { type ->
-        skillsState.skills.find { it.type == type }
+        uiState.skills.find { it.type == type }
     }
 
     Box(modifier = modifier.fillMaxSize()) {
         StatsScreenContent(
             modifier = Modifier.fillMaxSize(),
-            playerStatistics = sessionState.playerStatistics,
-            skills = skillsState.skills
+            playerStatistics = uiState.statistics,
+            skills = uiState.skills
         ) { skill ->
             selectedSkillType = skill.type
             isSheetOpen = true

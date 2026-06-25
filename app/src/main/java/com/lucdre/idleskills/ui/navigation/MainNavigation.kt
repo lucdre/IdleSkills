@@ -250,7 +250,7 @@ private fun MainNavigationContent(
                 InventoryScreen(viewModel = trainingViewModel)
             }
             composable(Routes.STATS) {
-                StatsScreen(viewModel = trainingViewModel)
+                StatsScreen()
             }
             composable(Routes.CARDS) {
                 CardsScreen(

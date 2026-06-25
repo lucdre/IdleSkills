@@ -7,7 +7,6 @@ import com.lucdre.idleskills.cards.domain.CardType
 import com.lucdre.idleskills.inventory.domain.Item
 import com.lucdre.idleskills.loot.domain.LootBox
 import com.lucdre.idleskills.profile.domain.PlayerProfile
-import com.lucdre.idleskills.profile.domain.PlayerStatistics
 import com.lucdre.idleskills.core.domain.OfflineProgressResult
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillType
@@ -83,7 +82,6 @@ data class TrainingLootState(
  * State related to the player session, profile, and inventory.
  *
  * @property playerProfile The current player profile data.
- * @property playerStatistics Accumulated player statistics.
  * @property offlineProgress The result of the last offline progress calculation.
  * @property regionName The display name of the current region.
  * @property inventoryItems The list of items currently in the player's inventory.
@@ -91,7 +89,6 @@ data class TrainingLootState(
 @Immutable
 data class TrainingSessionState(
     val playerProfile: PlayerProfile = PlayerProfile(),
-    val playerStatistics: PlayerStatistics = PlayerStatistics(),
     val offlineProgress: OfflineProgressResult? = null,
     val regionName: String = "",
     val inventoryItems: List<Item> = emptyList(),
