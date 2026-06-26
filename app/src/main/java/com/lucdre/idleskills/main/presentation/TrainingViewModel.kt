@@ -5,14 +5,13 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
-import com.lucdre.idleskills.core.domain.OfflineProgressResult
 import com.lucdre.idleskills.core.domain.SessionRepositoryInterface
-import com.lucdre.idleskills.core.domain.usecase.CalculateOfflineProgressUseCase
 import com.lucdre.idleskills.profile.domain.usecase.GetPlayerProfileUseCase
 import com.lucdre.idleskills.region.domain.usecase.GetVisibleSkillsUseCase
 import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
 import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.skills.domain.training.TrainingService
+import com.lucdre.idleskills.skills.domain.training.TrainingSessionManager
 import com.lucdre.idleskills.skills.domain.training.usecase.GetAvailableTrainingMethodsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -23,13 +22,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -42,14 +39,13 @@ class TrainingViewModel @Inject constructor(
     private val getAvailableTrainingMethodsUseCase: GetAvailableTrainingMethodsUseCase,
     private val getActiveCardsUseCase: GetActiveCardsUseCase,
     private val getPlayerProfileUseCase: GetPlayerProfileUseCase,
-    private val calculateOfflineProgressUseCase: CalculateOfflineProgressUseCase,
     private val trainingService: TrainingService,
+    private val trainingSessionManager: TrainingSessionManager,
     private val sessionRepository: SessionRepositoryInterface
 ) : ViewModel(), DefaultLifecycleObserver {
 
     private val _expandedSkillName = MutableStateFlow<String?>(null)
     private val _isScreenVisible = MutableStateFlow(value = false)
-    private val _offlineProgress = MutableStateFlow<OfflineProgressResult?>(null)
 
     /**
      * State for skills and training methods.
@@ -91,12 +87,11 @@ class TrainingViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ActiveTrainingState())
 
     init {
-        resumeInitialTraining()
+        trainingSessionManager.initializeSession()
     }
 
     override fun onStart(owner: LifecycleOwner) {
         setAppVisibility(true)
-        checkOfflineProgress()
     }
 
     override fun onStop(owner: LifecycleOwner) {
@@ -155,7 +150,7 @@ class TrainingViewModel @Inject constructor(
     private fun buildSessionPipeline(): Flow<TrainingSessionState> {
         return combine(
             getPlayerProfileUseCase.observeProfile(),
-            _offlineProgress,
+            trainingSessionManager.offlineProgress,
             sessionRepository.observeCurrentRegion()
         ) { profile, offline, region ->
             TrainingSessionState(
@@ -164,32 +159,6 @@ class TrainingViewModel @Inject constructor(
                 regionName = region.displayName,
                 isLoading = false
             )
-        }
-    }
-
-    private fun resumeInitialTraining() {
-        viewModelScope.launch {
-            val activeTraining = sessionRepository.observeActiveTraining().first()
-            if (activeTraining != null) {
-                val skills = getVisibleSkillsUseCase()
-                val skill = skills.find { it.name == activeTraining.skillName }
-                if (skill != null) {
-                    val methods = getAvailableTrainingMethodsUseCase(skill)
-                    val method = methods.find { it.name == activeTraining.methodName }
-                    if (method != null) {
-                        trainingService.startTraining(skill, method)
-                        _expandedSkillName.value = skill.name
-                    }
-                }
-            }
-        }
-    }
-
-    private fun checkOfflineProgress() {
-        viewModelScope.launch {
-            calculateOfflineProgressUseCase()?.let { result ->
-                _offlineProgress.value = result
-            }
         }
     }
 
@@ -207,15 +176,11 @@ class TrainingViewModel @Inject constructor(
 
     fun selectTrainingMethod(methodName: String) {
         val ui = skillsState.value
-        if (ui.activeTrainingMethod?.name == methodName) {
-            trainingService.stopTraining()
-            return
-        }
         val skill = ui.skills.find { it.name == ui.expandedSkillName } ?: return
         val method = ui.trainingMethods.find { it.name == methodName } ?: return
-        trainingService.startTraining(skill, method)
+        trainingSessionManager.toggleTraining(skill, method)
     }
 
     fun setScreenVisible(visible: Boolean) { _isScreenVisible.value = visible }
-    fun dismissOfflineProgress() { _offlineProgress.value = null }
+    fun dismissOfflineProgress() { trainingSessionManager.dismissOfflineProgress() }
 }
