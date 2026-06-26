@@ -59,27 +59,8 @@ class TrainingViewModel @Inject constructor(
     /**
      * Progress ticker state.
      */
-    val activeTrainingState: StateFlow<ActiveTrainingState> = combine(
-        trainingService.trainingState,
-        skillsState
-    ) { training, skills ->
-        val activeSkill = training.activeSkillName?.let { name ->
-            skills.skills.find { it.name == name }
-        }
-        val xpPerHour = training.activeMethod?.calculateXpPerHour(skills.activeCards) ?: 0
-        val xpToNextLevel = if (activeSkill != null) {
-            LevelCalculator.xpToNextLevelFromTotal(activeSkill.xp, activeSkill.level)
-        } else 0
-
-        val timeToLevelUpMs = LevelCalculator.calculateTimeToLevelUpMs(xpPerHour, xpToNextLevel)
-
-        ActiveTrainingState(
-            trainingProgress = training.progress,
-            sessionXpGained = training.sessionXpGained,
-            xpPerHour = xpPerHour,
-            timeToLevelUpMs = timeToLevelUpMs
-        )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ActiveTrainingState())
+    val activeTrainingState: StateFlow<ActiveTrainingState> = buildActiveTrainingPipeline()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ActiveTrainingState())
 
     init {
         trainingSessionManager.initializeSession()
@@ -91,6 +72,37 @@ class TrainingViewModel @Inject constructor(
 
     override fun onStop(owner: LifecycleOwner) {
         setAppVisibility(false)
+    }
+
+    private fun buildActiveTrainingPipeline(): Flow<ActiveTrainingState> {
+        val xpPerHourFlow = combine(
+            trainingService.trainingState.map { it.activeMethod }.distinctUntilChanged(),
+            skillsState.map { it.activeCards }.distinctUntilChanged()
+        ) { method, cards ->
+            method?.calculateXpPerHour(cards) ?: 0
+        }.distinctUntilChanged()
+
+        return combine(
+            trainingService.trainingState,
+            skillsState,
+            xpPerHourFlow
+        ) { training, skills, xpPerHour ->
+            val activeSkill = training.activeSkillName?.let { name ->
+                skills.skills.find { it.name == name }
+            }
+            val xpToNextLevel = if (activeSkill != null) {
+                LevelCalculator.xpToNextLevelFromTotal(activeSkill.xp, activeSkill.level)
+            } else 0
+
+            val timeToLevelUpMs = LevelCalculator.calculateTimeToLevelUpMs(xpPerHour, xpToNextLevel)
+
+            ActiveTrainingState(
+                trainingProgress = training.progress,
+                sessionXpGained = training.sessionXpGained,
+                xpPerHour = xpPerHour,
+                timeToLevelUpMs = timeToLevelUpMs
+            )
+        }
     }
 
     private fun buildSkillsPipeline(): Flow<TrainingSkillsState> {
