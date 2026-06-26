@@ -240,6 +240,13 @@ private fun MainNavigationContent(
                 val sceneState by sceneViewModel.uiState.collectAsStateWithLifecycle()
                 val sessionState by trainingViewModel.sessionState.collectAsStateWithLifecycle()
                 val activeStateState = trainingViewModel.activeTrainingState.collectAsStateWithLifecycle()
+
+                androidx.compose.runtime.LaunchedEffect(skillsState.activeTrainingSkill) {
+                    sceneViewModel.updateSpawningStatus(
+                        visible = true,
+                        isTraining = skillsState.activeTrainingSkill != null
+                    )
+                }
                 
                 TrainingScreen(
                     skillsState = skillsState,
