@@ -39,6 +39,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.lucdre.idleskills.cards.presentation.CardViewModel
+import com.lucdre.idleskills.main.presentation.TrainingSceneViewModel
 import com.lucdre.idleskills.main.presentation.TrainingViewModel
 import com.lucdre.idleskills.ui.screens.CardDetailScreen
 import com.lucdre.idleskills.ui.screens.CardsScreen
@@ -122,9 +123,11 @@ fun MainNavigation(
         }
         else -> {
             val trainingViewModel: TrainingViewModel = hiltViewModel()
+            val sceneViewModel: TrainingSceneViewModel = hiltViewModel()
             val cardViewModel: CardViewModel = hiltViewModel()
             MainNavigationContent(
                 trainingViewModel = trainingViewModel,
+                sceneViewModel = sceneViewModel,
                 cardViewModel = cardViewModel
             )
         }
@@ -138,6 +141,7 @@ fun MainNavigation(
 @Composable
 private fun MainNavigationContent(
     trainingViewModel: TrainingViewModel,
+    sceneViewModel: TrainingSceneViewModel,
     cardViewModel: CardViewModel
 ) {
     val navController = rememberNavController()
@@ -233,7 +237,7 @@ private fun MainNavigationContent(
         ) {
             composable(Routes.TRAINING) {
                 val skillsState by trainingViewModel.skillsState.collectAsStateWithLifecycle()
-                val sceneState by trainingViewModel.sceneState.collectAsStateWithLifecycle()
+                val sceneState by sceneViewModel.uiState.collectAsStateWithLifecycle()
                 val sessionState by trainingViewModel.sessionState.collectAsStateWithLifecycle()
                 val activeStateState = trainingViewModel.activeTrainingState.collectAsStateWithLifecycle()
                 
@@ -245,9 +249,19 @@ private fun MainNavigationContent(
                     onSkillSelect = { skill -> trainingViewModel.selectSkill(skill) },
                     onMethodSelect = { method -> trainingViewModel.selectTrainingMethod(method) },
                     onRegionClick = { /* Handle region change */ },
-                    onSpriteClick = { trainingViewModel.onSpriteClick() },
+                    onSpriteClick = { 
+                        skillsState.activeTrainingSkill?.let { skill ->
+                            sceneViewModel.onSpriteClick(skill)
+                        }
+                    },
                     onDismissOfflineProgress = { trainingViewModel.dismissOfflineProgress() },
-                    onSetScreenVisible = { trainingViewModel.setScreenVisible(it) },
+                    onSetScreenVisible = { isVisible -> 
+                        trainingViewModel.setScreenVisible(isVisible)
+                        sceneViewModel.updateSpawningStatus(
+                            visible = isVisible, 
+                            isTraining = skillsState.activeTrainingSkill != null
+                        )
+                    },
                     windowSizeClass = adaptiveInfo.windowSizeClass
                 )
             }

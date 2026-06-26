@@ -1,6 +1,5 @@
 package com.lucdre.idleskills.main.presentation
 
-import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
@@ -9,7 +8,6 @@ import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
 import com.lucdre.idleskills.core.domain.OfflineProgressResult
 import com.lucdre.idleskills.core.domain.SessionRepositoryInterface
 import com.lucdre.idleskills.core.domain.usecase.CalculateOfflineProgressUseCase
-import com.lucdre.idleskills.loot.domain.usecase.CollectLootBoxUseCase
 import com.lucdre.idleskills.profile.domain.usecase.GetPlayerProfileUseCase
 import com.lucdre.idleskills.region.domain.usecase.GetVisibleSkillsUseCase
 import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
@@ -18,8 +16,6 @@ import com.lucdre.idleskills.skills.domain.training.TrainingService
 import com.lucdre.idleskills.skills.domain.training.usecase.GetAvailableTrainingMethodsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -30,14 +26,11 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.random.Random
 
 /**
  * Main ViewModel for training screens.
@@ -45,7 +38,6 @@ import kotlin.random.Random
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class TrainingViewModel @Inject constructor(
-    private val collectLootBoxUseCase: CollectLootBoxUseCase,
     private val getVisibleSkillsUseCase: GetVisibleSkillsUseCase,
     private val getAvailableTrainingMethodsUseCase: GetAvailableTrainingMethodsUseCase,
     private val getActiveCardsUseCase: GetActiveCardsUseCase,
@@ -57,23 +49,13 @@ class TrainingViewModel @Inject constructor(
 
     private val _expandedSkillName = MutableStateFlow<String?>(null)
     private val _isScreenVisible = MutableStateFlow(value = false)
-    private val _spriteVisible = MutableStateFlow(false)
-    private val _spritePosition = MutableStateFlow(Offset(0.5f, 0.5f))
     private val _offlineProgress = MutableStateFlow<OfflineProgressResult?>(null)
-
-    private var spawnJob: Job? = null
 
     /**
      * State for skills and training methods.
      */
     val skillsState: StateFlow<TrainingSkillsState> = buildSkillsPipeline()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), TrainingSkillsState(isLoading = true))
-
-    /**
-     * State for the training scene elements.
-     */
-    val sceneState: StateFlow<TrainingSceneState> = buildScenePipeline()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), TrainingSceneState(isLoading = true))
 
     /**
      * State for player profile and session info.
@@ -109,7 +91,6 @@ class TrainingViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ActiveTrainingState())
 
     init {
-        observeVisibilityAndManageTimer()
         resumeInitialTraining()
     }
 
@@ -171,19 +152,6 @@ class TrainingViewModel @Inject constructor(
         }
     }
 
-    private fun buildScenePipeline(): Flow<TrainingSceneState> {
-        return combine(
-            _spriteVisible,
-            _spritePosition
-        ) { spriteVisible, pos ->
-            TrainingSceneState(
-                isSpriteVisible = spriteVisible,
-                spritePosition = pos,
-                isLoading = false
-            )
-        }
-    }
-
     private fun buildSessionPipeline(): Flow<TrainingSessionState> {
         return combine(
             getPlayerProfileUseCase.observeProfile(),
@@ -197,36 +165,6 @@ class TrainingViewModel @Inject constructor(
                 isLoading = false
             )
         }
-    }
-
-    private fun observeVisibilityAndManageTimer() {
-        _isScreenVisible.combine(skillsState.map { it.activeTrainingSkill }.distinctUntilChanged()) { visible, skill ->
-            visible && skill != null
-        }.distinctUntilChanged()
-        .onEach { shouldRun ->
-            if (shouldRun) startSpawnTimer() else stopSpawnTimer()
-        }.launchIn(viewModelScope)
-    }
-
-    private fun startSpawnTimer() {
-        stopSpawnTimer()
-        spawnJob = viewModelScope.launch {
-            while (true) {
-                delay(Random.nextLong(5000, 20000))
-                if (!_spriteVisible.value) {
-                    _spritePosition.value = Offset(0.35f + Random.nextFloat() * 0.3f, 0.35f + Random.nextFloat() * 0.3f)
-                    _spriteVisible.value = true
-                    delay(5000)
-                    _spriteVisible.value = false
-                }
-            }
-        }
-    }
-
-    private fun stopSpawnTimer() {
-        spawnJob?.cancel()
-        spawnJob = null
-        _spriteVisible.value = false
     }
 
     private fun resumeInitialTraining() {
@@ -280,13 +218,4 @@ class TrainingViewModel @Inject constructor(
 
     fun setScreenVisible(visible: Boolean) { _isScreenVisible.value = visible }
     fun dismissOfflineProgress() { _offlineProgress.value = null }
-
-    fun onSpriteClick() {
-        val skill = skillsState.value.activeTrainingSkill ?: return
-        if (!_spriteVisible.value) return
-        viewModelScope.launch {
-            collectLootBoxUseCase(skill)
-            _spriteVisible.value = false
-        }
-    }
 }
