@@ -5,21 +5,10 @@ import androidx.compose.ui.geometry.Offset
 import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.core.domain.OfflineProgressResult
 import com.lucdre.idleskills.profile.domain.PlayerProfile
+import com.lucdre.idleskills.skills.domain.skill.LevelInfo
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
-
-/**
- * Information about a skill's level and XP progress.
- */
-@Immutable
-data class LevelInfo(
-    val currentLevel: Int = 1,
-    val totalXp: Int = 0,
-    val nextLevelXp: Int = 0,
-    val xpToNextLevel: Int = 0,
-    val progressDecimal: Float = 0f
-)
 
 /**
  * Training progress and session XP.

@@ -4,7 +4,6 @@ import kotlin.math.floor
 import kotlin.math.pow
 
 import com.lucdre.idleskills.core.util.Constants
-import com.lucdre.idleskills.main.presentation.LevelInfo
 
 /**
  * XP and level calculations.

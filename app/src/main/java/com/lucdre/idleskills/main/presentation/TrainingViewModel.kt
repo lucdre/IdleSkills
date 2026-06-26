@@ -5,10 +5,9 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
-import com.lucdre.idleskills.core.domain.SessionRepositoryInterface
-import com.lucdre.idleskills.profile.domain.usecase.GetPlayerProfileUseCase
 import com.lucdre.idleskills.region.domain.usecase.GetVisibleSkillsUseCase
 import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
+import com.lucdre.idleskills.skills.domain.skill.LevelInfo
 import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.skills.domain.training.TrainingService
 import com.lucdre.idleskills.skills.domain.training.TrainingSessionManager
@@ -21,10 +20,10 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
@@ -38,10 +37,8 @@ class TrainingViewModel @Inject constructor(
     private val getVisibleSkillsUseCase: GetVisibleSkillsUseCase,
     private val getAvailableTrainingMethodsUseCase: GetAvailableTrainingMethodsUseCase,
     private val getActiveCardsUseCase: GetActiveCardsUseCase,
-    private val getPlayerProfileUseCase: GetPlayerProfileUseCase,
     private val trainingService: TrainingService,
-    private val trainingSessionManager: TrainingSessionManager,
-    private val sessionRepository: SessionRepositoryInterface
+    private val trainingSessionManager: TrainingSessionManager
 ) : ViewModel(), DefaultLifecycleObserver {
 
     private val _expandedSkillName = MutableStateFlow<String?>(null)
@@ -106,9 +103,9 @@ class TrainingViewModel @Inject constructor(
         val availableMethodsFlow = _expandedSkillName.flatMapLatest { expandedName ->
             if (expandedName == null) flowOf(emptyList())
             else {
-                skillsFlow.map { skills ->
+                skillsFlow.mapNotNull { skills ->
                     skills.find { it.name == expandedName }
-                }.filterNotNull().map { skill ->
+                }.map { skill ->
                     getAvailableTrainingMethodsUseCase(skill)
                 }
             }
@@ -146,15 +143,11 @@ class TrainingViewModel @Inject constructor(
     }
 
     private fun buildSessionPipeline(): Flow<TrainingSessionState> {
-        return combine(
-            getPlayerProfileUseCase.observeProfile(),
-            trainingSessionManager.offlineProgress,
-            sessionRepository.observeCurrentRegion()
-        ) { profile, offline, region ->
+        return trainingSessionManager.sessionData.map { data ->
             TrainingSessionState(
-                playerProfile = profile,
-                offlineProgress = offline,
-                regionName = region.displayName,
+                playerProfile = data.playerProfile,
+                offlineProgress = data.offlineProgress,
+                regionName = data.region.displayName,
                 isLoading = false
             )
         }
