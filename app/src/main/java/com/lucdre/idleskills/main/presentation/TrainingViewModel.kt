@@ -74,9 +74,7 @@ class TrainingViewModel @Inject constructor(
             LevelCalculator.xpToNextLevelFromTotal(activeSkill.xp, activeSkill.level)
         } else 0
 
-        val timeToLevelUpMs = if (xpPerHour > 0) {
-            ((xpToNextLevel.toDouble() / xpPerHour) * 3600 * 1000).toLong()
-        } else 0L
+        val timeToLevelUpMs = LevelCalculator.calculateTimeToLevelUpMs(xpPerHour, xpToNextLevel)
 
         ActiveTrainingState(
             trainingProgress = training.progress,

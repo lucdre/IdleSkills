@@ -135,4 +135,16 @@ object LevelCalculator {
             progressDecimal = levelProgress
         )
     }
+
+    /**
+     * Calculates the estimated time to reach the next level.
+     *
+     * @param xpPerHour The current rate of XP gain per hour.
+     * @param xpToNextLevel The amount of XP required for the next level.
+     * @return Estimated time in milliseconds, or 0 if [xpPerHour] is not positive.
+     */
+    fun calculateTimeToLevelUpMs(xpPerHour: Int, xpToNextLevel: Int): Long {
+        if (xpPerHour <= 0) return 0L
+        return ((xpToNextLevel.toDouble() / xpPerHour) * 3600 * 1000).toLong()
+    }
 }
