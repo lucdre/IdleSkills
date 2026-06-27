@@ -57,12 +57,4 @@ enum class CardType(
         bonusPerLevel = 0.05f,
         iconResId = R.drawable.ic_tree
     );
-
-    /**
-     * @param level The current level of the card.
-     * @return The number of cards required to upgrade to the next level.
-     */
-    fun getUpgradeRequirement(level: Int): Int {
-        return level * 10
-    }
 }

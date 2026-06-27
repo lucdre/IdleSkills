@@ -290,11 +290,11 @@ private fun MainNavigationContent(
             composable("${Routes.CARD_DETAIL}/{cardName}") { backStackEntry ->
                 val cardName = backStackEntry.arguments?.getString("cardName")
                 val uiState by cardViewModel.uiState.collectAsStateWithLifecycle()
-                val card = uiState.cardsBySkill.values.flatten().find { it.name == cardName }
+                val cardState = uiState.cardsBySkill.values.flatten().find { it.card.name == cardName }
                 
-                if (card != null) {
+                if (cardState != null) {
                     CardDetailScreen(
-                        card = card,
+                        cardState = cardState,
                         onBack = { navController.popBackStack() },
                         onUpgrade = { cardViewModel.upgradeCard(it) }
                     )

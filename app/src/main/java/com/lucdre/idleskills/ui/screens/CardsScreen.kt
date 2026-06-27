@@ -23,9 +23,11 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.lucdre.idleskills.cards.domain.Card
+import com.lucdre.idleskills.cards.presentation.CardItemUiState
 import com.lucdre.idleskills.cards.presentation.CardUiState
 import com.lucdre.idleskills.cards.presentation.CardViewModel
 import com.lucdre.idleskills.cards.presentation.TradingCardItem
+import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.ui.navigation.Routes
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
@@ -55,7 +57,7 @@ fun CardsScreenContent(
     uiState: CardUiState,
     onCardClick: (Card) -> Unit
 ) {
-    val expandedSkills = remember { mutableStateMapOf<String, Boolean>() }
+    val expandedSkills = remember { mutableStateMapOf<SkillType, Boolean>() }
 
     Column(
         modifier = modifier
@@ -94,22 +96,22 @@ fun CardsScreenContent(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(bottom = 80.dp) // Space for bottom nav
             ) {
-                uiState.cardsBySkill.forEach { (skillName, cards) ->
-                    val isExpanded = expandedSkills[skillName] ?: true
+                uiState.cardsBySkill.forEach { (skill, cardStates) ->
+                    val isExpanded = expandedSkills[skill] ?: true
                     
-                    item(key = skillName, span = { GridItemSpan(maxLineSpan) }) {
+                    item(key = skill.name, span = { GridItemSpan(maxLineSpan) }) {
                         SkillGroupHeader(
-                            skillName = skillName,
+                            skillName = skill.displayName,
                             isExpanded = isExpanded,
-                            onToggle = { expandedSkills[skillName] = !isExpanded }
+                            onToggle = { expandedSkills[skill] = !isExpanded }
                         )
                     }
 
                     if (isExpanded) {
-                        items(cards, key = { it.name }) { card ->
+                        items(cardStates, key = { it.card.name }) { cardState ->
                             TradingCardItem(
-                                card = card,
-                                onClick = { onCardClick(card) }
+                                cardState = cardState,
+                                onClick = { onCardClick(cardState.card) }
                             )
                         }
                     }
@@ -157,42 +159,62 @@ fun CardsScreenPreview() {
         CardsScreenContent(
             uiState = CardUiState(
                 cardsBySkill = mapOf(
-                    "Woodcutting" to listOf(
-                        Card(
-                            name = "Bronze Axe",
-                            type = com.lucdre.idleskills.cards.domain.CardType.WOODCUTTING_AXE,
-                            level = 1,
-                            quantity = 5,
-                            efficiencyBonus = 0.05f,
-                            iconResId = com.lucdre.idleskills.R.drawable.ic_tree
+                    SkillType.WOODCUTTING to listOf(
+                        CardItemUiState(
+                            card = Card(
+                                name = "Bronze Axe",
+                                type = com.lucdre.idleskills.cards.domain.CardType.WOODCUTTING_AXE,
+                                level = 1,
+                                quantity = 5,
+                                efficiencyBonus = 0.05f,
+                                iconResId = com.lucdre.idleskills.R.drawable.ic_tree
+                            ),
+                            upgradeRequirement = 10,
+                            canUpgrade = false,
+                            nextLevelBonus = 0.10f
                         )
                     ),
-                    "Mining" to listOf(
-                        Card(
-                            name = "Bronze Pickaxe",
-                            type = com.lucdre.idleskills.cards.domain.CardType.MINING_PICKAXE,
-                            level = 1,
-                            quantity = 2,
-                            efficiencyBonus = 0.05f,
-                            iconResId = com.lucdre.idleskills.R.drawable.ic_tree
+                    SkillType.MINING to listOf(
+                        CardItemUiState(
+                            card = Card(
+                                name = "Bronze Pickaxe",
+                                type = com.lucdre.idleskills.cards.domain.CardType.MINING_PICKAXE,
+                                level = 1,
+                                quantity = 2,
+                                efficiencyBonus = 0.05f,
+                                iconResId = com.lucdre.idleskills.R.drawable.ic_tree
+                            ),
+                            upgradeRequirement = 10,
+                            canUpgrade = false,
+                            nextLevelBonus = 0.10f
                         ),
-                        Card(
-                            name = "Steel Pickaxe",
-                            type = com.lucdre.idleskills.cards.domain.CardType.MINING_PICKAXE,
-                            level = 2,
-                            quantity = 1,
-                            efficiencyBonus = 0.10f,
-                            iconResId = com.lucdre.idleskills.R.drawable.ic_tree
+                        CardItemUiState(
+                            card = Card(
+                                name = "Steel Pickaxe",
+                                type = com.lucdre.idleskills.cards.domain.CardType.MINING_PICKAXE,
+                                level = 2,
+                                quantity = 1,
+                                efficiencyBonus = 0.10f,
+                                iconResId = com.lucdre.idleskills.R.drawable.ic_tree
+                            ),
+                            upgradeRequirement = 20,
+                            canUpgrade = false,
+                            nextLevelBonus = 0.17f
                         )
                     ),
-                    "Fishing" to listOf(
-                        Card(
-                            name = "Small Net",
-                            type = com.lucdre.idleskills.cards.domain.CardType.FISHING_NET,
-                            level = 1,
-                            quantity = 10,
-                            efficiencyBonus = 0.05f,
-                            iconResId = com.lucdre.idleskills.R.drawable.ic_tree
+                    SkillType.FISHING to listOf(
+                        CardItemUiState(
+                            card = Card(
+                                name = "Small Net",
+                                type = com.lucdre.idleskills.cards.domain.CardType.FISHING_NET,
+                                level = 1,
+                                quantity = 10,
+                                efficiencyBonus = 0.05f,
+                                iconResId = com.lucdre.idleskills.R.drawable.ic_tree
+                            ),
+                            upgradeRequirement = 10,
+                            canUpgrade = true,
+                            nextLevelBonus = 0.10f
                         )
                     )
                 )

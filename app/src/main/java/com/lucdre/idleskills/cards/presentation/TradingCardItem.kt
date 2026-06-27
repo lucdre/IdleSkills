@@ -30,15 +30,16 @@ import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 /**
  * A trading card style item for displaying game cards.
  *
- * @param card The card data to display.
+ * @param cardState The UI state for the card.
  * @param onClick Callback when the card is clicked.
  */
 @Composable
 fun TradingCardItem(
     modifier: Modifier = Modifier,
-    card: GameCard,
+    cardState: CardItemUiState,
     onClick: () -> Unit
 ) {
+    val card = cardState.card
     val skillTheme = SkillMetadata.getTheme(card.type.skill)
     val cardColor = skillTheme.primaryColor
 
@@ -113,7 +114,7 @@ fun TradingCardItem(
                 }
 
                 // Upgrade icon if it meets the criteria
-                if (card.quantity>=card.getUpgradeRequirement()){
+                if (cardState.canUpgrade){
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopStart)
@@ -135,11 +136,21 @@ fun TradingCardPreview() {
     IdleSkillsTheme {
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             TradingCardItem(
-                card = GameCard("Bronze Axe", CardType.WOODCUTTING_AXE, 1, 12, 0.05f, R.drawable.ic_tree),
+                cardState = CardItemUiState(
+                    card = GameCard("Bronze Axe", CardType.WOODCUTTING_AXE, 1, 12, 0.05f, R.drawable.ic_tree),
+                    upgradeRequirement = 10,
+                    canUpgrade = true,
+                    nextLevelBonus = 0.10f
+                ),
                 onClick = {}
             )
             TradingCardItem(
-                card = GameCard("Steel Pickaxe", CardType.MINING_PICKAXE, 2, 2, 0.12f, R.drawable.ic_tree),
+                cardState = CardItemUiState(
+                    card = GameCard("Steel Pickaxe", CardType.MINING_PICKAXE, 2, 2, 0.12f, R.drawable.ic_tree),
+                    upgradeRequirement = 20,
+                    canUpgrade = false,
+                    nextLevelBonus = 0.17f
+                ),
                 onClick = {}
             )
         }

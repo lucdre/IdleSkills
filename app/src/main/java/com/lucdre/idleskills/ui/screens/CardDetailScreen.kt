@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import com.lucdre.idleskills.R
 import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.cards.domain.CardType
+import com.lucdre.idleskills.cards.presentation.CardItemUiState
 import com.lucdre.idleskills.skills.domain.skill.SkillMetadata
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 import com.lucdre.idleskills.ui.components.CustomLinearProgressIndicator
@@ -30,10 +31,11 @@ import com.lucdre.idleskills.ui.components.CustomLinearProgressIndicator
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CardDetailScreen(
-    card: Card,
+    cardState: CardItemUiState,
     onBack: () -> Unit,
     onUpgrade: (Card) -> Unit = {}
 ) {
+    val card = cardState.card
     val skillTheme = SkillMetadata.getTheme(card.type.skill)
     val skillColor = skillTheme.primaryColor
 
@@ -129,7 +131,7 @@ fun CardDetailScreen(
                 ){
                     Row(modifier = Modifier.padding(16.dp)) {
                         Icon(
-                            painter = painterResource(id = card.iconResId), //TODO PH Icon
+                            painter = painterResource(id = card.iconResId),
                             contentDescription = null,
                             modifier = Modifier.size(24.dp),
                             tint = skillColor
@@ -141,19 +143,19 @@ fun CardDetailScreen(
                             fontWeight = FontWeight.Bold
                         )
                         Icon(
-                            painter = painterResource(R.drawable.bootstrap_arrow_right_circle), //TODO PH Icon
+                            painter = painterResource(R.drawable.bootstrap_arrow_right_circle),
                             contentDescription = null,
                             modifier = Modifier.size(24.dp),
                             tint = skillColor
                         )
                         Icon(
-                            painter = painterResource(id = card.iconResId), //TODO PH Icon
+                            painter = painterResource(id = card.iconResId),
                             contentDescription = null,
                             modifier = Modifier.size(24.dp),
                             tint = skillColor
                         )
                         Text(
-                            text = "+${((card.efficiencyBonus + 0.05f) * 100).toInt()}%", //TODO actual efficiency
+                            text = "+${(cardState.nextLevelBonus * 100).toInt()}%",
                             style = MaterialTheme.typography.titleMedium,
                             color = Color(0xFF4CAF50),
                             fontWeight = FontWeight.Bold
@@ -163,13 +165,12 @@ fun CardDetailScreen(
 
             }
 
-            //Spacer(modifier = Modifier.weight(1f))
-            Spacer(modifier = Modifier.height(12.dp)) // TODO Might cause issues on smaller screens
+            Spacer(modifier = Modifier.height(12.dp))
 
             // Upgrade Section
-            val requirement = card.getUpgradeRequirement()
+            val requirement = cardState.upgradeRequirement
             val progress = (card.quantity.toFloat() / requirement.toFloat()).coerceIn(0f, 1f)
-            val canUpgrade = card.quantity >= requirement
+            val canUpgrade = cardState.canUpgrade
 
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -235,13 +236,18 @@ fun CardDetailScreen(
 fun CardDetailScreenPreview() {
     IdleSkillsTheme {
         CardDetailScreen(
-            card = Card(
-                name = "Bronze Axe",
-                type = CardType.WOODCUTTING_AXE,
-                level = 1,
-                quantity = 5,
-                efficiencyBonus = 0.05f,
-                iconResId = R.drawable.ic_tree
+            cardState = CardItemUiState(
+                card = Card(
+                    name = "Bronze Axe",
+                    type = CardType.WOODCUTTING_AXE,
+                    level = 1,
+                    quantity = 5,
+                    efficiencyBonus = 0.05f,
+                    iconResId = R.drawable.ic_tree
+                ),
+                upgradeRequirement = 10,
+                canUpgrade = false,
+                nextLevelBonus = 0.10f
             ),
             onBack = {}
         )
