@@ -18,13 +18,6 @@ interface CardRepositoryInterface {
     fun getCardsForSkill(skill: SkillType): Flow<List<Card>>
 
     /**
-     * Updates a specific card in the player's collection.
-     *
-     * @param card The card with updated data.
-     */
-    suspend fun updateCard(card: Card)
-
-    /**
      * Adds a certain amount of cards to the player's collection.
      *
      * @param cardType The type of card to add.
@@ -38,4 +31,9 @@ interface CardRepositoryInterface {
      * @param cards A map of card types to the quantity to add.
      */
     suspend fun addCardsBatch(cards: Map<CardType, Int>)
+
+    /**
+     * Atomically upgrades a card.
+     */
+    suspend fun upgradeCard(card: Card, requirement: Int, nextLevel: Int, bonus: Float)
 }

@@ -295,8 +295,8 @@ private fun MainNavigationContent(
                 if (cardState != null) {
                     CardDetailScreen(
                         cardState = cardState,
-                        onBack = { navController.popBackStack() },
-                        onUpgrade = { cardViewModel.upgradeCard(it) }
+                        viewModel = cardViewModel,
+                        onBack = { navController.popBackStack() }
                     )
                 }
             }

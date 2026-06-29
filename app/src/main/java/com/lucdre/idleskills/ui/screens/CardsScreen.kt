@@ -15,6 +15,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import com.lucdre.idleskills.ui.components.shimmer
 import com.lucdre.idleskills.ui.util.IdleSkillsPreviews
@@ -24,6 +27,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.cards.presentation.CardItemUiState
+import com.lucdre.idleskills.cards.presentation.CardUiEffect
 import com.lucdre.idleskills.cards.presentation.CardUiState
 import com.lucdre.idleskills.cards.presentation.CardViewModel
 import com.lucdre.idleskills.cards.presentation.TradingCardItem
@@ -41,14 +45,35 @@ fun CardsScreen(
     navController: NavController? = null
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val haptic = LocalHapticFeedback.current
 
-    CardsScreenContent(
-        modifier = modifier,
-        uiState = uiState,
-        onCardClick = { card ->
-            navController?.navigate("${Routes.CARD_DETAIL}/${card.name}")
+    LaunchedEffect(Unit) {
+        viewModel.uiEffects.collect { effect ->
+            when (effect) {
+                is CardUiEffect.ShowMessage -> {
+                    snackbarHostState.showSnackbar(effect.message)
+                }
+                CardUiEffect.UpgradeSuccess -> {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    snackbarHostState.showSnackbar("Card Upgraded!")
+                }
+            }
         }
-    )
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = Color.Transparent
+    ) { paddingValues ->
+        CardsScreenContent(
+            modifier = modifier.padding(paddingValues),
+            uiState = uiState,
+            onCardClick = { card ->
+                navController?.navigate("${Routes.CARD_DETAIL}/${card.name}")
+            }
+        )
+    }
 }
 
 @Composable

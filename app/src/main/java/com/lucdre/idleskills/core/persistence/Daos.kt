@@ -96,6 +96,24 @@ interface CardDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(cards: List<CardEntity>)
+
+    /**
+     * Atomically upgrades a card if requirements are met.
+     */
+    @Transaction
+    suspend fun upgradeCard(cardType: String, requirement: Int, nextLevel: Int, bonus: Float) {
+        val existing = getCardByType(cardType) ?: return
+        if (existing.quantity >= requirement) {
+            val updated = existing.copy(
+                level = nextLevel,
+                quantity = existing.quantity - requirement,
+                efficiencyBonus = bonus
+            )
+            insertOrUpdate(updated)
+        } else {
+            throw IllegalStateException("Insufficient cards for atomic upgrade: ${existing.quantity}/$requirement")
+        }
+    }
 }
 
 @Dao

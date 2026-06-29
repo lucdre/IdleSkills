@@ -30,23 +30,4 @@ class CardCalculator @Inject constructor() {
     fun getNextLevelBonus(card: Card): Float {
         return card.efficiencyBonus + card.type.bonusPerLevel
     }
-
-    /**
-     * Creates an upgraded version of the provided card.
-     * 
-     * @param card The card to upgrade.
-     * @return A new [Card] instance with upgraded stats.
-     * @throws IllegalArgumentException if the card does not meet upgrade requirements.
-     */
-    fun createUpgrade(card: Card): Card {
-        require(canUpgrade(card)) { 
-            "Insufficient quantity to upgrade card: ${card.quantity}/${getUpgradeRequirement(card.level)}" 
-        }
-
-        return card.copy(
-            level = card.level + 1,
-            quantity = card.quantity - getUpgradeRequirement(card.level),
-            efficiencyBonus = getNextLevelBonus(card)
-        )
-    }
 }

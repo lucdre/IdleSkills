@@ -55,10 +55,6 @@ class CardRepository @Inject constructor(
         }
     }
 
-    override suspend fun updateCard(card: Card) {
-        cardDao.insertOrUpdate(card.toEntity())
-    }
-
     override suspend fun addCards(cardType: CardType, quantity: Int) {
         addCardsBatch(mapOf(cardType to quantity))
     }
@@ -80,6 +76,20 @@ class CardRepository @Inject constructor(
                 )
         }
         cardDao.insertAll(updatedEntities)
+    }
+
+    override suspend fun upgradeCard(
+        card: Card,
+        requirement: Int,
+        nextLevel: Int,
+        bonus: Float
+    ) {
+        cardDao.upgradeCard(
+            cardType = card.type.name,
+            requirement = requirement,
+            nextLevel = nextLevel,
+            bonus = bonus
+        )
     }
 
     private fun Card.toEntity(): CardEntity {

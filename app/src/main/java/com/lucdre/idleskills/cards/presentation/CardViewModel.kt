@@ -14,6 +14,14 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
+ * One-time UI effects for the card screen.
+ */
+sealed class CardUiEffect {
+    data class ShowMessage(val message: String) : CardUiEffect()
+    data object UpgradeSuccess : CardUiEffect()
+}
+
+/**
  * UI state for an individual card item.
  */
 data class CardItemUiState(
@@ -51,6 +59,9 @@ class CardViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(CardUiState(isLoading = true))
     val uiState: StateFlow<CardUiState> = _uiState.asStateFlow()
 
+    private val _uiEffects = MutableSharedFlow<CardUiEffect>()
+    val uiEffects: SharedFlow<CardUiEffect> = _uiEffects.asSharedFlow()
+
     init {
         getOwnedCardsUseCase()
             .map { cards ->
@@ -81,10 +92,14 @@ class CardViewModel @Inject constructor(
      */
     fun upgradeCard(card: Card) {
         viewModelScope.launch {
-            upgradeCardUseCase(card).onFailure { error ->
-                // TODO: Handle error in UI (e.g., show a Snackbar)
-                android.util.Log.e("CardViewModel", "Failed to upgrade card: ${error.message}")
-            }
+            upgradeCardUseCase(card)
+                .onSuccess {
+                    _uiEffects.emit(CardUiEffect.UpgradeSuccess)
+                }
+                .onFailure { error ->
+                    _uiEffects.emit(CardUiEffect.ShowMessage(error.message ?: "Failed to upgrade card"))
+                    android.util.Log.e("CardViewModel", "Failed to upgrade card: ${error.message}")
+                }
         }
     }
 }

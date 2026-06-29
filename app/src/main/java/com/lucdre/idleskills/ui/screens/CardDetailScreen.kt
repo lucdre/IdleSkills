@@ -21,9 +21,16 @@ import com.lucdre.idleskills.R
 import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.cards.domain.CardType
 import com.lucdre.idleskills.cards.presentation.CardItemUiState
+import com.lucdre.idleskills.cards.presentation.CardUiEffect
+import com.lucdre.idleskills.cards.presentation.CardViewModel
 import com.lucdre.idleskills.skills.domain.skill.SkillMetadata
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 import com.lucdre.idleskills.ui.components.CustomLinearProgressIndicator
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 
 /**
  * Screen displaying details for a specific card and upgrade requirements.
@@ -32,14 +39,31 @@ import com.lucdre.idleskills.ui.components.CustomLinearProgressIndicator
 @Composable
 fun CardDetailScreen(
     cardState: CardItemUiState,
-    onBack: () -> Unit,
-    onUpgrade: (Card) -> Unit = {}
+    viewModel: CardViewModel = hiltViewModel(),
+    onBack: () -> Unit
 ) {
     val card = cardState.card
     val skillTheme = SkillMetadata.getTheme(card.type.skill)
     val skillColor = skillTheme.primaryColor
+    val snackbarHostState = remember { SnackbarHostState() }
+    val haptic = LocalHapticFeedback.current
+
+    LaunchedEffect(Unit) {
+        viewModel.uiEffects.collect { effect ->
+            when (effect) {
+                is CardUiEffect.ShowMessage -> {
+                    snackbarHostState.showSnackbar(effect.message)
+                }
+                CardUiEffect.UpgradeSuccess -> {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    snackbarHostState.showSnackbar("Card Upgraded!")
+                }
+            }
+        }
+    }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text(card.name) },
@@ -208,7 +232,7 @@ fun CardDetailScreen(
                 Spacer(modifier = Modifier.height(24.dp))
                 
                 Button(
-                    onClick = { onUpgrade(card) },
+                    onClick = { viewModel.upgradeCard(card) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),

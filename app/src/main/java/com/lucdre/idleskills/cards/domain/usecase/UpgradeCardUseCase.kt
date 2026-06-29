@@ -23,14 +23,22 @@ class UpgradeCardUseCase @Inject constructor(
      * @return Result indicating success or failure message.
      */
     suspend operator fun invoke(card: Card): Result<Unit> {
+        val requirement = cardCalculator.getUpgradeRequirement(card.level)
+        
         if (!cardCalculator.canUpgrade(card)) {
-            val requirement = cardCalculator.getUpgradeRequirement(card.level)
             return Result.failure(Exception("Requires $requirement cards."))
         }
 
-        val upgradedCard = cardCalculator.createUpgrade(card)
-        cardRepository.updateCard(upgradedCard)
-        
-        return Result.success(Unit)
+        return try {
+            cardRepository.upgradeCard(
+                card = card,
+                requirement = requirement,
+                nextLevel = card.level + 1,
+                bonus = cardCalculator.getNextLevelBonus(card)
+            )
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }
