@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.lucdre.idleskills.skills.domain.skill.SkillMetadata
 import com.lucdre.idleskills.skills.domain.skill.SkillType
+import com.lucdre.idleskills.skills.domain.training.TrainingMethodType
 import com.lucdre.idleskills.ui.components.CustomLinearProgressIndicator
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
@@ -33,7 +34,7 @@ fun TrainingSceneCard(
     modifier: Modifier = Modifier,
     regionName: String,
     activeSkill: SkillType?,
-    methodName: String?,
+    methodType: TrainingMethodType?,
     progressProvider: () -> Float,
     onRegionClick: () -> Unit
 ) {
@@ -107,7 +108,7 @@ fun TrainingSceneCard(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = methodName ?: "No active method",
+                    text = methodType?.displayName ?: "No active method",
                     color = Color.White.copy(alpha = 0.7f),
                     style = MaterialTheme.typography.labelSmall
                 )
@@ -242,7 +243,7 @@ fun TrainingSceneCardPreview() {
             TrainingSceneCard(
                 regionName = "Region 1",
                 activeSkill = SkillType.WOODCUTTING,
-                methodName = "Oak Trees",
+                methodType = TrainingMethodType.WC_OAK,
                 progressProvider = { 0.45f },
                 onRegionClick = {}
             )

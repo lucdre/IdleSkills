@@ -19,6 +19,7 @@ import com.lucdre.idleskills.main.presentation.TrainingSceneState
 import com.lucdre.idleskills.main.presentation.TrainingSessionState
 import com.lucdre.idleskills.main.presentation.TrainingSkillsState
 import com.lucdre.idleskills.skills.domain.skill.SkillType
+import com.lucdre.idleskills.skills.domain.training.TrainingMethodType
 import com.lucdre.idleskills.ui.components.OfflineProgressPopup
 import com.lucdre.idleskills.ui.screens.trainingScreen.components.*
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
@@ -31,7 +32,7 @@ fun TrainingScreen(
     sessionState: TrainingSessionState,
     activeStateProvider: () -> ActiveTrainingState,
     onSkillSelect: (SkillType) -> Unit,
-    onMethodSelect: (String) -> Unit,
+    onMethodSelect: (TrainingMethodType) -> Unit,
     onRegionClick: () -> Unit,
     onSpriteClick: () -> Unit,
     onDismissOfflineProgress: () -> Unit,
@@ -99,7 +100,7 @@ private fun SingleColumnTrainingLayout(
     sessionState: TrainingSessionState,
     activeStateProvider: () -> ActiveTrainingState,
     onSkillSelect: (SkillType) -> Unit,
-    onMethodSelect: (String) -> Unit,
+    onMethodSelect: (TrainingMethodType) -> Unit,
     onRegionClick: () -> Unit
 ) {
     LazyColumn(
@@ -111,7 +112,7 @@ private fun SingleColumnTrainingLayout(
             TrainingSceneCard(
                 regionName = sessionState.regionName,
                 activeSkill = skillsState.activeTrainingSkill,
-                methodName = skillsState.activeTrainingMethod?.name,
+                methodType = skillsState.activeTrainingMethod?.type,
                 progressProvider = { activeStateProvider().trainingProgress },
                 onRegionClick = onRegionClick
             )
@@ -138,8 +139,8 @@ private fun SingleColumnTrainingLayout(
             items(skillsState.trainingMethods) { method ->
                 TrainingMethodCard(
                     method = method,
-                    selected = skillsState.activeTrainingMethod?.name == method.name,
-                    onClick = { onMethodSelect(method.name) }
+                    selected = skillsState.activeTrainingMethod?.type == method.type,
+                    onClick = { onMethodSelect(method.type) }
                 )
             }
         }
@@ -162,7 +163,7 @@ private fun TwoColumnTrainingLayout(
     sessionState: TrainingSessionState,
     activeStateProvider: () -> ActiveTrainingState,
     onSkillSelect: (SkillType) -> Unit,
-    onMethodSelect: (String) -> Unit,
+    onMethodSelect: (TrainingMethodType) -> Unit,
     onRegionClick: () -> Unit
 ) {
     Row(
@@ -180,7 +181,7 @@ private fun TwoColumnTrainingLayout(
                 TrainingSceneCard(
                     regionName = sessionState.regionName,
                     activeSkill = skillsState.activeTrainingSkill,
-                    methodName = skillsState.activeTrainingMethod?.name,
+                    methodType = skillsState.activeTrainingMethod?.type,
                     progressProvider = { activeStateProvider().trainingProgress },
                     onRegionClick = onRegionClick
                 )
@@ -222,8 +223,8 @@ private fun TwoColumnTrainingLayout(
                 items(skillsState.trainingMethods) { method ->
                     TrainingMethodCard(
                         method = method,
-                        selected = skillsState.activeTrainingMethod?.name == method.name,
-                        onClick = { onMethodSelect(method.name) }
+                        selected = skillsState.activeTrainingMethod?.type == method.type,
+                        onClick = { onMethodSelect(method.type) }
                     )
                 }
             }
@@ -294,7 +295,9 @@ fun TrainingScreenPreview() {
             expandedSkillName = "Woodcutting",
             trainingMethods = listOf(
                 com.lucdre.idleskills.skills.domain.training.TrainingMethod(
-                    SkillType.WOODCUTTING, "Normal Trees", 25, 5000
+                    type = TrainingMethodType.WC_TREE,
+                    xpPerAction = 25,
+                    actionDurationMs = 5000
                 )
             )
         )

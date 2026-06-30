@@ -3,7 +3,9 @@ package com.lucdre.idleskills.core.domain
 import com.lucdre.idleskills.core.persistence.SessionDao
 import com.lucdre.idleskills.core.persistence.SessionEntity
 import com.lucdre.idleskills.region.domain.Region
-import com.lucdre.idleskills.skills.domain.training.ActiveTraining
+import com.lucdre.idleskills.skills.domain.skill.SkillType
+import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryInterface
+import com.lucdre.idleskills.skills.domain.training.TrainingMethodType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -25,7 +27,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class SessionRepository @Inject constructor(
-    private val sessionDao: SessionDao
+    private val sessionDao: SessionDao,
+    private val trainingMethodRepository: TrainingMethodRepositoryInterface
 ) : SessionRepositoryInterface {
 
     private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -35,9 +38,10 @@ class SessionRepository @Inject constructor(
 
     init {
         repositoryScope.launch {
-            val initialSession = sessionDao.getSession() ?: SessionEntity()
-            _sessionCache.value = initialSession
-            lastPersistedSession = initialSession
+            val dbSession = sessionDao.getSession() ?: SessionEntity()
+            val sanitized = sanitizeSession(dbSession)
+            _sessionCache.value = sanitized
+            lastPersistedSession = sanitized
             startPeriodicSync()
         }
     }
@@ -45,8 +49,8 @@ class SessionRepository @Inject constructor(
     override suspend fun getSessionData(): SessionData {
         return getSessionInternal().let {
             SessionData(
-                activeSkillName = it.activeSkillName,
-                activeMethodName = it.activeMethodName,
+                activeSkill = it.activeSkillName?.let { name -> SkillType.fromString(name) },
+                activeMethod = it.activeMethodName?.let { id -> TrainingMethodType.fromId(id) },
                 currentRegion = it.currentRegion,
                 lastSavedTimestamp = it.lastSavedTimestamp
             )
@@ -66,21 +70,29 @@ class SessionRepository @Inject constructor(
         syncToPersistence()
     }
 
-    override fun observeActiveTraining(): Flow<ActiveTraining?> {
+    override fun observeActiveTraining(): Flow<Pair<SkillType, TrainingMethodType>?> {
         return _sessionCache.filterNotNull().map { session ->
-            if (session.activeSkillName != null && session.activeMethodName != null) {
-                ActiveTraining(session.activeSkillName, session.activeMethodName)
+            val skillName = session.activeSkillName
+            val methodName = session.activeMethodName
+            if (skillName != null && methodName != null) {
+                val skillType = SkillType.fromString(skillName)
+                val methodType = TrainingMethodType.fromId(methodName)
+                if (skillType != null && methodType != null) {
+                    skillType to methodType
+                } else {
+                    null
+                }
             } else {
                 null
             }
         }
     }
 
-    override suspend fun setActiveTraining(training: ActiveTraining?) {
+    override suspend fun setActiveTraining(skill: SkillType?, method: TrainingMethodType?) {
         updateCache {
             it.copy(
-                activeSkillName = training?.skillName,
-                activeMethodName = training?.methodName,
+                activeSkillName = skill?.name,
+                activeMethodName = method?.id,
                 lastSavedTimestamp = System.currentTimeMillis()
             )
         }
@@ -110,6 +122,31 @@ class SessionRepository @Inject constructor(
         sessionMutex.withLock {
             val current = _sessionCache.value ?: sessionDao.getSession() ?: SessionEntity()
             _sessionCache.value = transform(current)
+        }
+    }
+
+    /**
+     * Ensures that the session data references valid skills and training methods.
+     */
+    private fun sanitizeSession(session: SessionEntity): SessionEntity {
+        val skillName = session.activeSkillName ?: return session
+        val skillType = SkillType.fromString(skillName) ?: return session.copy(
+            activeSkillName = null,
+            activeMethodName = null
+        )
+
+        val methodName = session.activeMethodName ?: return session
+        val methodType = TrainingMethodType.fromId(methodName) ?: return session.copy(
+            activeMethodName = null
+        )
+
+        val validMethods = trainingMethodRepository.getTrainingMethodsForSkill(skillType, session.currentRegion)
+        val methodExists = validMethods.any { it.type == methodType }
+
+        return if (!methodExists) {
+            session.copy(activeMethodName = null)
+        } else {
+            session
         }
     }
 

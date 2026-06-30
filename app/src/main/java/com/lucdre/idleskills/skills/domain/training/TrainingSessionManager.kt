@@ -81,13 +81,14 @@ class TrainingSessionManager @Inject constructor(
                 _offlineProgress.value = result
             }
 
-            val activeTraining = sessionRepository.observeActiveTraining().first()
-            if (activeTraining != null) {
+            val activeSession = sessionRepository.observeActiveTraining().first()
+            if (activeSession != null) {
+                val (skillType, methodType) = activeSession
                 val skills = getVisibleSkillsUseCase()
-                val skill = skills.find { it.name == activeTraining.skillName }
+                val skill = skills.find { it.type == skillType }
                 if (skill != null) {
                     val methods = getAvailableTrainingMethodsUseCase(skill)
-                    val method = methods.find { it.name == activeTraining.methodName }
+                    val method = methods.find { it.type == methodType }
                     if (method != null) {
                         trainingService.startTraining(skill, method)
                     }

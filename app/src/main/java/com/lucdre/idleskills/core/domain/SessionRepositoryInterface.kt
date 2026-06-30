@@ -1,7 +1,8 @@
 package com.lucdre.idleskills.core.domain
 
 import com.lucdre.idleskills.region.domain.Region
-import com.lucdre.idleskills.skills.domain.training.ActiveTraining
+import com.lucdre.idleskills.skills.domain.skill.SkillType
+import com.lucdre.idleskills.skills.domain.training.TrainingMethodType
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -27,15 +28,17 @@ interface SessionRepositoryInterface {
      * Sets the current player region.
      */
     suspend fun setCurrentRegion(region: Region)
+
     /**
      * Observes the current active training session.
+     * Returns a Pair of (SkillType, TrainingMethodType) or null if idle.
      */
-    fun observeActiveTraining(): Flow<ActiveTraining?>
+    fun observeActiveTraining(): Flow<Pair<SkillType, TrainingMethodType>?>
 
     /**
      * Sets the current active training session.
      */
-    suspend fun setActiveTraining(training: ActiveTraining?)
+    suspend fun setActiveTraining(skill: SkillType?, method: TrainingMethodType?)
 
     /**
      * Updates the last saved timestamp in the current session.

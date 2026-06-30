@@ -9,6 +9,7 @@ import com.lucdre.idleskills.region.domain.usecase.GetVisibleSkillsUseCase
 import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
 import com.lucdre.idleskills.skills.domain.skill.LevelInfo
 import com.lucdre.idleskills.skills.domain.skill.SkillType
+import com.lucdre.idleskills.skills.domain.training.TrainingMethodType
 import com.lucdre.idleskills.skills.domain.training.TrainingService
 import com.lucdre.idleskills.skills.domain.training.TrainingSessionManager
 import com.lucdre.idleskills.skills.domain.training.usecase.GetAvailableTrainingMethodsUseCase
@@ -127,12 +128,12 @@ class TrainingViewModel @Inject constructor(
             }
         }
 
-        val activeCardsFlow = activeSelectionFlow.map { it.first to it.second?.name }
+        val activeCardsFlow = activeSelectionFlow.map { it.first to it.second?.type }
             .distinctUntilChanged()
-            .flatMapLatest { (skillName, methodName) ->
-                if (skillName != null && methodName != null) {
+            .flatMapLatest { (skillName, methodType) ->
+                if (skillName != null && methodType != null) {
                     val skillType = SkillType.fromString(skillName) ?: SkillType.WOODCUTTING
-                    getActiveCardsUseCase(skillType, methodName)
+                    getActiveCardsUseCase(skillType, methodType)
                 } else {
                     flowOf(emptyList())
                 }
@@ -181,10 +182,10 @@ class TrainingViewModel @Inject constructor(
 
     fun selectSkill(skillType: SkillType) = toggleSkillExpansion(skillType.name)
 
-    fun selectTrainingMethod(methodName: String) {
+    fun selectTrainingMethod(methodType: TrainingMethodType) {
         val ui = skillsState.value
         val skill = ui.skills.find { it.name == ui.expandedSkillName } ?: return
-        val method = ui.trainingMethods.find { it.name == methodName } ?: return
+        val method = ui.trainingMethods.find { it.type == methodType } ?: return
         trainingSessionManager.toggleTraining(skill, method)
     }
 

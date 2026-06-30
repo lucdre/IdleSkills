@@ -5,6 +5,7 @@ import com.lucdre.idleskills.cards.domain.CardRepositoryInterface
 import com.lucdre.idleskills.core.domain.SessionRepositoryInterface
 import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryInterface
+import com.lucdre.idleskills.skills.domain.training.TrainingMethodType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
@@ -25,18 +26,18 @@ class GetActiveCardsUseCase @Inject constructor(
     private val trainingMethodRepository: TrainingMethodRepositoryInterface,
     private val sessionRepository: SessionRepositoryInterface
 ) {
-    operator fun invoke(skill: SkillType, methodName: String?): Flow<List<Card>> {
+    operator fun invoke(skill: SkillType, methodType: TrainingMethodType?): Flow<List<Card>> {
         return combine(
             cardRepository.getCardsForSkill(skill),
             sessionRepository.observeCurrentRegion()
         ) { cards, region ->
-            if (methodName == null) {
+            if (methodType == null) {
                 // If no method, return all cards for the skill (e.g., for general display)
                 cards
             } else {
                 // Find the training method to get its required card type
                 val method = trainingMethodRepository.getTrainingMethodsForSkill(skill, region)
-                    .find { it.name == methodName }
+                    .find { it.type == methodType }
 
                 val requiredCardType = method?.requiredCardType
                 

@@ -39,6 +39,7 @@ import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.profile.presentation.StatsViewModel
+import com.lucdre.idleskills.skills.domain.training.TrainingMethodType
 import com.lucdre.idleskills.ui.util.formatNumber
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
@@ -253,9 +254,9 @@ fun StatsScreenPreview() {
         )
         val previewStatistics = PlayerStatistics(
             stats = mapOf(
-                SkillType.WOODCUTTING.name to mapOf("Oak" to 42),
-                SkillType.MINING.name to mapOf("Iron" to 15),
-                SkillType.FISHING.name to mapOf("Shrimp" to 100)
+                SkillType.WOODCUTTING.name to mapOf(TrainingMethodType.WC_OAK.id to 42),
+                SkillType.MINING.name to mapOf(TrainingMethodType.MN_IRON.id to 15),
+                SkillType.FISHING.name to mapOf(TrainingMethodType.FS_SARDINE.id to 100)
             )
         )
         StatsScreenContent(

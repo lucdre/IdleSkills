@@ -51,8 +51,8 @@ class OfflineProgressManager @Inject constructor(
      */
     suspend fun calculateAndApplyOfflineProgress(): OfflineProgressResult? = mutex.withLock {
         val session = sessionRepository.getSessionData()
-        val activeSkillName = session.activeSkillName ?: return null
-        val activeMethodName = session.activeMethodName ?: return null
+        val activeSkill = session.activeSkill ?: return null
+        val activeMethod = session.activeMethod ?: return null
 
         val lastSaved = session.lastSavedTimestamp
         val now = System.currentTimeMillis()
@@ -69,15 +69,14 @@ class OfflineProgressManager @Inject constructor(
         }
 
         // Get current skill state to check XP cap
-        val currentSkill = skillRepository.getSkillByName(activeSkillName) ?: return null
-        val skillType = SkillType.fromString(activeSkillName) ?: return null
+        val currentSkill = skillRepository.getSkillByName(activeSkill.name) ?: return null
 
         // Get the training method to determine XP rate
-        val methods = trainingMethodDispatcher.getTrainingMethodsForSkill(skillType, session.currentRegion)
-        val method = methods.find { it.name == activeMethodName } ?: return null
+        val methods = trainingMethodDispatcher.getTrainingMethodsForSkill(activeSkill, session.currentRegion)
+        val method = methods.find { it.type == activeMethod } ?: return null
 
         // Get active cards to calculate effective action duration
-        val cards = getActiveCardsUseCase(skillType, method.name).first()
+        val cards = getActiveCardsUseCase(activeSkill, method.type).first()
         val effectiveDuration = method.getEffectiveActionDuration(cards)
 
         // Calculate XP: (Diff / EffectiveActionDuration) * XpPerAction
@@ -98,14 +97,14 @@ class OfflineProgressManager @Inject constructor(
         if (actualXpGain > 0 || earnedItems.isNotEmpty()) {
             // Atomic multi-domain application via repository
             gameActionRepository.applyOfflineProgress(
-                skillName = skillType.name,
+                skillName = activeSkill.name,
                 xpAmount = actualXpGain,
                 items = earnedItems,
                 now = now
             )
             
-            Log.d("OfflineProgressManager", "Applied $actualXpGain offline XP and items to ${skillType.name}.")
-            return OfflineProgressResult(skillType.name, actualXpGain, diffMs, earnedItems)
+            Log.d("OfflineProgressManager", "Applied $actualXpGain offline XP and items to ${activeSkill.name}.")
+            return OfflineProgressResult(activeSkill.name, actualXpGain, diffMs, earnedItems)
         } else {
             // Even if no progress earned, update timestamp to prevent redundant checks
             sessionRepository.updateLastSavedTimestamp()

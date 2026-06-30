@@ -3,6 +3,8 @@ package com.lucdre.idleskills.skills.domain.skill
 import androidx.compose.ui.graphics.Color
 import com.lucdre.idleskills.R
 
+import com.lucdre.idleskills.skills.domain.training.TrainingMethodType
+
 /**
  * Visual configuration for a skill's UI elements.
  */
@@ -79,7 +81,7 @@ object SkillMetadata {
     /**
      * Get the icon for a specific training method.
      */
-    fun getMethodIcon(skillName: String, methodName: String): Int {
+    fun getMethodIcon(skill: SkillType, methodType: TrainingMethodType): Int {
         // TODO: Replace with specific training method icons
         return R.drawable.ic_tree
     }

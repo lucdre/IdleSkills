@@ -113,11 +113,11 @@ class TrainingService @Inject constructor(
         }
 
         serviceScope.launch {
-            sessionRepository.setActiveTraining(ActiveTraining(skill.name, method.name))
+            sessionRepository.setActiveTraining(skill.type, method.type)
         }
 
         cardsJob = serviceScope.launch {
-            getActiveCardsUseCase(skill.type, method.name).collect { cards ->
+            getActiveCardsUseCase(skill.type, method.type).collect { cards ->
                 if (trainingManager?.isTraining(skill.name) == false) {
                     trainingManager?.startTraining(skill, method, cards)
                 } else {
@@ -141,7 +141,7 @@ class TrainingService @Inject constructor(
         }
 
         serviceScope.launch {
-            sessionRepository.setActiveTraining(null)
+            sessionRepository.setActiveTraining(null, null)
         }
     }
 }

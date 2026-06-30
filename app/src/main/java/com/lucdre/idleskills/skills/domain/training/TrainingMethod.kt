@@ -20,8 +20,7 @@ import kotlin.math.roundToInt
  */
 @Immutable
 data class TrainingMethod(
-    val skill: SkillType,
-    val name: String,
+    val type: TrainingMethodType,
     val xpPerAction: Int,
     val actionDurationMs: Long,
     val requiredLevel: Int = 1,
@@ -29,6 +28,9 @@ data class TrainingMethod(
     val availableRegions: List<Region> = emptyList(),
     val producedItemType: com.lucdre.idleskills.inventory.domain.ItemType? = null
 ) {
+    val skill: SkillType get() = type.skill
+    val name: String get() = type.displayName
+
     /**
      * @param cards List of cards that affect action speed through efficiency bonuses
      * @return The XP per hour for this training method with card bonuses applied.

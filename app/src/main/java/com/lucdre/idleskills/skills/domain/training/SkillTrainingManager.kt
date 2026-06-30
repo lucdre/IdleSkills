@@ -104,7 +104,7 @@ class SkillTrainingManager(
                         inventoryRepository.addItem(itemType, actionsInTick)
                     }
 
-                    recordTrainingActionUseCase(currentConfig.method.skill, currentConfig.method.name, actionsInTick)
+                    recordTrainingActionUseCase(currentConfig.method.skill, currentConfig.method.type, actionsInTick)
 
                     // Notify listeners
                     // Always get latest state from repository
