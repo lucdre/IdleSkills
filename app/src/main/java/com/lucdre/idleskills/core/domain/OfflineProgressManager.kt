@@ -50,7 +50,7 @@ class OfflineProgressManager @Inject constructor(
      * @return The result of the calculation, or null if no progress was made.
      */
     suspend fun calculateAndApplyOfflineProgress(): OfflineProgressResult? = mutex.withLock {
-        val session = sessionRepository.getSessionData() ?: return null
+        val session = sessionRepository.getSessionData()
         val activeSkillName = session.activeSkillName ?: return null
         val activeMethodName = session.activeMethodName ?: return null
 

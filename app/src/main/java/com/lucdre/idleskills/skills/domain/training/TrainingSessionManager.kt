@@ -114,4 +114,11 @@ class TrainingSessionManager @Inject constructor(
     fun dismissOfflineProgress() {
         _offlineProgress.value = null
     }
+
+    /**
+     * Force syncs the session to persistence.
+     */
+    suspend fun syncSession() {
+        sessionRepository.syncToPersistence()
+    }
 }

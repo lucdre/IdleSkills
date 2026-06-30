@@ -18,9 +18,6 @@ interface ProfileDao {
 @Dao
 interface SessionDao {
     @Query("SELECT * FROM player_session WHERE id = 0")
-    fun observeSession(): Flow<SessionEntity?>
-
-    @Query("SELECT * FROM player_session WHERE id = 0")
     suspend fun getSession(): SessionEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

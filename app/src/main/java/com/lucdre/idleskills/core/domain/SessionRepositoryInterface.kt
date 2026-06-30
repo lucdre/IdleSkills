@@ -11,7 +11,7 @@ interface SessionRepositoryInterface {
     /**
      * Gets the full session metadata (active training, timestamp, region).
      */
-    suspend fun getSessionData(): SessionData?
+    suspend fun getSessionData(): SessionData
 
     /**
      * Observes the current player region.
@@ -41,4 +41,9 @@ interface SessionRepositoryInterface {
      * Updates the last saved timestamp in the current session.
      */
     suspend fun updateLastSavedTimestamp()
+
+    /**
+     * Saves any pending in-memory changes to the database.
+     */
+    suspend fun syncToPersistence()
 }

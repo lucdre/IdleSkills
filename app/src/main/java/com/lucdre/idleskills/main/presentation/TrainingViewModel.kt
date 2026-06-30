@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -72,6 +73,9 @@ class TrainingViewModel @Inject constructor(
 
     override fun onStop(owner: LifecycleOwner) {
         setAppVisibility(false)
+        viewModelScope.launch {
+            trainingSessionManager.syncSession()
+        }
     }
 
     private fun buildActiveTrainingPipeline(): Flow<ActiveTrainingState> {

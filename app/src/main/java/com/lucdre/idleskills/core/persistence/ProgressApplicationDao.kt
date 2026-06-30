@@ -23,11 +23,8 @@ interface ProgressApplicationDao {
     @Query("UPDATE inventory SET quantity = quantity + :amount WHERE itemId = :itemId")
     suspend fun incrementInventoryQuantity(itemId: Int, amount: Int)
 
-    @Query("SELECT * FROM player_session WHERE id = 0")
-    suspend fun getSession(): SessionEntity?
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun updateSession(session: SessionEntity)
+    @Query("UPDATE player_session SET lastSavedTimestamp = :now WHERE id = 0")
+    suspend fun updateSessionTimestamp(now: Long)
 
     /**
      * Applies offline rewards and updates the save timestamp.
@@ -59,7 +56,6 @@ interface ProgressApplicationDao {
         }
 
         // Update Session Timestamp
-        val session = getSession() ?: SessionEntity()
-        updateSession(session.copy(lastSavedTimestamp = now))
+        updateSessionTimestamp(now)
     }
 }
