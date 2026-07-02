@@ -5,13 +5,29 @@ import androidx.room3.PrimaryKey
 import com.lucdre.idleskills.region.domain.Region
 
 /**
- * Entity representing the player's core profile.
+ * Entity representing the player's core identity.
  * One row, one character. (ID = 0)
+ *
+ * @property id The local database row ID (singleton at 0).
+ * @property playerId Unique global identifier for the player.
+ * @property username The player's display name.
  */
 @Entity(tableName = "player_profile")
 data class ProfileEntity(
     @PrimaryKey val id: Int = 0,
+    val playerId: String = "",
     val username: String = ""
+)
+
+/**
+ * Entity representing user settings and preferences.
+ * One row. (ID = 0)
+ */
+@Entity(tableName = "user_preferences")
+data class PreferencesEntity(
+    @PrimaryKey val id: Int = 0,
+    val isNotificationsEnabled: Boolean = true,
+    val theme: String = "SYSTEM"
 )
 
 /**

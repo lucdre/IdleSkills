@@ -47,6 +47,9 @@ abstract class DatabaseModule {
         fun provideProfileDao(db: AppDatabase): ProfileDao = db.profileDao()
 
         @Provides
+        fun providePreferencesDao(db: AppDatabase): PreferencesDao = db.preferencesDao()
+
+        @Provides
         fun provideSessionDao(db: AppDatabase): SessionDao = db.sessionDao()
 
         @Provides

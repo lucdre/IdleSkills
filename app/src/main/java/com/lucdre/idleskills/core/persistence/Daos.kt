@@ -16,6 +16,18 @@ interface ProfileDao {
 }
 
 @Dao
+interface PreferencesDao {
+    @Query("SELECT * FROM user_preferences WHERE id = 0")
+    fun observePreferences(): Flow<PreferencesEntity?>
+
+    @Query("SELECT * FROM user_preferences WHERE id = 0")
+    suspend fun getPreferences(): PreferencesEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertOrUpdate(preferences: PreferencesEntity)
+}
+
+@Dao
 interface SessionDao {
     @Query("SELECT * FROM player_session WHERE id = 0")
     suspend fun getSession(): SessionEntity?

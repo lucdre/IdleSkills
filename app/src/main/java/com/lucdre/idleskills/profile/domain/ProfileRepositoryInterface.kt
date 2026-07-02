@@ -3,7 +3,7 @@ package com.lucdre.idleskills.profile.domain
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Interface for handling player profile operations.
+ * Interface for handling player identity and core profile data.
  */
 interface ProfileRepositoryInterface {
     /**

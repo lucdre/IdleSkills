@@ -78,6 +78,7 @@ fun SettingsScreenPreview() {
     IdleSkillsTheme {
         SettingsScreenContent(
             playerProfile = PlayerProfile(
+                playerId = "ID-123-456",
                 username = "IdleMaster"
             ),
             regionName = "Region 1",
@@ -128,6 +129,20 @@ fun SettingsScreenContent(
                         text = playerProfile.username.ifBlank { "Anonymous" },
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = "Player ID", style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = playerProfile.playerId.ifBlank { "N/A" },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.outline
                     )
                 }
 

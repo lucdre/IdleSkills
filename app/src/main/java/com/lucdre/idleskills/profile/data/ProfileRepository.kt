@@ -33,6 +33,7 @@ class ProfileRepository @Inject constructor(
 
     private fun ProfileEntity.toDomain(): PlayerProfile {
         return PlayerProfile(
+            playerId = playerId,
             username = username
         )
     }
@@ -40,6 +41,7 @@ class ProfileRepository @Inject constructor(
     private fun PlayerProfile.toEntity(): ProfileEntity {
         return ProfileEntity(
             id = 0,
+            playerId = playerId,
             username = username
         )
     }
