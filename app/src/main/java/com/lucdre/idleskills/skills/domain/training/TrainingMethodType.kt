@@ -36,6 +36,7 @@ enum class TrainingMethodType(
     MN_CHEAT("mn_cheat", SkillType.MINING, "Cheat Rock"),
 
     // Fishing
+    FS_SHRIMP("fs_shrimp", SkillType.FISHING, "Shrimp"),
     FS_SARDINE("fs_sardine", SkillType.FISHING, "Sardine"),
     FS_ANCHOVY("fs_ancho", SkillType.FISHING, "Anchovy"),
     FS_TROUT("fs_trout", SkillType.FISHING, "Trout"),

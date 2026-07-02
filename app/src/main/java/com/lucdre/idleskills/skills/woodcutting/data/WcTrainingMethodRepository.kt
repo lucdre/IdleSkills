@@ -18,9 +18,9 @@ class WcTrainingMethodRepository @Inject constructor() : BaseTrainingMethodRepos
 
     override val trainingMethods = mapOf(
         SkillType.WOODCUTTING to listOf(
-            TrainingMethod(TrainingMethodType.WC_TREE, 10, 3000, requiredCardType = CardType.WOODCUTTING_AXE, availableRegions = listOf(Region.FIRST_REGION), producedItemType = ItemType.NORMAL_LOGS),
-            TrainingMethod(TrainingMethodType.WC_OAK, 15, 4000, 10, requiredCardType = CardType.WOODCUTTING_AXE, availableRegions = listOf(Region.FIRST_REGION), producedItemType = ItemType.OAK_LOGS),
-            TrainingMethod(TrainingMethodType.WC_WILLOW, 22, 5000, 25, requiredCardType = CardType.WOODCUTTING_AXE, availableRegions = listOf(Region.FIRST_REGION, Region.THIRD_REGION), producedItemType = ItemType.WILLOW_LOGS),
+            TrainingMethod(TrainingMethodType.WC_TREE, 5, 4000, requiredCardType = CardType.WOODCUTTING_AXE, availableRegions = listOf(Region.FIRST_REGION), producedItemType = ItemType.NORMAL_LOGS),
+            TrainingMethod(TrainingMethodType.WC_OAK, 15, 8000, 10, requiredCardType = CardType.WOODCUTTING_AXE, availableRegions = listOf(Region.FIRST_REGION), producedItemType = ItemType.OAK_LOGS),
+            TrainingMethod(TrainingMethodType.WC_WILLOW, 40, 15000, 20, requiredCardType = CardType.WOODCUTTING_AXE, availableRegions = listOf(Region.FIRST_REGION, Region.THIRD_REGION), producedItemType = ItemType.WILLOW_LOGS),
             TrainingMethod(TrainingMethodType.WC_MAPLE, 40, 8000, 45, requiredCardType = CardType.WOODCUTTING_AXE, availableRegions = listOf(Region.THIRD_REGION), producedItemType = ItemType.MAPLE_LOGS),
             TrainingMethod(TrainingMethodType.WC_YEW, 80, 12000, 60, requiredCardType = CardType.WOODCUTTING_AXE, availableRegions = listOf(Region.THIRD_REGION), producedItemType = ItemType.YEW_LOGS),
             TrainingMethod(TrainingMethodType.WC_MAGIC, 100, 20000, 75, requiredCardType = CardType.WOODCUTTING_AXE, availableRegions = listOf(Region.THIRD_REGION), producedItemType = ItemType.MAGIC_LOGS),

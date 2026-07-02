@@ -34,14 +34,15 @@ enum class ItemType(
     DRAGON_ORE(2008, "Dragon Ore", R.drawable.ic_tree),
 
     // Fishing (3000-3999)
-    RAW_SARDINE(3001, "Raw Sardine", R.drawable.ic_tree), // TODO: Replace with fishing icons
-    RAW_ANCHOVY(3002, "Raw Anchovy", R.drawable.ic_tree),
-    RAW_TROUT(3003, "Raw Trout", R.drawable.ic_tree),
-    RAW_SALMON(3004, "Raw Salmon", R.drawable.ic_tree),
-    RAW_TUNA(3005, "Raw Tuna", R.drawable.ic_tree),
-    RAW_LOBSTER(3006, "Raw Lobster", R.drawable.ic_tree),
-    RAW_SWORDFISH(3007, "Raw Swordfish", R.drawable.ic_tree),
-    RAW_SHARK(3008, "Raw Shark", R.drawable.ic_tree);
+    RAW_SHRIMP(3001, "Raw Shrimp", R.drawable.ic_tree), // TODO: Replace with fishing icons
+    RAW_SARDINE(3002, "Raw Sardine", R.drawable.ic_tree),
+    RAW_ANCHOVY(3003, "Raw Anchovy", R.drawable.ic_tree),
+    RAW_TROUT(3004, "Raw Trout", R.drawable.ic_tree),
+    RAW_SALMON(3005, "Raw Salmon", R.drawable.ic_tree),
+    RAW_TUNA(3006, "Raw Tuna", R.drawable.ic_tree),
+    RAW_LOBSTER(3007, "Raw Lobster", R.drawable.ic_tree),
+    RAW_SWORDFISH(3008, "Raw Swordfish", R.drawable.ic_tree),
+    RAW_SHARK(3009, "Raw Shark", R.drawable.ic_tree);
 
     companion object {
         fun fromId(id: Int): ItemType? = entries.find { it.id == id }
