@@ -43,7 +43,7 @@ import com.lucdre.idleskills.main.presentation.TrainingSceneViewModel
 import com.lucdre.idleskills.main.presentation.TrainingViewModel
 import com.lucdre.idleskills.ui.screens.CardDetailScreen
 import com.lucdre.idleskills.ui.screens.CardsScreen
-import com.lucdre.idleskills.ui.screens.InitialSkillSelectionScreen
+import com.lucdre.idleskills.ui.screens.NewUserScreen
 import com.lucdre.idleskills.ui.screens.InventoryScreen
 import com.lucdre.idleskills.ui.screens.SettingsScreen
 import com.lucdre.idleskills.ui.screens.StatsScreen
@@ -114,7 +114,7 @@ fun MainNavigation(
         }
         uiState.isGameFresh -> {
             // Fresh game - show initial skill selection
-            InitialSkillSelectionScreen(
+            NewUserScreen(
                 onSetupComplete = {
                     viewModel.onInitialSkillSelected()
                 }

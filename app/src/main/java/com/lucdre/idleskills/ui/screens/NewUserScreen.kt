@@ -1,7 +1,5 @@
 package com.lucdre.idleskills.ui.screens
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.rememberScrollState
@@ -10,22 +8,19 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lucdre.idleskills.profile.presentation.InitialSkillSelectionViewModel
-import com.lucdre.idleskills.skills.domain.skill.SkillMetadata
-import com.lucdre.idleskills.skills.domain.skill.SkillTheme
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
 /**
- * Screen for initial setup: entering username and selecting a favorite skill.
+ * Screen for initial setup.
  */
 @Composable
-fun InitialSkillSelectionScreen(
+fun NewUserScreen(
     modifier: Modifier = Modifier,
     onSetupComplete: () -> Unit,
     viewModel: InitialSkillSelectionViewModel = hiltViewModel(),
@@ -40,9 +35,12 @@ fun InitialSkillSelectionScreen(
     }
 
     Box(modifier = modifier.fillMaxSize()) {
-        InitialSkillSelectionContent(
+        NewUserScreenContent(
             username = username,
-            onUsernameChange = { username = it },
+            onUsernameChange = { 
+                username = it
+                viewModel.clearError()
+            },
             onStartClick = {
                 viewModel.setupProfile(username)
             },
@@ -53,7 +51,7 @@ fun InitialSkillSelectionScreen(
 }
 
 @Composable
-private fun InitialSkillSelectionContent(
+private fun NewUserScreenContent(
     modifier: Modifier = Modifier,
     username: String,
     onUsernameChange: (String) -> Unit,
@@ -88,16 +86,13 @@ private fun InitialSkillSelectionContent(
             label = { Text("Username") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            isError = username.isBlank()
+            isError = errorMessage != null,
+            supportingText = {
+                if (errorMessage != null) {
+                    Text(text = errorMessage)
+                }
+            }
         )
-
-        if (errorMessage != null) {
-            Text(
-                text = errorMessage,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(top = 16.dp)
-            )
-        }
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -124,9 +119,9 @@ private fun InitialSkillSelectionContent(
 
 @Preview(showBackground = true)
 @Composable
-fun InitialSkillSelectionScreenPreview() {
+fun NewUserScreenScreenPreview() {
     IdleSkillsTheme {
-        InitialSkillSelectionContent(
+        NewUserScreenContent(
             username = "Player One",
             onUsernameChange = {},
             onStartClick = {},

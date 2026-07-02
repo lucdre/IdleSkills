@@ -17,16 +17,26 @@ class SetupPlayerProfileUseCase @Inject constructor(
      * @param username The player's name.
      * @return True if setup was successful.
      */
-    suspend operator fun invoke(username: String): Boolean {
-        if (username.isBlank()) return false
+    suspend operator fun invoke(username: String): Result<Unit> {
+        if (username.isBlank()) {
+            return Result.failure(IllegalArgumentException("Username cannot be empty."))
+        }
+        
+        if (username.length < 3) {
+            return Result.failure(IllegalArgumentException("Username must be at least 3 characters long."))
+        }
         
         val profile = PlayerProfile(
             playerId = UUID.randomUUID().toString(),
-            username = username,
+            username = username.trim(),
             hasCompletedSetup = true
         )
         
-        profileRepository.updateProfile(profile)
-        return true
+        return try {
+            profileRepository.updateProfile(profile)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }

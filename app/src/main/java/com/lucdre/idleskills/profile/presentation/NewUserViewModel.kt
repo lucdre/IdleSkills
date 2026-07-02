@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * ViewModel for handling initial skill selection and profile setup.
+ * ViewModel for handling initial setup.
  *
  * @property setupPlayerProfileUseCase To set up the player profile.
  */
@@ -29,27 +29,31 @@ class InitialSkillSelectionViewModel @Inject constructor(
      * @param username The player's chosen username.
      */
     fun setupProfile(username: String) {
-        if (username.isBlank()) {
-            _uiState.value = _uiState.value.copy(errorMessage = "Username cannot be empty.")
-            return
-        }
-
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
-            val success = setupPlayerProfileUseCase(username)
+            val result = setupPlayerProfileUseCase(username)
 
-            if (success) {
+            result.onSuccess {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     isProfileSetupComplete = true
                 )
-            } else {
+            }.onFailure { exception ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = "Failed to setup profile. Please try again."
+                    errorMessage = exception.message ?: "Failed to setup profile. Please try again."
                 )
             }
+        }
+    }
+
+    /**
+     * Clears any existing error message.
+     */
+    fun clearError() {
+        if (_uiState.value.errorMessage != null) {
+            _uiState.value = _uiState.value.copy(errorMessage = null)
         }
     }
 }
