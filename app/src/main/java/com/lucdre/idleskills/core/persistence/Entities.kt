@@ -16,7 +16,8 @@ import com.lucdre.idleskills.region.domain.Region
 data class ProfileEntity(
     @PrimaryKey val id: Int = 0,
     val playerId: String = "",
-    val username: String = ""
+    val username: String = "",
+    val hasCompletedSetup: Boolean = false
 )
 
 /**

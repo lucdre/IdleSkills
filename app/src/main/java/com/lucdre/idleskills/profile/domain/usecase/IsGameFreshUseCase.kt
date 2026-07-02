@@ -18,6 +18,6 @@ class IsGameFreshUseCase @Inject constructor(
      */
     suspend operator fun invoke(): Boolean {
         val profile = profileRepository.getProfile()
-        return profile.username.isEmpty()
+        return !profile.hasCompletedSetup
     }
 }

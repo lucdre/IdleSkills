@@ -11,5 +11,6 @@ import androidx.compose.runtime.Immutable
 @Immutable
 data class PlayerProfile(
     val playerId: String = "",
-    val username: String = ""
+    val username: String = "",
+    val hasCompletedSetup: Boolean = false
 )

@@ -59,7 +59,7 @@ class MainNavigationViewModel @Inject constructor(
     private fun observeProfile() {
         viewModelScope.launch {
             profileRepository.observeProfile().collect { profile ->
-                if (profile.username.isEmpty()) {
+                if (!profile.hasCompletedSetup) {
                     _uiState.update { it.copy(isGameFresh = true) }
                 }
             }

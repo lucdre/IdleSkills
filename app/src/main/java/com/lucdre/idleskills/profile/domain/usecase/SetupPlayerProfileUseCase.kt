@@ -22,7 +22,8 @@ class SetupPlayerProfileUseCase @Inject constructor(
         
         val profile = PlayerProfile(
             playerId = UUID.randomUUID().toString(),
-            username = username
+            username = username,
+            hasCompletedSetup = true
         )
         
         profileRepository.updateProfile(profile)

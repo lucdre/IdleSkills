@@ -34,7 +34,8 @@ class ProfileRepository @Inject constructor(
     private fun ProfileEntity.toDomain(): PlayerProfile {
         return PlayerProfile(
             playerId = playerId,
-            username = username
+            username = username,
+            hasCompletedSetup = hasCompletedSetup
         )
     }
 
@@ -42,7 +43,8 @@ class ProfileRepository @Inject constructor(
         return ProfileEntity(
             id = 0,
             playerId = playerId,
-            username = username
+            username = username,
+            hasCompletedSetup = hasCompletedSetup
         )
     }
 }
