@@ -12,7 +12,6 @@ import androidx.room3.ColumnTypeConverters
         ProfileEntity::class,
         PreferencesEntity::class,
         SessionEntity::class,
-        PrestigeEntity::class,
         SkillEntity::class,
         CardEntity::class,
         LootBoxEntity::class,
@@ -26,7 +25,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun profileDao(): ProfileDao
     abstract fun preferencesDao(): PreferencesDao
     abstract fun sessionDao(): SessionDao
-    abstract fun prestigeDao(): PrestigeDao
     abstract fun skillDao(): SkillDao
     abstract fun cardDao(): CardDao
     abstract fun lootBoxDao(): LootBoxDao

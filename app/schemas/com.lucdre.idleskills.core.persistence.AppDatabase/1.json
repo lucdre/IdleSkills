@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "ff49c1a3fdfeb51c8ba9bf41d1b32893",
+    "identityHash": "912df71c40808b88907593038ba60152",
     "entities": [
       {
         "tableName": "player_profile",
@@ -100,42 +100,6 @@
             "fieldPath": "lastSavedTimestamp",
             "columnName": "lastSavedTimestamp",
             "affinity": "INTEGER",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "id"
-          ]
-        }
-      },
-      {
-        "tableName": "prestige_state",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `availablePrestigePoints` INTEGER NOT NULL, `totalPrestigePoints` INTEGER NOT NULL, `unlockedSkillTreeNodes` TEXT NOT NULL, PRIMARY KEY(`id`))",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "availablePrestigePoints",
-            "columnName": "availablePrestigePoints",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "totalPrestigePoints",
-            "columnName": "totalPrestigePoints",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "unlockedSkillTreeNodes",
-            "columnName": "unlockedSkillTreeNodes",
-            "affinity": "TEXT",
             "notNull": true
           }
         ],
@@ -269,7 +233,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ff49c1a3fdfeb51c8ba9bf41d1b32893')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '912df71c40808b88907593038ba60152')"
     ]
   }
 }

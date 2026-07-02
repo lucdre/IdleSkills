@@ -53,9 +53,6 @@ abstract class DatabaseModule {
         fun provideSessionDao(db: AppDatabase): SessionDao = db.sessionDao()
 
         @Provides
-        fun providePrestigeDao(db: AppDatabase): PrestigeDao = db.prestigeDao()
-
-        @Provides
         fun provideSkillDao(db: AppDatabase): SkillDao = db.skillDao()
 
         @Provides

@@ -37,18 +37,6 @@ interface SessionDao {
 }
 
 @Dao
-interface PrestigeDao {
-    @Query("SELECT * FROM prestige_state WHERE id = 0")
-    fun observePrestige(): Flow<PrestigeEntity?>
-
-    @Query("SELECT * FROM prestige_state WHERE id = 0")
-    suspend fun getPrestige(): PrestigeEntity?
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertOrUpdate(prestige: PrestigeEntity)
-}
-
-@Dao
 interface SkillDao {
     @Query("SELECT * FROM skills")
     fun observeSkills(): Flow<List<SkillEntity>>

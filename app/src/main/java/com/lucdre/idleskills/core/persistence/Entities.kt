@@ -45,18 +45,6 @@ data class SessionEntity(
 )
 
 /**
- * Entity representing the player's prestige and progression.
- * One row. (ID = 0)
- */
-@Entity(tableName = "prestige_state")
-data class PrestigeEntity(
-    @PrimaryKey val id: Int = 0,
-    val availablePrestigePoints: Int = 0,
-    val totalPrestigePoints: Int = 0,
-    val unlockedSkillTreeNodes: Set<String> = emptySet()
-)
-
-/**
  * Entity representing a skill's progress.
  */
 @Entity(tableName = "skills")
