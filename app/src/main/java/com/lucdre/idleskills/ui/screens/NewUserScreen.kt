@@ -13,7 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.lucdre.idleskills.profile.presentation.InitialSkillSelectionViewModel
+import com.lucdre.idleskills.profile.presentation.NewUserViewModel
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
 /**
@@ -23,14 +23,18 @@ import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 fun NewUserScreen(
     modifier: Modifier = Modifier,
     onSetupComplete: () -> Unit,
-    viewModel: InitialSkillSelectionViewModel = hiltViewModel(),
+    viewModel: NewUserViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var username by remember { mutableStateOf("") }
 
-    LaunchedEffect(uiState.isProfileSetupComplete) {
-        if (uiState.isProfileSetupComplete) {
-            onSetupComplete()
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is NewUserViewModel.Effect.NavigateToMain -> {
+                    onSetupComplete()
+                }
+            }
         }
     }
 
