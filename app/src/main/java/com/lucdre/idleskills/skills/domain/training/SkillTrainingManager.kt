@@ -92,31 +92,40 @@ class SkillTrainingManager @AssistedInject constructor(
 
                     // Apply rewards
                     val currentConfig = _config.value ?: break
-                    try {
-                        skillRepository.addXp(localSkillName, currentConfig.method.xpPerAction * batch.actionsCount)
+                    val maxAttempts = 3
 
-                        currentConfig.method.producedItemType?.let { itemType ->
-                            inventoryRepository.addItem(itemType, batch.actionsCount)
-                        }
+                    for (attempt in 1..maxAttempts) {
+                        try {
+                            skillRepository.addXp(localSkillName, currentConfig.method.xpPerAction * batch.actionsCount)
 
-                        // Buffer stats
-                        pendingStatsCount += batch.actionsCount
-                        val now = System.currentTimeMillis()
-                        if (now - lastFlushTime >= STATS_FLUSH_INTERVAL_MS) {
-                            recordTrainingActionUseCase(currentConfig.method.skill, currentConfig.method.type, pendingStatsCount)
-                            pendingStatsCount = 0
-                            lastFlushTime = now
-                        }
+                            currentConfig.method.producedItemType?.let { itemType ->
+                                inventoryRepository.addItem(itemType, batch.actionsCount)
+                            }
 
-                        // Notify listeners
-                        val updatedSkill = skillRepository.getSkillByName(localSkillName)
-                        if (updatedSkill != null) {
-                            onSkillUpdate(updatedSkill)
+                            // Buffer stats
+                            pendingStatsCount += batch.actionsCount
+                            val now = System.currentTimeMillis()
+                            if (now - lastFlushTime >= STATS_FLUSH_INTERVAL_MS) {
+                                recordTrainingActionUseCase(currentConfig.method.skill, currentConfig.method.type, pendingStatsCount)
+                                pendingStatsCount = 0
+                                lastFlushTime = now
+                            }
+
+                            // Notify listeners
+                            val updatedSkill = skillRepository.getSkillByName(localSkillName)
+                            if (updatedSkill != null) {
+                                onSkillUpdate(updatedSkill)
+                            }
+                            break
+                        } catch (e: Exception) {
+                            if (attempt == maxAttempts) {
+                                Log.e("SkillTrainingManager", "Error completing action after $maxAttempts attempts", e)
+                                cancelTraining()
+                                return@launch
+                            }
+                            Log.w("SkillTrainingManager", "Training failed (attempt $attempt/$maxAttempts). Retrying...", e)
+                            delay((100L * attempt).milliseconds)
                         }
-                    } catch (e: Exception) {
-                        Log.e("SkillTrainingManager", "Error completing action", e)
-                        cancelTraining()
-                        break
                     }
                 }
             } finally {
