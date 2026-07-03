@@ -30,13 +30,9 @@ class GetVisibleSkillsUseCase @Inject constructor(
     suspend operator fun invoke(): List<Skill> {
         val skills = skillRepository.getSkills()
         val currentRegion = sessionRepository.getCurrentRegion()
-        val regionSkills = regionRepository.getSkillsForRegion(currentRegion)
+        val regionSkills = regionRepository.getSkillsForRegion(currentRegion).toSet()
 
-        val skillMap = skills.associateBy { it.type }
-        
-        return regionSkills.mapNotNull { type ->
-            skillMap[type]
-        }
+        return skills.filter { it.type in regionSkills }
     }
 
     /**
@@ -49,13 +45,9 @@ class GetVisibleSkillsUseCase @Inject constructor(
             skillRepository.observeSkills(),
             sessionRepository.observeCurrentRegion()
         ) { skills, currentRegion ->
-            val regionSkills = regionRepository.getSkillsForRegion(currentRegion)
+            val regionSkills = regionRepository.getSkillsForRegion(currentRegion).toSet()
             
-            val skillMap = skills.associateBy { it.type }
-            
-            regionSkills.mapNotNull { type ->
-                skillMap[type]
-            }
+            skills.filter { it.type in regionSkills }
         }
     }
 }
