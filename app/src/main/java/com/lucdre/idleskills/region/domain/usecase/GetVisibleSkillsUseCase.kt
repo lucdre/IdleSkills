@@ -5,8 +5,11 @@ import com.lucdre.idleskills.region.domain.RegionRepositoryInterface
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 /**
  * Use case for retrieving skills that should be visible to the player.
@@ -40,14 +43,16 @@ class GetVisibleSkillsUseCase @Inject constructor(
      *
      * @return A Flow of filtered skills that updates when skills or player region changes.
      */
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun observeVisibleSkills(): Flow<List<Skill>> {
-        return combine(
-            skillRepository.observeSkills(),
-            sessionRepository.observeCurrentRegion()
-        ) { skills, currentRegion ->
-            val regionSkills = regionRepository.getSkillsForRegion(currentRegion).toSet()
-            
-            skills.filter { it.type in regionSkills }
-        }
+        return sessionRepository.observeCurrentRegion()
+            .distinctUntilChanged()
+            .flatMapLatest { currentRegion ->
+                val regionSkills = regionRepository.getSkillsForRegion(currentRegion).toSet()
+                
+                skillRepository.observeSkills().map { skills ->
+                    skills.filter { it.type in regionSkills }
+                }
+            }
     }
 }
