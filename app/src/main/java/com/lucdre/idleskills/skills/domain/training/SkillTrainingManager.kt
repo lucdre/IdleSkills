@@ -64,35 +64,26 @@ class SkillTrainingManager(
                 val config = _config.value ?: break
                 val effectiveDuration = config.method.getEffectiveActionDuration(config.cards)
                 
-                // Safety: If actions are faster than MIN_TICK_DURATION_MS, batch them into a MIN_TICK_DURATION_MS tick
-                val actionsInTick: Int
-                val tickDurationMs: Long
-                if (effectiveDuration < MIN_TICK_DURATION_MS) {
-                    actionsInTick = (MIN_TICK_DURATION_MS / effectiveDuration).toInt().coerceAtLeast(1)
-                    tickDurationMs = (effectiveDuration * actionsInTick).toLong()
-                } else {
-                    actionsInTick = 1
-                    tickDurationMs = effectiveDuration.toLong()
-                }
+                val batch = ActionBatcher.calculateBatch(effectiveDuration, MIN_TICK_DURATION_MS)
 
                 val startTime = System.currentTimeMillis()
-                onTickStarted(startTime, tickDurationMs)
+                onTickStarted(startTime, batch.durationMs)
                 
                 // Wait for the action to complete
-                delay(tickDurationMs.milliseconds)
+                delay(batch.durationMs.milliseconds)
 
                 if (!isActive) break
 
                 // Apply rewards
                 val currentConfig = _config.value ?: break
                 try {
-                    skillRepository.addXp(localSkillName, currentConfig.method.xpPerAction * actionsInTick)
+                    skillRepository.addXp(localSkillName, currentConfig.method.xpPerAction * batch.actionsCount)
 
                     currentConfig.method.producedItemType?.let { itemType ->
-                        inventoryRepository.addItem(itemType, actionsInTick)
+                        inventoryRepository.addItem(itemType, batch.actionsCount)
                     }
 
-                    recordTrainingActionUseCase(currentConfig.method.skill, currentConfig.method.type, actionsInTick)
+                    recordTrainingActionUseCase(currentConfig.method.skill, currentConfig.method.type, batch.actionsCount)
 
                     // Notify listeners
                     // Always get latest state from repository
