@@ -55,6 +55,9 @@ class TrainingService @Inject constructor(
                 _trainingState.update { it.copy(startTime = startTime, durationMs = durationMs) }
             },
             onSkillUpdate = { updatedSkill ->
+                // Safety: Only update if this skill is still the active one
+                if (updatedSkill.name != _trainingState.value.activeSkillName) return@create
+
                 // Calculate session XP
                 if (!startXp.containsKey(updatedSkill.name)) {
                     startXp[updatedSkill.name] = updatedSkill.xp
@@ -63,7 +66,6 @@ class TrainingService @Inject constructor(
                 
                 _trainingState.update { 
                     it.copy(
-                        activeSkillName = updatedSkill.name,
                         sessionXpGained = currentSessionXp
                     ) 
                 }
