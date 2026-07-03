@@ -12,10 +12,17 @@ import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 
 /**
  * Training progress and session XP.
+ *
+ * @property startTime The start time of the current training action in milliseconds.
+ * @property durationMs The total duration of the current training action in milliseconds.
+ * @property sessionXpGained The total XP gained during the current training session.
+ * @property xpPerHour The estimated XP gained per hour.
+ * @property timeToLevelUpMs The estimated time remaining until the next level up.
  */
 @Immutable
 data class ActiveTrainingState(
-    val trainingProgress: Float = 0f,
+    val startTime: Long = 0L,
+    val durationMs: Long = 0L,
     val sessionXpGained: Int = 0,
     val xpPerHour: Int = 0,
     val timeToLevelUpMs: Long = 0,

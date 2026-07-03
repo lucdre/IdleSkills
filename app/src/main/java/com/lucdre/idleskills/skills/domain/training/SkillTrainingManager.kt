@@ -17,8 +17,8 @@ import kotlin.time.Duration.Companion.milliseconds
  * @property recordTrainingActionUseCase The use case responsible for recording training actions.
  * @property inventoryRepository Interface for the inventory repository.
  * @property coroutineScope The scope used to launch and manage the training coroutine.
- * @property onProgressUpdate A callback lambda function invoked periodically during a training
- *                            action to report progress (0.0f to 1.0f).
+ * @property onTickStarted A callback lambda function invoked at the start of each training
+ *                        tick, providing the start time and duration.
  * @property onSkillUpdate A callback lambda function invoked after a training action completes
  *                         and XP has been applied, providing the updated [Skill] object.
  */
@@ -27,7 +27,7 @@ class SkillTrainingManager(
     private val recordTrainingActionUseCase: RecordTrainingActionUseCase,
     private val inventoryRepository: InventoryRepositoryInterface,
     private val coroutineScope: CoroutineScope,
-    private val onProgressUpdate: (Float) -> Unit,
+    private val onTickStarted: (Long, Long) -> Unit,
     private val onSkillUpdate: (Skill) -> Unit
 ) {
     private data class TrainingConfig(
@@ -40,7 +40,7 @@ class SkillTrainingManager(
     private var trainingJob: Job? = null
 
     companion object {
-        private const val MIN_TICK_DURATION_MS = 100.0
+        private const val MIN_TICK_DURATION_MS = 100L
     }
 
     /**
@@ -66,34 +66,22 @@ class SkillTrainingManager(
                 
                 // Safety: If actions are faster than MIN_TICK_DURATION_MS, batch them into a MIN_TICK_DURATION_MS tick
                 val actionsInTick: Int
-                val tickDuration: Double
+                val tickDurationMs: Long
                 if (effectiveDuration < MIN_TICK_DURATION_MS) {
                     actionsInTick = (MIN_TICK_DURATION_MS / effectiveDuration).toInt().coerceAtLeast(1)
-                    tickDuration = effectiveDuration * actionsInTick
+                    tickDurationMs = (effectiveDuration * actionsInTick).toLong()
                 } else {
                     actionsInTick = 1
-                    tickDuration = effectiveDuration
+                    tickDurationMs = effectiveDuration.toLong()
                 }
 
                 val startTime = System.currentTimeMillis()
+                onTickStarted(startTime, tickDurationMs)
                 
-                // Progress tick
-                while (isActive) {
-                    val currentTime = System.currentTimeMillis()
-                    val elapsed = currentTime - startTime
-                    
-                    if (elapsed >= tickDuration) break
-
-                    onProgressUpdate((elapsed.toDouble() / tickDuration).coerceIn(0.0, 1.0).toFloat())
-                    
-                    // Frequent UI updates
-                    val remaining = tickDuration - elapsed
-                    val nextDelay = if (tickDuration < 1000) 16L else 100L
-                    delay(nextDelay.coerceAtMost(remaining.toLong()).milliseconds)
-                }
+                // Wait for the action to complete
+                delay(tickDurationMs.milliseconds)
 
                 if (!isActive) break
-                onProgressUpdate(1f)
 
                 // Apply rewards
                 val currentConfig = _config.value ?: break
@@ -135,7 +123,7 @@ class SkillTrainingManager(
         trainingJob = null
         activeSkillName = null
         _config.value = null
-        onProgressUpdate(0f)
+        onTickStarted(0L, 0L)
     }
 
     fun isTraining(skillName: String): Boolean {

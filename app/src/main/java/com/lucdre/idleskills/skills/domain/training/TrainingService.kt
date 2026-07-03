@@ -16,13 +16,15 @@ import javax.inject.Singleton
  *
  * @property activeSkillName The skill currently being trained, or null if idle.
  * @property activeMethod The training method currently being used, or null if idle.
- * @property progress The progress of the current training action (0 to 1.0).
+ * @property startTime The start time of the current training action in milliseconds.
+ * @property durationMs The total duration of the current training action in milliseconds.
  * @property isPaused Whether training is currently paused.
  */
 data class TrainingState(
     val activeSkillName: String? = null,
     val activeMethod: TrainingMethod? = null,
-    val progress: Float = 0f,
+    val startTime: Long = 0L,
+    val durationMs: Long = 0L,
     val isPaused: Boolean = true,
     val sessionXpGained: Int = 0
 )
@@ -55,8 +57,8 @@ class TrainingService @Inject constructor(
             recordTrainingActionUseCase = recordTrainingActionUseCase,
             inventoryRepository = inventoryRepository,
             coroutineScope = serviceScope,
-            onProgressUpdate = { progress ->
-                _trainingState.update { it.copy(progress = progress) }
+            onTickStarted = { startTime, durationMs ->
+                _trainingState.update { it.copy(startTime = startTime, durationMs = durationMs) }
             },
             onSkillUpdate = { updatedSkill ->
                 // Calculate session XP
@@ -107,7 +109,8 @@ class TrainingService @Inject constructor(
                 activeSkillName = skill.name,
                 activeMethod = method,
                 isPaused = false,
-                progress = 0f,
+                startTime = 0L,
+                durationMs = 0L,
                 sessionXpGained = currentSessionXp
             )
         }
@@ -136,7 +139,8 @@ class TrainingService @Inject constructor(
                 activeSkillName = null,
                 activeMethod = null,
                 isPaused = true,
-                progress = 0f
+                startTime = 0L,
+                durationMs = 0L
             )
         }
 

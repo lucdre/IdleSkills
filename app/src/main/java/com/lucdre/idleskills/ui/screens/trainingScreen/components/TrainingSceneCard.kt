@@ -28,6 +28,7 @@ import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodType
 import com.lucdre.idleskills.ui.components.CustomLinearProgressIndicator
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
+import kotlinx.coroutines.isActive
 
 @Composable
 fun TrainingSceneCard(
@@ -35,18 +36,28 @@ fun TrainingSceneCard(
     regionName: String,
     activeSkill: SkillType?,
     methodType: TrainingMethodType?,
-    progressProvider: () -> Float,
+    startTime: Long,
+    durationMs: Long,
     onRegionClick: () -> Unit
 ) {
     val theme = if (activeSkill != null) SkillMetadata.getTheme(activeSkill) else null
     val biomeColors = theme?.biomeColors ?: listOf(Color(0xFF1B5E20), Color(0xFF2E7D32))
 
-    // Smooth progress bar
-    val animatedProgress by animateFloatAsState(
-        targetValue = progressProvider(),
-        animationSpec = if (progressProvider() == 0f) snap() else tween(durationMillis = 100, easing = LinearEasing),
-        label = "trainingProgress"
-    )
+    var progress by remember { mutableFloatStateOf(0f) }
+
+    LaunchedEffect(startTime, durationMs) {
+        if (startTime == 0L || durationMs == 0L) {
+            progress = 0f
+        } else {
+            while (isActive) {
+                val elapsed = System.currentTimeMillis() - startTime
+                val newProgress = (elapsed.toFloat() / durationMs).coerceIn(0f, 1f)
+                progress = newProgress
+                if (newProgress >= 1f) break
+                withFrameMillis { }
+            }
+        }
+    }
     
     Card(
         modifier = modifier
@@ -129,7 +140,7 @@ fun TrainingSceneCard(
                     Spacer(modifier = Modifier.width(40.dp))
                     
                     // Target Object (Tree/Rock)
-                    TrainingTarget(activeSkill = activeSkill, progressProvider = { animatedProgress }, biome = biomeColors)
+                    TrainingTarget(activeSkill = activeSkill, progressProvider = { progress }, biome = biomeColors)
                 }
             }
         }
@@ -244,7 +255,8 @@ fun TrainingSceneCardPreview() {
                 regionName = "Region 1",
                 activeSkill = SkillType.WOODCUTTING,
                 methodType = TrainingMethodType.WC_OAK,
-                progressProvider = { 0.45f },
+                startTime = System.currentTimeMillis() - 2250,
+                durationMs = 5000,
                 onRegionClick = {}
             )
         }

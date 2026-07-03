@@ -102,7 +102,8 @@ class TrainingViewModel @Inject constructor(
             val timeToLevelUpMs = LevelCalculator.calculateTimeToLevelUpMs(xpPerHour, xpToNextLevel)
 
             ActiveTrainingState(
-                trainingProgress = training.progress,
+                startTime = training.startTime,
+                durationMs = training.durationMs,
                 sessionXpGained = training.sessionXpGained,
                 xpPerHour = xpPerHour,
                 timeToLevelUpMs = timeToLevelUpMs

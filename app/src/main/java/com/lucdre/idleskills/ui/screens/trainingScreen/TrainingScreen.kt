@@ -109,11 +109,13 @@ private fun SingleColumnTrainingLayout(
         contentPadding = PaddingValues(16.dp)
     ) {
         item {
+            val activeState = activeStateProvider()
             TrainingSceneCard(
                 regionName = sessionState.regionName,
                 activeSkill = skillsState.activeTrainingSkill,
                 methodType = skillsState.activeTrainingMethod?.type,
-                progressProvider = { activeStateProvider().trainingProgress },
+                startTime = activeState.startTime,
+                durationMs = activeState.durationMs,
                 onRegionClick = onRegionClick
             )
         }
@@ -178,11 +180,13 @@ private fun TwoColumnTrainingLayout(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
+                val activeState = activeStateProvider()
                 TrainingSceneCard(
                     regionName = sessionState.regionName,
                     activeSkill = skillsState.activeTrainingSkill,
                     methodType = skillsState.activeTrainingMethod?.type,
-                    progressProvider = { activeStateProvider().trainingProgress },
+                    startTime = activeState.startTime,
+                    durationMs = activeState.durationMs,
                     onRegionClick = onRegionClick
                 )
             }
@@ -303,7 +307,8 @@ fun TrainingScreenPreview() {
         )
         
         val activeState = ActiveTrainingState(
-            trainingProgress = 0.6f,
+            startTime = System.currentTimeMillis() - 3000,
+            durationMs = 5000,
             sessionXpGained = 12345,
             xpPerHour = 15420,
             timeToLevelUpMs = 619000,
