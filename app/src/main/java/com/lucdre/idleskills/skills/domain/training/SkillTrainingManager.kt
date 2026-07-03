@@ -53,6 +53,7 @@ class SkillTrainingManager @AssistedInject constructor(
 
     companion object {
         private const val MIN_TICK_DURATION_MS = 100L
+        private const val STATS_FLUSH_INTERVAL_MS = 5000L
     }
 
     /**
@@ -71,42 +72,66 @@ class SkillTrainingManager @AssistedInject constructor(
 
         trainingJob = coroutineScope.launch {
             val localSkillName = skill.name
+            var pendingStatsCount = 0
+            var lastFlushTime = System.currentTimeMillis()
             
-            while (isActive) {
-                val config = _config.value ?: break
-                val effectiveDuration = config.method.getEffectiveActionDuration(config.cards)
-                
-                val batch = ActionBatcher.calculateBatch(effectiveDuration, MIN_TICK_DURATION_MS)
+            try {
+                while (isActive) {
+                    val config = _config.value ?: break
+                    val effectiveDuration = config.method.getEffectiveActionDuration(config.cards)
+                    
+                    val batch = ActionBatcher.calculateBatch(effectiveDuration, MIN_TICK_DURATION_MS)
 
-                val startTime = System.currentTimeMillis()
-                onTickStarted(startTime, batch.durationMs)
-                
-                // Wait for the action to complete
-                delay(batch.durationMs.milliseconds)
+                    val startTime = System.currentTimeMillis()
+                    onTickStarted(startTime, batch.durationMs)
+                    
+                    // Wait for the action to complete
+                    delay(batch.durationMs.milliseconds)
 
-                if (!isActive) break
+                    if (!isActive) break
 
-                // Apply rewards
-                val currentConfig = _config.value ?: break
-                try {
-                    skillRepository.addXp(localSkillName, currentConfig.method.xpPerAction * batch.actionsCount)
+                    // Apply rewards
+                    val currentConfig = _config.value ?: break
+                    try {
+                        skillRepository.addXp(localSkillName, currentConfig.method.xpPerAction * batch.actionsCount)
 
-                    currentConfig.method.producedItemType?.let { itemType ->
-                        inventoryRepository.addItem(itemType, batch.actionsCount)
+                        currentConfig.method.producedItemType?.let { itemType ->
+                            inventoryRepository.addItem(itemType, batch.actionsCount)
+                        }
+
+                        // Buffer stats
+                        pendingStatsCount += batch.actionsCount
+                        val now = System.currentTimeMillis()
+                        if (now - lastFlushTime >= STATS_FLUSH_INTERVAL_MS) {
+                            recordTrainingActionUseCase(currentConfig.method.skill, currentConfig.method.type, pendingStatsCount)
+                            pendingStatsCount = 0
+                            lastFlushTime = now
+                        }
+
+                        // Notify listeners
+                        val updatedSkill = skillRepository.getSkillByName(localSkillName)
+                        if (updatedSkill != null) {
+                            onSkillUpdate(updatedSkill)
+                        }
+                    } catch (e: Exception) {
+                        Log.e("SkillTrainingManager", "Error completing action", e)
+                        cancelTraining()
+                        break
                     }
-
-                    recordTrainingActionUseCase(currentConfig.method.skill, currentConfig.method.type, batch.actionsCount)
-
-                    // Notify listeners
-                    // Always get latest state from repository
-                    val updatedSkill = skillRepository.getSkillByName(localSkillName)
-                    if (updatedSkill != null) {
-                        onSkillUpdate(updatedSkill)
+                }
+            } finally {
+                // Flush stats even if job is canceled
+                if (pendingStatsCount > 0) {
+                    val finalConfig = _config.value
+                    if (finalConfig != null) {
+                        withContext(NonCancellable) {
+                            try {
+                                recordTrainingActionUseCase(finalConfig.method.skill, finalConfig.method.type, pendingStatsCount)
+                            } catch (e: Exception) {
+                                Log.e("SkillTrainingManager", "Failed final stats flush", e)
+                            }
+                        }
                     }
-                } catch (e: Exception) {
-                    Log.e("SkillTrainingManager", "Error completing action", e)
-                    cancelTraining()
-                    break
                 }
             }
         }
