@@ -6,6 +6,9 @@ import com.lucdre.idleskills.inventory.domain.InventoryRepositoryInterface
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
 import com.lucdre.idleskills.skills.domain.training.usecase.RecordTrainingActionUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlin.time.Duration.Companion.milliseconds
@@ -22,14 +25,23 @@ import kotlin.time.Duration.Companion.milliseconds
  * @property onSkillUpdate A callback lambda function invoked after a training action completes
  *                         and XP has been applied, providing the updated [Skill] object.
  */
-class SkillTrainingManager(
+class SkillTrainingManager @AssistedInject constructor(
     private val skillRepository: SkillRepositoryInterface,
     private val recordTrainingActionUseCase: RecordTrainingActionUseCase,
     private val inventoryRepository: InventoryRepositoryInterface,
-    private val coroutineScope: CoroutineScope,
-    private val onTickStarted: (Long, Long) -> Unit,
-    private val onSkillUpdate: (Skill) -> Unit
+    @Assisted private val coroutineScope: CoroutineScope,
+    @Assisted private val onTickStarted: (Long, Long) -> Unit,
+    @Assisted private val onSkillUpdate: (Skill) -> Unit
 ) {
+    @AssistedFactory
+    interface Factory {
+        fun create(
+            coroutineScope: CoroutineScope,
+            onTickStarted: (Long, Long) -> Unit,
+            onSkillUpdate: (Skill) -> Unit
+        ): SkillTrainingManager
+    }
+
     private data class TrainingConfig(
         val method: TrainingMethod,
         val cards: List<Card>

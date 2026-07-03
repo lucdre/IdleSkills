@@ -2,10 +2,8 @@ package com.lucdre.idleskills.skills.domain.training
 
 import com.lucdre.idleskills.core.domain.SessionRepositoryInterface
 import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
-import com.lucdre.idleskills.inventory.domain.InventoryRepositoryInterface
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
-import com.lucdre.idleskills.skills.domain.training.usecase.RecordTrainingActionUseCase
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
@@ -34,10 +32,9 @@ data class TrainingState(
  */
 @Singleton
 class TrainingService @Inject constructor(
-    private val recordTrainingActionUseCase: RecordTrainingActionUseCase,
+    private val managerFactory: SkillTrainingManager.Factory,
     private val getActiveCardsUseCase: GetActiveCardsUseCase,
     private val skillRepository: SkillRepositoryInterface,
-    private val inventoryRepository: InventoryRepositoryInterface,
     private val sessionRepository: SessionRepositoryInterface
 ) {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -52,10 +49,7 @@ class TrainingService @Inject constructor(
     private var isAppVisible = true
 
     init {
-        trainingManager = SkillTrainingManager(
-            skillRepository = skillRepository,
-            recordTrainingActionUseCase = recordTrainingActionUseCase,
-            inventoryRepository = inventoryRepository,
+        trainingManager = managerFactory.create(
             coroutineScope = serviceScope,
             onTickStarted = { startTime, durationMs ->
                 _trainingState.update { it.copy(startTime = startTime, durationMs = durationMs) }

@@ -2,9 +2,7 @@ package com.lucdre.idleskills.skills.domain.training
 
 import com.lucdre.idleskills.core.domain.SessionRepositoryInterface
 import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
-import com.lucdre.idleskills.inventory.domain.InventoryRepositoryInterface
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
-import com.lucdre.idleskills.skills.domain.training.usecase.RecordTrainingActionUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,17 +19,15 @@ object TrainingModule {
     @Provides
     @Singleton
     fun provideTrainingService(
-        recordTrainingActionUseCase: RecordTrainingActionUseCase,
+        managerFactory: SkillTrainingManager.Factory,
         getActiveCardsUseCase: GetActiveCardsUseCase,
         skillRepository: SkillRepositoryInterface,
-        inventoryRepository: InventoryRepositoryInterface,
         sessionRepository: SessionRepositoryInterface
     ): TrainingService {
         return TrainingService(
-            recordTrainingActionUseCase,
+            managerFactory,
             getActiveCardsUseCase,
             skillRepository,
-            inventoryRepository,
             sessionRepository
         )
     }
