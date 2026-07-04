@@ -3,9 +3,9 @@ package com.lucdre.idleskills.inventory.presentation
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lucdre.idleskills.cards.domain.CardType
 import com.lucdre.idleskills.inventory.domain.InventoryRepositoryInterface
 import com.lucdre.idleskills.inventory.domain.Item
+import com.lucdre.idleskills.inventory.domain.ItemType
 import com.lucdre.idleskills.loot.domain.LootBox
 import com.lucdre.idleskills.loot.domain.usecase.ObserveLootBoxCountUseCase
 import com.lucdre.idleskills.loot.domain.usecase.OpenLootBoxUseCase
@@ -27,7 +27,7 @@ import javax.inject.Inject
 data class InventoryUiState(
     val inventoryItems: List<Item> = emptyList(),
     val lootBoxes: List<LootBox> = emptyList(),
-    val lastRewards: Map<CardType, Int>? = null,
+    val lastRewards: Map<ItemType, Int>? = null,
     val isLoading: Boolean = true
 )
 
@@ -45,7 +45,7 @@ class InventoryViewModel @Inject constructor(
     private val openLootBoxUseCase: OpenLootBoxUseCase
 ) : ViewModel() {
 
-    private val _lastRewards = MutableStateFlow<Map<CardType, Int>?>(null)
+    private val _lastRewards = MutableStateFlow<Map<ItemType, Int>?>(null)
 
     val uiState: StateFlow<InventoryUiState> = combine(
         inventoryRepository.observeItems(),

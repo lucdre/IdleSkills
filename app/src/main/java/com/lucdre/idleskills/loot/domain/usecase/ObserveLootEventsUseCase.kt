@@ -19,6 +19,19 @@ import kotlin.time.Duration.Companion.milliseconds
 class ObserveLootEventsUseCase @Inject constructor(
     private val random: Random
 ) {
+    companion object {
+        // Spawn timing configuration
+        private const val MIN_SPAWN_DELAY_MS = 5000L
+        private const val MAX_SPAWN_DELAY_MS = 240000L
+        
+        // Visibility timing configuration
+        private const val DESPAWN_TIMEOUT_MS = 60000L
+        
+        // Spawn area bounds (normalized 0.0 - 1.0)
+        private const val SPAWN_AREA_MIN = 0.35f
+        private const val SPAWN_AREA_SIZE = 0.3f
+    }
+
     /**
      * Starts observing loot events.
      *
@@ -28,17 +41,17 @@ class ObserveLootEventsUseCase @Inject constructor(
      */
     operator fun invoke(interruptSignal: Flow<Unit>): Flow<LootEvent> = flow {
         while (true) {
-            // Random delay between 5 and 20 seconds
-            delay(random.nextLong(5000, 20000).milliseconds)
+            // Random delay between spawns
+            delay(random.nextLong(MIN_SPAWN_DELAY_MS, MAX_SPAWN_DELAY_MS).milliseconds)
             
             val position = Offset(
-                0.35f + random.nextFloat() * 0.3f,
-                0.35f + random.nextFloat() * 0.3f
+                SPAWN_AREA_MIN + random.nextFloat() * SPAWN_AREA_SIZE,
+                SPAWN_AREA_MIN + random.nextFloat() * SPAWN_AREA_SIZE
             )
             emit(LootEvent.Spawn(position))
 
-            // Wait for 5 seconds OR until click
-            withTimeoutOrNull(5000.milliseconds) {
+            // Wait until click OR timeout
+            withTimeoutOrNull(DESPAWN_TIMEOUT_MS.milliseconds) {
                 interruptSignal.first()
             }
             

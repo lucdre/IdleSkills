@@ -1,28 +1,56 @@
 package com.lucdre.idleskills.ui.screens.trainingScreen
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
-import com.lucdre.idleskills.ui.util.IdleSkillsPreviews
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
 import com.lucdre.idleskills.main.presentation.ActiveTrainingState
 import com.lucdre.idleskills.main.presentation.TrainingSceneState
+import com.lucdre.idleskills.main.presentation.TrainingSceneUiEffect
+import com.lucdre.idleskills.main.presentation.TrainingSceneViewModel
 import com.lucdre.idleskills.main.presentation.TrainingSessionState
 import com.lucdre.idleskills.main.presentation.TrainingSkillsState
 import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodType
 import com.lucdre.idleskills.ui.components.OfflineProgressPopup
-import com.lucdre.idleskills.ui.screens.trainingScreen.components.*
+import com.lucdre.idleskills.ui.screens.trainingScreen.components.LevelProgressCard
+import com.lucdre.idleskills.ui.screens.trainingScreen.components.LootSpriteOverlay
+import com.lucdre.idleskills.ui.screens.trainingScreen.components.SkillSelector
+import com.lucdre.idleskills.ui.screens.trainingScreen.components.StatsCard
+import com.lucdre.idleskills.ui.screens.trainingScreen.components.TrainingMethodCard
+import com.lucdre.idleskills.ui.screens.trainingScreen.components.TrainingSceneCard
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
+import com.lucdre.idleskills.ui.util.IdleSkillsPreviews
 import com.lucdre.idleskills.ui.util.NumberFormatter
 
 @Composable
@@ -37,58 +65,79 @@ fun TrainingScreen(
     onSpriteClick: () -> Unit,
     onDismissOfflineProgress: () -> Unit,
     onSetScreenVisible: (Boolean) -> Unit = {},
-    windowSizeClass: WindowSizeClass? = null
+    windowSizeClass: WindowSizeClass? = null,
+    sceneViewModel: TrainingSceneViewModel? = null
 ) {
-    androidx.compose.runtime.DisposableEffect(Unit) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val haptic = LocalHapticFeedback.current
+
+    LaunchedEffect(sceneViewModel) {
         onSetScreenVisible(true)
+        sceneViewModel?.uiEffects?.collect { effect ->
+            when (effect) {
+                is TrainingSceneUiEffect.ShowLootMessage -> {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    snackbarHostState.showSnackbar(effect.message)
+                }
+            }
+        }
+    }
+
+    DisposableEffect(Unit) {
         onDispose {
             onSetScreenVisible(false)
         }
     }
 
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .background(MaterialTheme.colorScheme.background)
-    ) {
-        val isWideScreen = windowSizeClass != null && 
-            windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = Color.Transparent
+    ) { paddingValues ->
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+            .background(MaterialTheme.colorScheme.background)
+        ) {
+            val isWideScreen = windowSizeClass != null && 
+                windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)
 
-        if (isWideScreen) {
-            TwoColumnTrainingLayout(
-                skillsState = skillsState,
-                sceneState = sceneState,
-                sessionState = sessionState,
-                activeStateProvider = activeStateProvider,
-                onSkillSelect = onSkillSelect,
-                onMethodSelect = onMethodSelect,
-                onRegionClick = onRegionClick
-            )
-        } else {
-            SingleColumnTrainingLayout(
-                skillsState = skillsState,
-                sceneState = sceneState,
-                sessionState = sessionState,
-                activeStateProvider = activeStateProvider,
-                onSkillSelect = onSkillSelect,
-                onMethodSelect = onMethodSelect,
-                onRegionClick = onRegionClick
-            )
-        }
+            if (isWideScreen) {
+                TwoColumnTrainingLayout(
+                    skillsState = skillsState,
+                    sceneState = sceneState,
+                    sessionState = sessionState,
+                    activeStateProvider = activeStateProvider,
+                    onSkillSelect = onSkillSelect,
+                    onMethodSelect = onMethodSelect,
+                    onRegionClick = onRegionClick
+                )
+            } else {
+                SingleColumnTrainingLayout(
+                    skillsState = skillsState,
+                    sceneState = sceneState,
+                    sessionState = sessionState,
+                    activeStateProvider = activeStateProvider,
+                    onSkillSelect = onSkillSelect,
+                    onMethodSelect = onMethodSelect,
+                    onRegionClick = onRegionClick
+                )
+            }
 
-        // Random Loot Sprite
-        if (sceneState.isSpriteVisible) {
-            LootSpriteOverlay(
-                position = sceneState.spritePosition,
-                onSpriteClick = onSpriteClick
-            )
-        }
+            // Random Loot Sprite
+            if (sceneState.isSpriteVisible) {
+                LootSpriteOverlay(
+                    position = sceneState.spritePosition,
+                    onSpriteClick = onSpriteClick
+                )
+            }
 
-        // Offline Progress Popup
-        sessionState.offlineProgress?.let { result ->
-            OfflineProgressPopup(
-                result = result,
-                onDismiss = onDismissOfflineProgress
-            )
+            // Offline Progress Popup
+            sessionState.offlineProgress?.let { result ->
+                OfflineProgressPopup(
+                    result = result,
+                    onDismiss = onDismissOfflineProgress
+                )
+            }
         }
     }
 }

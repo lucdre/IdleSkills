@@ -3,7 +3,7 @@ package com.lucdre.idleskills.main.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lucdre.idleskills.loot.domain.LootEvent
-import com.lucdre.idleskills.loot.domain.usecase.CollectLootBoxUseCase
+import com.lucdre.idleskills.loot.domain.usecase.CollectLootRewardsUseCase
 import com.lucdre.idleskills.loot.domain.usecase.ObserveLootEventsUseCase
 import com.lucdre.idleskills.skills.domain.skill.SkillType
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,15 +13,22 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
+ * One-time UI effects for the training scene.
+ */
+sealed class TrainingSceneUiEffect {
+    data class ShowLootMessage(val message: String) : TrainingSceneUiEffect()
+}
+
+/**
  * ViewModel responsible for managing visual elements of the training scene.
  *
- * @property collectLootBoxUseCase Use case to handle loot collection when the sprite is clicked.
+ * @property collectLootRewardsUseCase Use case to handle loot collection when the sprite is clicked.
  * @property observeLootEventsUseCase Use case to observe the stream of loot spawn/hide events.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class TrainingSceneViewModel @Inject constructor(
-    private val collectLootBoxUseCase: CollectLootBoxUseCase,
+    private val collectLootRewardsUseCase: CollectLootRewardsUseCase,
     private val observeLootEventsUseCase: ObserveLootEventsUseCase
 ) : ViewModel() {
 
@@ -30,8 +37,6 @@ class TrainingSceneViewModel @Inject constructor(
 
     /**
      * A [StateFlow] representing the current [TrainingSceneState].
-     *
-     * State from [observeLootEventsUseCase] only when spawning is active.
      */
     val uiState: StateFlow<TrainingSceneState> = _isSpawningActive.flatMapLatest { active ->
         if (active) {
@@ -53,6 +58,9 @@ class TrainingSceneViewModel @Inject constructor(
         initialValue = TrainingSceneState()
     )
 
+    private val _uiEffects = MutableSharedFlow<TrainingSceneUiEffect>()
+    val uiEffects: SharedFlow<TrainingSceneUiEffect> = _uiEffects.asSharedFlow()
+
     /**
      * Updates the spawning activity based on screen visibility and training status.
      *
@@ -64,19 +72,42 @@ class TrainingSceneViewModel @Inject constructor(
     }
 
     /**
-     * Handles the collection of a loot box when the sprite is clicked.
-     *
-     * @param activeSkill The type of the skill currently being trained.
+     * Handles the collection of rewards when the sprite is clicked.
      */
-    fun onSpriteClick(activeSkill: SkillType) {
+    fun onSpriteClick() {
         if (!uiState.value.isSpriteVisible) return
         
         viewModelScope.launch {
             // Signal to hide the sprite
             _clickSignal.emit(Unit)
             
-            // Collect the reward
-            collectLootBoxUseCase(activeSkill)
+            // Collect the rewards
+            val reward = collectLootRewardsUseCase()
+            
+            if (reward != null) {
+                val message = buildString {
+                    val items = reward.items.entries.joinToString(", ") { (type, qty) ->
+                        "$qty ${type.displayName}"
+                    }
+                    if (items.isNotEmpty()) {
+                        append("Found $items")
+                    }
+                    
+                    reward.droppedBox?.let { skill ->
+                        if (isNotEmpty()) append(" and a ")
+                        else append("Found a ")
+                        
+                        val boxName = when (skill) {
+                            SkillType.WOODCUTTING -> "Bird's Nest"
+                            SkillType.MINING -> "Geode"
+                            SkillType.FISHING -> "Treasure Chest"
+                        }
+                        append(boxName)
+                    }
+                    append("!")
+                }
+                _uiEffects.emit(TrainingSceneUiEffect.ShowLootMessage(message))
+            }
         }
     }
 }

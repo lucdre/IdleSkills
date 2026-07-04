@@ -257,9 +257,7 @@ private fun MainNavigationContent(
                     onMethodSelect = { method -> trainingViewModel.selectTrainingMethod(method) },
                     onRegionClick = { /* Handle region change */ },
                     onSpriteClick = { 
-                        skillsState.activeTrainingSkill?.let { skill ->
-                            sceneViewModel.onSpriteClick(skill)
-                        }
+                        sceneViewModel.onSpriteClick()
                     },
                     onDismissOfflineProgress = { trainingViewModel.dismissOfflineProgress() },
                     onSetScreenVisible = { isVisible -> 
@@ -269,7 +267,8 @@ private fun MainNavigationContent(
                             isTraining = skillsState.activeTrainingSkill != null
                         )
                     },
-                    windowSizeClass = adaptiveInfo.windowSizeClass
+                    windowSizeClass = adaptiveInfo.windowSizeClass,
+                    sceneViewModel = sceneViewModel
                 )
             }
             composable(Routes.INVENTORY) {

@@ -1,71 +1,101 @@
 package com.lucdre.idleskills.loot.domain
 
-import com.lucdre.idleskills.cards.domain.CardType
+import com.lucdre.idleskills.inventory.domain.ItemType
 import com.lucdre.idleskills.skills.domain.skill.SkillType
+import com.lucdre.idleskills.skills.domain.training.TrainingMethod
+import javax.inject.Inject
 import kotlin.random.Random
 
 /**
- * Handles the generation of rewards from loot boxes.
+ * Result of a loot generation roll.
+ *
+ * @property items Map of items dropped and their quantities.
+ * @property droppedBox The skill type of the loot box dropped, if any.
  */
-object LootGenerator {
+data class LootReward(
+    val items: Map<ItemType, Int> = emptyMap(),
+    val droppedBox: SkillType? = null
+)
+
+/**
+ * Handles the generation of rewards from loot sprites and boxes.
+ *
+ * This class centralizes all drop logic and rates.
+ * 
+ * @property random Injected randomness source for testability.
+ */
+class LootGenerator @Inject constructor(
+    private val random: Random
+) {
+
+    companion object {
+        // Resource drop configuration
+        private const val MIN_RESOURCE_QTY = 1
+        private const val MAX_RESOURCE_QTY = 10
+
+        // Loot Box drop configuration
+        private const val LOOT_BOX_CHANCE = 0.01 // 1% chance
+        
+        // Reward quantities
+        private const val BOX_REWARD_QTY = 20
+
+        // Item mappings for loot boxes
+        private val woodcuttingItems = listOf(
+            ItemType.NORMAL_LOGS, ItemType.OAK_LOGS, ItemType.WILLOW_LOGS,
+            ItemType.MAPLE_LOGS, ItemType.YEW_LOGS, ItemType.MAGIC_LOGS
+        )
+        
+        private val miningItems = listOf(
+            ItemType.COPPER_ORE, ItemType.TIN_ORE, ItemType.IRON_ORE, ItemType.COAL,
+            ItemType.MITHRIL_ORE, ItemType.ADAMANT_ORE, ItemType.RUNE_ORE, ItemType.DRAGON_ORE
+        )
+        
+        private val fishingItems = listOf(
+            ItemType.RAW_SHRIMP, ItemType.RAW_SARDINE, ItemType.RAW_ANCHOVY,
+            ItemType.RAW_TROUT, ItemType.RAW_SALMON, ItemType.RAW_TUNA,
+            ItemType.RAW_LOBSTER, ItemType.RAW_SWORDFISH, ItemType.RAW_SHARK
+        )
+    }
 
     /**
-     * Configuration for loot drops.
+     * Generates rewards when a loot sprite is clicked.
      *
-     * @property cardType The type of card that can drop.
-     * @property weight Relative weight for this card type to drop.
+     * @param method The training method active when the sprite appeared.
+     * @return A [LootReward] containing guaranteed resources and a rare chance for a box.
      */
-    data class DropConfig(
-        val cardType: CardType,
-        val weight: Int
-    )
+    fun generateRewards(method: TrainingMethod): LootReward {
+        val items = mutableMapOf<ItemType, Int>()
+        
+        // 1. Guaranteed resources from the current training method
+        method.producedItemType?.let { itemType ->
+            val quantity = random.nextInt(MIN_RESOURCE_QTY, MAX_RESOURCE_QTY + 1)
+            items[itemType] = quantity
+        }
 
-    private val dropConfigs = listOf(
-        DropConfig(CardType.WOODCUTTING_AXE, 10),
-        DropConfig(CardType.MINING_PICKAXE, 10),
-        DropConfig(CardType.FISHING_NET, 10),
-        DropConfig(CardType.FISHING_ROD, 10),
-        DropConfig(CardType.FISHING_HARPOON, 10),
-        DropConfig(CardType.FISHING_LOBSTER_CAGE, 10)
-    )
+        // 2. Rare chance for a skill-specific loot box
+        val droppedBox = if (random.nextFloat() < LOOT_BOX_CHANCE) {
+            method.skill
+        } else {
+            null
+        }
+
+        return LootReward(items = items, droppedBox = droppedBox)
+    }
 
     /**
-     * Generates a random set of rewards based on the box's origin skill.
+     * Generates rewards when opening a loot box.
      *
-     * @param originSkill The skill the loot box came from. 
-     *                   Bias will be applied to cards of this skill.
-     * @param amountToDrop Number of card drops to generate.
-     * @return A map of [CardType] to quantity dropped.
+     * @param skill The skill type of the box being opened.
+     * @return A map of rewards.
      */
-    fun generateRewards(originSkill: SkillType, amountToDrop: Int): Map<CardType, Int> {
-        val rewards = mutableMapOf<CardType, Int>()
-        
-        // Apply bias: Cards matching the origin skill are 10x more likely to drop
-        val weightedConfigs = dropConfigs.map { config ->
-            val finalWeight = if (config.cardType.skill == originSkill) {
-                config.weight * 10
-            } else {
-                config.weight
-            }
-            config to finalWeight
-        }
-
-        val totalWeight = weightedConfigs.sumOf { it.second }
-
-        repeat(amountToDrop) {
-            val randomValue = Random.nextInt(totalWeight)
-            var currentWeight = 0
-            
-            for ((config, weight) in weightedConfigs) {
-                currentWeight += weight
-                if (randomValue < currentWeight) {
-                    val currentCount = rewards[config.cardType] ?: 0
-                    rewards[config.cardType] = currentCount + 1
-                    break
-                }
-            }
+    fun generateBoxRewards(skill: SkillType): Map<ItemType, Int> {
+        val possibleItems = when (skill) {
+            SkillType.WOODCUTTING -> woodcuttingItems
+            SkillType.MINING -> miningItems
+            SkillType.FISHING -> fishingItems
         }
         
-        return rewards
+        val randomItem = possibleItems[random.nextInt(possibleItems.size)]
+        return mapOf(randomItem to BOX_REWARD_QTY)
     }
 }

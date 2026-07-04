@@ -23,8 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.lucdre.idleskills.cards.domain.CardType
 import com.lucdre.idleskills.inventory.domain.Item
+import com.lucdre.idleskills.inventory.domain.ItemType
 import com.lucdre.idleskills.inventory.presentation.InventoryViewModel
 import com.lucdre.idleskills.loot.domain.LootBox
 import com.lucdre.idleskills.skills.domain.skill.SkillType
@@ -55,7 +55,7 @@ fun InventoryScreen(
 fun InventoryScreenContent(
     inventoryItems: List<Item>,
     lootBoxes: List<LootBox>,
-    lastRewards: Map<CardType, Int>?,
+    lastRewards: Map<ItemType, Int>?,
     onOpenBoxClick: (SkillType) -> Unit,
     clearRewards: () -> Unit,
     isLoading: Boolean = false,
@@ -143,11 +143,7 @@ fun InventoryScreenContent(
                 text = {
                     Column {
                         rewards.forEach { (type, quantity) ->
-                            val displayName = type.name.split("_")
-                                .joinToString(" ") { word ->
-                                    word.lowercase().replaceFirstChar { it.uppercase() }
-                                }
-                            Text("$displayName x$quantity")
+                            Text("${type.displayName} x$quantity")
                         }
                     }
                 }
@@ -243,7 +239,7 @@ fun InventoryScreenPreview() {
                 LootBox(SkillType.WOODCUTTING, 5)
             ),
             inventoryItems = listOf(
-                Item(com.lucdre.idleskills.inventory.domain.ItemType.OAK_LOGS, 150)
+                Item(ItemType.OAK_LOGS, 150)
             ),
             lastRewards = null,
             onOpenBoxClick = {},
