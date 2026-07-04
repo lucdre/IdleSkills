@@ -8,7 +8,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Forest
 import androidx.compose.material.icons.filled.Handyman
-import androidx.compose.material.icons.filled.Hardware
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phishing
 import androidx.compose.material3.*
@@ -233,7 +232,7 @@ fun AnimatedCharacter(activeSkill: SkillType?) {
         // Tool icon
         val toolPainter = when (activeSkill) {
             SkillType.WOODCUTTING -> rememberVectorPainter(Icons.Default.Handyman) // TODO: Axe icon
-            SkillType.MINING -> painterResource(id = R.drawable.ic_mining_pickaxe)
+            SkillType.MINING -> painterResource(id = R.drawable.skill_mining_pickaxe)
             SkillType.FISHING -> rememberVectorPainter(Icons.Default.Phishing) // TODO: Rod icon
             else -> null
         }

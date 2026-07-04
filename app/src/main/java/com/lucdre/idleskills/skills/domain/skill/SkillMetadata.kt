@@ -38,7 +38,7 @@ object SkillMetadata {
             indicatorColor = Color(0xFF455A64),
             unselectedIconTint = Color(0xFF78909C),
             panelBackgroundColor = Color(0x1A37474F),
-            iconResId = R.drawable.ic_mining_pickaxe,
+            iconResId = R.drawable.skill_mining_pickaxe,
             biomeColors = listOf(Color(0xFF424242), Color(0xFF212121))
         ),
         SkillType.FISHING to SkillTheme(
