@@ -25,6 +25,11 @@ class InventoryRepository @Inject constructor(
         inventoryDao.addItem(itemType.id, quantity)
     }
 
+    override suspend fun consumeItem(itemType: ItemType, quantity: Int): Boolean {
+        val affected = inventoryDao.decrementQuantity(itemType.id, quantity)
+        return affected > 0
+    }
+
     private fun InventoryEntity.toDomain(): Item? {
         val type = ItemType.fromId(itemId) ?: return null
         return Item(type = type, quantity = quantity)

@@ -80,13 +80,11 @@ class CardRepository @Inject constructor(
 
     override suspend fun upgradeCard(
         card: Card,
-        requirement: Int,
         nextLevel: Int,
         bonus: Float
     ) {
         cardDao.upgradeCard(
             cardType = card.type.name,
-            requirement = requirement,
             nextLevel = nextLevel,
             bonus = bonus
         )

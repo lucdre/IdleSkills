@@ -33,7 +33,7 @@ interface CardRepositoryInterface {
     suspend fun addCardsBatch(cards: Map<CardType, Int>)
 
     /**
-     * Atomically upgrades a card.
+     * Updates a card's level and bonus.
      */
-    suspend fun upgradeCard(card: Card, requirement: Int, nextLevel: Int, bonus: Float)
+    suspend fun upgradeCard(card: Card, nextLevel: Int, bonus: Float)
 }

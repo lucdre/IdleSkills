@@ -10,51 +10,34 @@ import com.lucdre.idleskills.skills.domain.skill.SkillType
  */
 enum class CardType(
     val skill: SkillType,
+    val rarity: String,
     val displayName: String,
     val initialEfficiencyBonus: Float,
     val bonusPerLevel: Float,
     val iconResId: Int
 ) {
-    WOODCUTTING_AXE(
+    WOODCUTTING_CARD(
         skill = SkillType.WOODCUTTING,
-        displayName = "Bronze Axe",
+        rarity = "Common",
+        displayName = "Woodcutting Speed",
         initialEfficiencyBonus = 0.00f,
         bonusPerLevel = 0.05f,
         iconResId = R.drawable.ic_tree
     ),
-    MINING_PICKAXE(
+    MINING_CARD(
         skill = SkillType.MINING,
-        displayName = "Bronze Pickaxe",
+        rarity = "Common",
+        displayName = "Mining Speed",
         initialEfficiencyBonus = 0.00f,
         bonusPerLevel = 0.05f,
         iconResId = R.drawable.ic_tree
     ),
-    FISHING_NET(
+    FISHING_CARD(
         skill = SkillType.FISHING,
-        displayName = "Small Fishing Net",
+        rarity = "Common",
+        displayName = "Fishing Speed",
         initialEfficiencyBonus = 0.00f,
         bonusPerLevel = 0.05f,
         iconResId = R.drawable.ic_tree
     ),
-    FISHING_ROD(
-        skill = SkillType.FISHING,
-        displayName = "Fishing Rod",
-        initialEfficiencyBonus = 0.00f,
-        bonusPerLevel = 0.05f,
-        iconResId = R.drawable.ic_tree
-    ),
-    FISHING_HARPOON(
-        skill = SkillType.FISHING,
-        displayName = "Harpoon",
-        initialEfficiencyBonus = 0.00f,
-        bonusPerLevel = 0.05f,
-        iconResId = R.drawable.ic_tree
-    ),
-    FISHING_LOBSTER_CAGE(
-        skill = SkillType.FISHING,
-        displayName = "Lobster Cage",
-        initialEfficiencyBonus = 0.00f,
-        bonusPerLevel = 0.05f,
-        iconResId = R.drawable.ic_tree
-    );
 }

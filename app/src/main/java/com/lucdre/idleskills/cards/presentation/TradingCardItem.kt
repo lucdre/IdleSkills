@@ -137,8 +137,7 @@ fun TradingCardPreview() {
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             TradingCardItem(
                 cardState = CardItemUiState(
-                    card = GameCard("Bronze Axe", CardType.WOODCUTTING_AXE, 1, 12, 0.05f, R.drawable.ic_tree),
-                    upgradeRequirement = 10,
+                    card = GameCard("Woodcutting Speed", CardType.WOODCUTTING_CARD, 1, 1, 0.05f, R.drawable.ic_tree),
                     canUpgrade = true,
                     nextLevelBonus = 0.10f
                 ),
@@ -146,8 +145,7 @@ fun TradingCardPreview() {
             )
             TradingCardItem(
                 cardState = CardItemUiState(
-                    card = GameCard("Steel Pickaxe", CardType.MINING_PICKAXE, 2, 2, 0.12f, R.drawable.ic_tree),
-                    upgradeRequirement = 20,
+                    card = GameCard("Mining Speed", CardType.MINING_CARD, 2, 1, 0.12f, R.drawable.ic_tree),
                     canUpgrade = false,
                     nextLevelBonus = 0.17f
                 ),

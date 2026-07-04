@@ -4,9 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.cards.domain.CardCalculator
+import com.lucdre.idleskills.cards.domain.UpgradeRequirement
 import com.lucdre.idleskills.cards.domain.usecase.GetOwnedCardsUseCase
 import com.lucdre.idleskills.cards.domain.usecase.UpgradeCardUseCase
-import com.lucdre.idleskills.skills.domain.skill.SkillType
+import com.lucdre.idleskills.inventory.domain.InventoryRepositoryInterface
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
@@ -26,19 +27,19 @@ sealed class CardUiEffect {
  */
 data class CardItemUiState(
     val card: Card,
-    val upgradeRequirement: Int,
     val canUpgrade: Boolean,
-    val nextLevelBonus: Float
+    val nextLevelBonus: Float,
+    val requirements: List<UpgradeRequirement> = emptyList()
 )
 
 /**
  * UI state for the card screen.
  *
- * @property cardsBySkill A map of cards per skill.
+ * @property cardsByRarity A map of cards per rarity.
  * @property isLoading Whether the skill tree is being loaded.
  */
 data class CardUiState(
-    val cardsBySkill: Map<SkillType, List<CardItemUiState>> = emptyMap(),
+    val cardsByRarity: Map<String, List<CardItemUiState>> = emptyMap(),
     val isLoading: Boolean = false
 )
 
@@ -48,12 +49,14 @@ data class CardUiState(
  * @property getOwnedCardsUseCase For observing cards.
  * @property upgradeCardUseCase For upgrading cards.
  * @property cardCalculator For card-related calculations.
+ * @property inventoryRepository For observing inventory resources.
  */
 @HiltViewModel
 class CardViewModel @Inject constructor(
     private val getOwnedCardsUseCase: GetOwnedCardsUseCase,
     private val upgradeCardUseCase: UpgradeCardUseCase,
-    private val cardCalculator: CardCalculator
+    private val cardCalculator: CardCalculator,
+    private val inventoryRepository: InventoryRepositoryInterface
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CardUiState(isLoading = true))
@@ -63,26 +66,28 @@ class CardViewModel @Inject constructor(
     val uiEffects: SharedFlow<CardUiEffect> = _uiEffects.asSharedFlow()
 
     init {
-        getOwnedCardsUseCase()
-            .map { cards ->
-                cards.map { card ->
-                    CardItemUiState(
-                        card = card,
-                        upgradeRequirement = cardCalculator.getUpgradeRequirement(card.level),
-                        canUpgrade = cardCalculator.canUpgrade(card),
-                        nextLevelBonus = cardCalculator.getNextLevelBonus(card)
-                    )
-                }
-                .groupBy { it.card.type.skill }
+        combine(
+            getOwnedCardsUseCase(),
+            inventoryRepository.observeItems()
+        ) { cards, inventory ->
+            cards.map { card ->
+                CardItemUiState(
+                    card = card,
+                    canUpgrade = cardCalculator.canUpgrade(card, inventory),
+                    nextLevelBonus = cardCalculator.getNextLevelBonus(card),
+                    requirements = cardCalculator.getUpgradeRequirements(card.type, card.level)
+                )
             }
-            .flowOn(Dispatchers.Default)
-            .onEach { grouped ->
-                _uiState.update { it.copy(
-                    cardsBySkill = grouped,
-                    isLoading = false
-                ) }
-            }
-            .launchIn(viewModelScope)
+            .groupBy { it.card.type.rarity }
+        }
+        .flowOn(Dispatchers.Default)
+        .onEach { grouped ->
+            _uiState.update { it.copy(
+                cardsByRarity = grouped,
+                isLoading = false
+            ) }
+        }
+        .launchIn(viewModelScope)
     }
 
     /**

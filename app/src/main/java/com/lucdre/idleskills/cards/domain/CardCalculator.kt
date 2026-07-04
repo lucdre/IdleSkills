@@ -1,26 +1,39 @@
 package com.lucdre.idleskills.cards.domain
 
+import com.lucdre.idleskills.inventory.domain.Item
 import javax.inject.Inject
 
 /**
  * Responsible for card-related calculations.
+ * 
+ * @property upgradeRegistry Registry for card upgrade costs.
  */
-class CardCalculator @Inject constructor() {
+class CardCalculator @Inject constructor(
+    private val upgradeRegistry: CardUpgradeRegistry
+) {
 
     /**
+     * @param cardType The type of card.
      * @param level The current level of the card.
-     * @return The number of cards required to upgrade to the next level.
+     * @return The resources required to upgrade to the next level.
      */
-    fun getUpgradeRequirement(level: Int): Int {
-        return level * 10
+    fun getUpgradeRequirements(cardType: CardType, level: Int): List<UpgradeRequirement> {
+        return upgradeRegistry.getRequirements(cardType, level)
     }
 
     /**
      * @param card The current card.
-     * @return True if the card can be upgraded based on its quantity.
+     * @param inventoryItems Current list of items in the player's inventory.
+     * @return True if the card can be upgraded based on inventory resources.
      */
-    fun canUpgrade(card: Card): Boolean {
-        return card.quantity >= getUpgradeRequirement(card.level)
+    fun canUpgrade(card: Card, inventoryItems: List<Item>): Boolean {
+        val requirements = getUpgradeRequirements(card.type, card.level)
+        if (requirements.isEmpty()) return false
+        
+        return requirements.all { req ->
+            val owned = inventoryItems.find { it.type == req.itemType }?.quantity ?: 0
+            owned >= req.quantity
+        }
     }
 
     /**

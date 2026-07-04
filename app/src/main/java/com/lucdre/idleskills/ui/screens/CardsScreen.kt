@@ -82,7 +82,7 @@ fun CardsScreenContent(
     uiState: CardUiState,
     onCardClick: (Card) -> Unit
 ) {
-    val expandedSkills = remember { mutableStateMapOf<SkillType, Boolean>() }
+    val expandedRarities = remember { mutableStateMapOf<String, Boolean>() }
 
     Column(
         modifier = modifier
@@ -121,14 +121,14 @@ fun CardsScreenContent(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(bottom = 80.dp) // Space for bottom nav
             ) {
-                uiState.cardsBySkill.forEach { (skill, cardStates) ->
-                    val isExpanded = expandedSkills[skill] ?: true
+                uiState.cardsByRarity.forEach { (rarity, cardStates) ->
+                    val isExpanded = expandedRarities[rarity] ?: true
                     
-                    item(key = skill.name, span = { GridItemSpan(maxLineSpan) }) {
-                        SkillGroupHeader(
-                            skillName = skill.displayName,
+                    item(key = rarity, span = { GridItemSpan(maxLineSpan) }) {
+                        RarityGroupHeader(
+                            rarity = rarity,
                             isExpanded = isExpanded,
-                            onToggle = { expandedSkills[skill] = !isExpanded }
+                            onToggle = { expandedRarities[rarity] = !isExpanded }
                         )
                     }
 
@@ -147,8 +147,8 @@ fun CardsScreenContent(
 }
 
 @Composable
-fun SkillGroupHeader(
-    skillName: String,
+fun RarityGroupHeader(
+    rarity: String,
     isExpanded: Boolean,
     onToggle: () -> Unit
 ) {
@@ -165,7 +165,7 @@ fun SkillGroupHeader(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = skillName,
+                text = rarity,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -183,62 +183,30 @@ fun CardsScreenPreview() {
     IdleSkillsTheme {
         CardsScreenContent(
             uiState = CardUiState(
-                cardsBySkill = mapOf(
-                    SkillType.WOODCUTTING to listOf(
+                cardsByRarity = mapOf(
+                    "Common" to listOf(
                         CardItemUiState(
                             card = Card(
-                                name = "Bronze Axe",
-                                type = com.lucdre.idleskills.cards.domain.CardType.WOODCUTTING_AXE,
+                                name = "Woodcutting Speed",
+                                type = com.lucdre.idleskills.cards.domain.CardType.WOODCUTTING_CARD,
                                 level = 1,
-                                quantity = 5,
+                                quantity = 1,
                                 efficiencyBonus = 0.05f,
                                 iconResId = com.lucdre.idleskills.R.drawable.ic_tree
                             ),
-                            upgradeRequirement = 10,
-                            canUpgrade = false,
-                            nextLevelBonus = 0.10f
-                        )
-                    ),
-                    SkillType.MINING to listOf(
-                        CardItemUiState(
-                            card = Card(
-                                name = "Bronze Pickaxe",
-                                type = com.lucdre.idleskills.cards.domain.CardType.MINING_PICKAXE,
-                                level = 1,
-                                quantity = 2,
-                                efficiencyBonus = 0.05f,
-                                iconResId = com.lucdre.idleskills.R.drawable.ic_tree
-                            ),
-                            upgradeRequirement = 10,
                             canUpgrade = false,
                             nextLevelBonus = 0.10f
                         ),
                         CardItemUiState(
                             card = Card(
-                                name = "Steel Pickaxe",
-                                type = com.lucdre.idleskills.cards.domain.CardType.MINING_PICKAXE,
-                                level = 2,
-                                quantity = 1,
-                                efficiencyBonus = 0.10f,
-                                iconResId = com.lucdre.idleskills.R.drawable.ic_tree
-                            ),
-                            upgradeRequirement = 20,
-                            canUpgrade = false,
-                            nextLevelBonus = 0.17f
-                        )
-                    ),
-                    SkillType.FISHING to listOf(
-                        CardItemUiState(
-                            card = Card(
-                                name = "Small Net",
-                                type = com.lucdre.idleskills.cards.domain.CardType.FISHING_NET,
+                                name = "Mining Speed",
+                                type = com.lucdre.idleskills.cards.domain.CardType.MINING_CARD,
                                 level = 1,
-                                quantity = 10,
+                                quantity = 1,
                                 efficiencyBonus = 0.05f,
                                 iconResId = com.lucdre.idleskills.R.drawable.ic_tree
                             ),
-                            upgradeRequirement = 10,
-                            canUpgrade = true,
+                            canUpgrade = false,
                             nextLevelBonus = 0.10f
                         )
                     )

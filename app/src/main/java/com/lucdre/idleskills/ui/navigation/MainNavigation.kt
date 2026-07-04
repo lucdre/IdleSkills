@@ -289,7 +289,7 @@ private fun MainNavigationContent(
             composable("${Routes.CARD_DETAIL}/{cardName}") { backStackEntry ->
                 val cardName = backStackEntry.arguments?.getString("cardName")
                 val uiState by cardViewModel.uiState.collectAsStateWithLifecycle()
-                val cardState = uiState.cardsBySkill.values.flatten().find { it.card.name == cardName }
+                val cardState = uiState.cardsByRarity.values.flatten().find { it.card.name == cardName }
                 
                 if (cardState != null) {
                     CardDetailScreen(

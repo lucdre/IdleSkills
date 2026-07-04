@@ -95,21 +95,16 @@ interface CardDao {
     suspend fun insertAll(cards: List<CardEntity>)
 
     /**
-     * Atomically upgrades a card if requirements are met.
+     * Updates a card's level and bonus.
      */
     @Transaction
-    suspend fun upgradeCard(cardType: String, requirement: Int, nextLevel: Int, bonus: Float) {
+    suspend fun upgradeCard(cardType: String, nextLevel: Int, bonus: Float) {
         val existing = getCardByType(cardType) ?: return
-        if (existing.quantity >= requirement) {
-            val updated = existing.copy(
-                level = nextLevel,
-                quantity = existing.quantity - requirement,
-                efficiencyBonus = bonus
-            )
-            insertOrUpdate(updated)
-        } else {
-            throw IllegalStateException("Insufficient cards for atomic upgrade: ${existing.quantity}/$requirement")
-        }
+        val updated = existing.copy(
+            level = nextLevel,
+            efficiencyBonus = bonus
+        )
+        insertOrUpdate(updated)
     }
 }
 
@@ -164,6 +159,9 @@ interface InventoryDao {
 
     @Query("UPDATE inventory SET quantity = quantity + :amount WHERE itemId = :itemId")
     suspend fun incrementQuantity(itemId: Int, amount: Int)
+
+    @Query("UPDATE inventory SET quantity = quantity - :amount WHERE itemId = :itemId AND quantity >= :amount")
+    suspend fun decrementQuantity(itemId: Int, amount: Int): Int
 
     @Transaction
     suspend fun addItem(itemId: Int, amount: Int) {

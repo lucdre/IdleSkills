@@ -7,39 +7,61 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.lucdre.idleskills.R
 import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.cards.domain.CardType
+import com.lucdre.idleskills.cards.domain.UpgradeRequirement
 import com.lucdre.idleskills.cards.presentation.CardItemUiState
 import com.lucdre.idleskills.cards.presentation.CardUiEffect
 import com.lucdre.idleskills.cards.presentation.CardViewModel
 import com.lucdre.idleskills.skills.domain.skill.SkillMetadata
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
-import com.lucdre.idleskills.ui.components.CustomLinearProgressIndicator
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.lucdre.idleskills.ui.util.NumberFormatter
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 /**
  * Screen displaying details for a specific card and upgrade requirements.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CardDetailScreen(
     cardState: CardItemUiState,
     viewModel: CardViewModel = hiltViewModel(),
+    onBack: () -> Unit
+) {
+    CardDetailScreenContent(
+        cardState = cardState,
+        uiEffects = viewModel.uiEffects,
+        onUpgradeClick = { viewModel.upgradeCard(it) },
+        onBack = onBack
+    )
+}
+
+/**
+ * Core content of the Card Detail screen.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CardDetailScreenContent(
+    cardState: CardItemUiState,
+    uiEffects: SharedFlow<CardUiEffect>,
+    onUpgradeClick: (Card) -> Unit,
     onBack: () -> Unit
 ) {
     val card = cardState.card
@@ -49,7 +71,7 @@ fun CardDetailScreen(
     val haptic = LocalHapticFeedback.current
 
     LaunchedEffect(Unit) {
-        viewModel.uiEffects.collect { effect ->
+        uiEffects.collect { effect ->
             when (effect) {
                 is CardUiEffect.ShowMessage -> {
                     snackbarHostState.showSnackbar(effect.message)
@@ -153,13 +175,10 @@ fun CardDetailScreen(
                         .padding(8.dp),
                     contentAlignment = Alignment.Center
                 ){
-                    Row(modifier = Modifier.padding(16.dp)) {
-                        Icon(
-                            painter = painterResource(id = card.iconResId),
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp),
-                            tint = skillColor
-                        )
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text(
                             text = "+${(card.efficiencyBonus * 100).toInt()}% ",
                             style = MaterialTheme.typography.titleMedium,
@@ -169,13 +188,7 @@ fun CardDetailScreen(
                         Icon(
                             painter = painterResource(R.drawable.bootstrap_arrow_right_circle),
                             contentDescription = null,
-                            modifier = Modifier.size(24.dp),
-                            tint = skillColor
-                        )
-                        Icon(
-                            painter = painterResource(id = card.iconResId),
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp),
+                            modifier = Modifier.size(24.dp).padding(horizontal = 8.dp),
                             tint = skillColor
                         )
                         Text(
@@ -186,53 +199,67 @@ fun CardDetailScreen(
                         )
                     }
                 }
-
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // Upgrade Section
-            val requirement = cardState.upgradeRequirement
-            val progress = (card.quantity.toFloat() / requirement.toFloat()).coerceIn(0f, 1f)
             val canUpgrade = cardState.canUpgrade
+            val requirements = cardState.requirements
 
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.Start
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = "Cards Owned",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.LightGray
-                    )
-                    Text(
-                        text = "${card.quantity} / $requirement",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = if (canUpgrade) Color(0xFF4CAF50) else Color.White,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                CustomLinearProgressIndicator(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(12.dp),
-                    progress = progress,
-                    progressColor = if (canUpgrade) Color(0xFF4CAF50) else skillColor,
-                    backgroundColor = Color.DarkGray
+                Text(
+                    text = "Upgrade Requirements",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White,
+                    modifier = Modifier.padding(bottom = 12.dp)
                 )
+
+                if (requirements.isEmpty()) {
+                    Text(
+                        text = "Max Level Reached",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.Gray,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+                } else {
+                    requirements.forEach { req ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    painter = painterResource(id = req.itemType.iconResId),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp),
+                                    tint = Color.Unspecified
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = req.itemType.displayName,
+                                    color = Color.LightGray
+                                )
+                            }
+                            Text(
+                                text = NumberFormatter.formatNumber(req.quantity),
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
                 
                 Spacer(modifier = Modifier.height(24.dp))
                 
                 Button(
-                    onClick = { viewModel.upgradeCard(card) },
+                    onClick = { onUpgradeClick(card) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
@@ -244,7 +271,7 @@ fun CardDetailScreen(
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
-                        text = if (canUpgrade) "UPGRADE" else "NEED MORE CARDS",
+                        text = if (canUpgrade) "UPGRADE" else if (requirements.isEmpty()) "MAX LEVEL" else "INSUFFICIENT RESOURCES",
                         color = if (canUpgrade) Color.White else Color.White.copy(alpha = 0.5f),
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 1.sp
@@ -259,20 +286,24 @@ fun CardDetailScreen(
 @Composable
 fun CardDetailScreenPreview() {
     IdleSkillsTheme {
-        CardDetailScreen(
+        CardDetailScreenContent(
             cardState = CardItemUiState(
                 card = Card(
-                    name = "Bronze Axe",
-                    type = CardType.WOODCUTTING_AXE,
+                    name = "Woodcutting Speed",
+                    type = CardType.WOODCUTTING_CARD,
                     level = 1,
-                    quantity = 5,
+                    quantity = 1,
                     efficiencyBonus = 0.05f,
                     iconResId = R.drawable.ic_tree
                 ),
-                upgradeRequirement = 10,
                 canUpgrade = false,
-                nextLevelBonus = 0.10f
+                nextLevelBonus = 0.10f,
+                requirements = listOf(
+                    UpgradeRequirement(com.lucdre.idleskills.inventory.domain.ItemType.NORMAL_LOGS, 50)
+                )
             ),
+            uiEffects = remember { MutableSharedFlow<CardUiEffect>().asSharedFlow() },
+            onUpgradeClick = {},
             onBack = {}
         )
     }
