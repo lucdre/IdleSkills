@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import com.lucdre.idleskills.ui.util.FontScalePreviews
@@ -25,7 +26,7 @@ fun SkillSelector(
     modifier: Modifier = Modifier,
     skills: List<SkillType>,
     selectedSkill: SkillType?,
-    onSkillSelected: (SkillType) -> Unit
+    onSkillSelected: (SkillType) -> Unit,
 ) {
     Column(modifier = modifier) {
         Text(
@@ -70,7 +71,7 @@ fun SkillSelector(
                             painter = painterResource(id = theme.iconResId),
                             contentDescription = skill.displayName,
                             modifier = Modifier.size(32.dp),
-                            tint = if (isSelected) theme.primaryColor else MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = if (isSelected) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         AutoSizeText(

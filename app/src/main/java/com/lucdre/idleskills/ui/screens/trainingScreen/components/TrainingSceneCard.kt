@@ -19,10 +19,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.lucdre.idleskills.R
 import com.lucdre.idleskills.skills.domain.skill.SkillMetadata
 import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodType
@@ -228,19 +231,19 @@ fun AnimatedCharacter(activeSkill: SkillType?) {
         )
 
         // Tool icon
-        val toolIcon = when (activeSkill) {
-            SkillType.WOODCUTTING -> Icons.Default.Handyman // TODO: Axe icon
-            SkillType.MINING -> Icons.Default.Hardware // TODO: Pickaxe icon
-            SkillType.FISHING -> Icons.Default.Phishing // TODO: Rod icon
+        val toolPainter = when (activeSkill) {
+            SkillType.WOODCUTTING -> rememberVectorPainter(Icons.Default.Handyman) // TODO: Axe icon
+            SkillType.MINING -> painterResource(id = R.drawable.ic_mining_pickaxe)
+            SkillType.FISHING -> rememberVectorPainter(Icons.Default.Phishing) // TODO: Rod icon
             else -> null
         }
 
-        toolIcon?.let {
+        toolPainter?.let {
             Icon(
-                imageVector = it,
+                painter = it,
                 contentDescription = null,
                 modifier = Modifier.size(32.dp).offset(x = 20.dp, y = (-40).dp),
-                tint = Color.LightGray
+                tint = if(activeSkill == SkillType.MINING) Color.Unspecified else Color.LightGray
             )
         }
     }
