@@ -13,4 +13,9 @@ object Constants {
      * Maximum level a skill can reach.
      */
     const val MAX_LEVEL = 126
+
+    /**
+     * Maximum time offline progress can accumulate (48 hours).
+     */
+    const val OFFLINE_PROGRESS_CAP_MS = 48L * 60 * 60 * 1000
 }

@@ -71,7 +71,7 @@ class TrainingViewModel @Inject constructor(
     override fun onStart(owner: LifecycleOwner) {
         viewModelScope.launch {
             trainingSessionManager.handleForegroundTransition()
-            setAppVisibility(true)
+            setAppVisibility(visible = true)
         }
     }
 
@@ -135,7 +135,7 @@ class TrainingViewModel @Inject constructor(
         val activeCardsFlow = activeSelectionFlow.map { it.first to it.second?.type }
             .distinctUntilChanged()
             .flatMapLatest { (skillName, methodType) ->
-                if (skillName != null && methodType != null) {
+                if ((skillName != null) && (methodType != null)) {
                     val skillType = SkillType.fromString(skillName) ?: SkillType.WOODCUTTING
                     getActiveCardsUseCase(skillType, methodType)
                 } else {

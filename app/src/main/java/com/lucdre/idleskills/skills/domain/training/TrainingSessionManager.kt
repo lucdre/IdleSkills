@@ -92,14 +92,11 @@ class TrainingSessionManager @Inject constructor(
             if (activeSession != null) {
                 val (skillType, methodType) = activeSession
                 val skills = getVisibleSkillsUseCase()
-                val skill = skills.find { it.type == skillType }
-                if (skill != null) {
-                    val methods = getAvailableTrainingMethodsUseCase(skill)
-                    val method = methods.find { it.type == methodType }
-                    if (method != null) {
-                        trainingService.startTraining(skill, method)
-                    }
-                }
+                val skill = skills.find { it.type == skillType } ?: return@launch
+                val methods = getAvailableTrainingMethodsUseCase(skill)
+                val method = methods.find { it.type == methodType } ?: return@launch
+                
+                trainingService.startTraining(skill, method)
             }
         }
     }
@@ -112,7 +109,10 @@ class TrainingSessionManager @Inject constructor(
      */
     fun toggleTraining(skill: Skill, method: TrainingMethod) {
         val currentState = trainingService.trainingState.value
-        if (currentState.activeSkillName == skill.name && currentState.activeMethod?.name == method.name) {
+        val isSameMethod = (currentState.activeSkillName == skill.name && 
+                currentState.activeMethod?.name == method.name)
+        
+        if (isSameMethod) {
             trainingService.stopTraining()
         } else {
             trainingService.startTraining(skill, method)

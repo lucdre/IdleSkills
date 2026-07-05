@@ -3,6 +3,7 @@ package com.lucdre.idleskills.core.domain
 import android.util.Log
 import androidx.compose.runtime.Immutable
 import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
+import com.lucdre.idleskills.core.util.Constants
 import com.lucdre.idleskills.inventory.domain.ItemType
 import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
@@ -61,11 +62,11 @@ class OfflineProgressManager @Inject constructor(
         // If time is negative or too small, skip
         if (diffMs < 1000) return null
 
-        // Cap at 48 hours
-        val fortyEightHoursMs = 48L * 60 * 60 * 1000
-        if (diffMs > fortyEightHoursMs) {
-            diffMs = fortyEightHoursMs
-            Log.d("OfflineProgressManager", "Offline progress capped at 48 hours")
+        // Cap time
+        val capMs = Constants.OFFLINE_PROGRESS_CAP_MS
+        if (diffMs > capMs) {
+            diffMs = capMs
+            Log.d("OfflineProgressManager", "Offline progress capped at ${capMs / 3600000} hours")
         }
 
         // Get current skill state to check XP cap
@@ -86,12 +87,11 @@ class OfflineProgressManager @Inject constructor(
         // Calculate actual gain accounting for 200M cap
         val maxGain = (LevelCalculator.MAX_XP - currentSkill.xp).coerceAtLeast(0)
         val actualXpGain = earnedXp.coerceAtMost(maxGain)
-        
-        val earnedItems = mutableMapOf<ItemType, Int>()
-        method.producedItemType?.let { itemType ->
-            if (actionsCompleted > 0) {
-                earnedItems[itemType] = actionsCompleted.toInt()
-            }
+
+        val earnedItems = if (actionsCompleted > 0 && method.producedItemType != null) {
+            mapOf(method.producedItemType to actionsCompleted.toInt())
+        } else {
+            emptyMap()
         }
 
         if (actualXpGain > 0 || earnedItems.isNotEmpty()) {
