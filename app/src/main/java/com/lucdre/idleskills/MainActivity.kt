@@ -6,10 +6,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.compose.runtime.CompositionLocalProvider
+import com.lucdre.idleskills.inventory.domain.ItemRegistry
 import com.lucdre.idleskills.main.presentation.TrainingViewModel
 import com.lucdre.idleskills.ui.navigation.MainNavigation
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
+import com.lucdre.idleskills.ui.util.LocalItemRegistry
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /**
  * Entry point.
@@ -19,6 +23,9 @@ class MainActivity : ComponentActivity() {
 
     private val trainingViewModel: TrainingViewModel by viewModels()
 
+    @Inject
+    lateinit var itemRegistry: ItemRegistry
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
@@ -26,8 +33,10 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         setContent {
-            IdleSkillsTheme {
-                MainNavigation()
+            CompositionLocalProvider(LocalItemRegistry provides itemRegistry) {
+                IdleSkillsTheme {
+                    MainNavigation()
+                }
             }
         }
     }

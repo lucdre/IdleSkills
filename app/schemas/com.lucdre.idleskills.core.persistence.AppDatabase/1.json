@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "912df71c40808b88907593038ba60152",
+    "identityHash": "bbbc1ad368505a107ba2f0051b5fa655",
     "entities": [
       {
         "tableName": "player_profile",
@@ -208,7 +208,7 @@
       },
       {
         "tableName": "inventory",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`itemId` INTEGER NOT NULL, `quantity` INTEGER NOT NULL, PRIMARY KEY(`itemId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`itemId` INTEGER NOT NULL, `quantity` INTEGER NOT NULL, `acquiredAt` INTEGER NOT NULL, PRIMARY KEY(`itemId`))",
         "fields": [
           {
             "fieldPath": "itemId",
@@ -219,6 +219,12 @@
           {
             "fieldPath": "quantity",
             "columnName": "quantity",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "acquiredAt",
+            "columnName": "acquiredAt",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -233,7 +239,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '912df71c40808b88907593038ba60152')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bbbc1ad368505a107ba2f0051b5fa655')"
     ]
   }
 }

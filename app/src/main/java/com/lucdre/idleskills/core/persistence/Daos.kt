@@ -54,21 +54,14 @@ interface SkillDao {
     suspend fun insertAll(skills: List<SkillEntity>)
 
     /**
-     * Increment XP if row exists.
-     */
-    @Query("UPDATE skills SET xp = MIN(xp + :amount, :cap) WHERE name = :name")
-    suspend fun incrementXp(name: String, amount: Int, cap: Int): Int
-
-    /**
      * Adds XP, creates row if missing.
      */
-    @Transaction
-    suspend fun addXpAtomically(name: String, amount: Int, cap: Int) {
-        val affected = incrementXp(name, amount, cap)
-        if (affected == 0) {
-            insertOrUpdate(SkillEntity(name, amount))
-        }
-    }
+    @Query("""
+        INSERT INTO skills (name, xp) 
+        VALUES (:name, :amount)
+        ON CONFLICT(name) DO UPDATE SET xp = MIN(xp + excluded.xp, :cap)
+    """)
+    suspend fun addXpAtomically(name: String, amount: Int, cap: Int)
 
     @Query("DELETE FROM skills")
     suspend fun clearSkills()
@@ -120,12 +113,6 @@ interface LootBoxDao {
     suspend fun insertOrUpdate(lootBox: LootBoxEntity)
 
     /**
-     * Update the loot box count.
-     */
-    @Query("UPDATE loot_boxes SET count = count + :amount WHERE skillName = :skillName")
-    suspend fun incrementLootBoxCount(skillName: String, amount: Int): Int
-
-    /**
      * Decrements the loot box count.
      */
     @Query("UPDATE loot_boxes SET count = count - 1 WHERE skillName = :skillName AND count > 0")
@@ -134,56 +121,38 @@ interface LootBoxDao {
     /**
      * Updates the loot box count, creating row if missing.
      */
-    @Transaction
-    suspend fun updateLootBoxCount(skillName: String, amount: Int) {
-        val affected = incrementLootBoxCount(skillName, amount)
-        if (affected == 0) {
-            insertOrUpdate(LootBoxEntity(skillName, amount))
-        }
-    }
+    @Query("""
+        INSERT INTO loot_boxes (skillName, count) 
+        VALUES (:skillName, :amount)
+        ON CONFLICT(skillName) DO UPDATE SET count = count + excluded.count
+    """)
+    suspend fun updateLootBoxCount(skillName: String, amount: Int)
 }
 
 @Dao
 interface InventoryDao {
-    @Query("SELECT * FROM inventory")
+    @Query("SELECT * FROM inventory ORDER BY acquiredAt ASC")
     fun observeItems(): Flow<List<InventoryEntity>>
 
     @Query("SELECT * FROM inventory")
     suspend fun getItems(): List<InventoryEntity>
 
-    @Query("SELECT * FROM inventory WHERE itemId = :itemId")
-    suspend fun getItemById(itemId: Int): InventoryEntity?
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrUpdate(item: InventoryEntity)
-
-    @Query("UPDATE inventory SET quantity = quantity + :amount WHERE itemId = :itemId")
-    suspend fun incrementQuantity(itemId: Int, amount: Int)
 
     @Query("UPDATE inventory SET quantity = quantity - :amount WHERE itemId = :itemId AND quantity >= :amount")
     suspend fun decrementQuantity(itemId: Int, amount: Int): Int
 
-    @Transaction
-    suspend fun addItem(itemId: Int, amount: Int) {
-        val existing = getItemById(itemId)
-        if (existing != null) {
-            incrementQuantity(itemId, amount)
-        } else {
-            insertOrUpdate(InventoryEntity(itemId, amount))
-        }
-    }
-
-    @Transaction
-    suspend fun addItems(items: List<InventoryEntity>) {
-        items.forEach { item ->
-            val existing = getItemById(item.itemId)
-            if (existing != null) {
-                incrementQuantity(item.itemId, item.quantity)
-            } else {
-                insertOrUpdate(item)
-            }
-        }
-    }
+    /**
+     * Adds an item, creating row if missing.
+     * Note: acquiredAt is only set on the initial INSERT to preserve discovery order.
+     */
+    @Query("""
+        INSERT INTO inventory (itemId, quantity, acquiredAt) 
+        VALUES (:itemId, :amount, :acquiredAt)
+        ON CONFLICT(itemId) DO UPDATE SET quantity = quantity + excluded.quantity
+    """)
+    suspend fun addItem(itemId: Int, amount: Int, acquiredAt: Long = System.currentTimeMillis())
 
     @Query("DELETE FROM inventory")
     suspend fun clearInventory()

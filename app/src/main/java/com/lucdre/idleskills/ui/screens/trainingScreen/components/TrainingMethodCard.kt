@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,7 +29,11 @@ import com.lucdre.idleskills.skills.domain.skill.SkillMetadata
 import com.lucdre.idleskills.skills.domain.training.TrainingMethod
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodType
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
+import com.lucdre.idleskills.ui.util.LocalItemRegistry
 
+/**
+ * Card displaying a single training method.
+ */
 @Composable
 fun TrainingMethodCard(
     modifier: Modifier = Modifier,
@@ -37,6 +42,17 @@ fun TrainingMethodCard(
     onClick: () -> Unit
 ) {
     val theme = SkillMetadata.getTheme(method.skill)
+    val itemRegistry = LocalItemRegistry.current
+    
+    // Determine the icon to display
+    val producedItem = method.producedItemType
+    val iconResId = producedItem?.let { itemRegistry.getMetadata(it).iconResId } ?: theme.iconResId
+
+    val iconTint = if (selected) {
+        Color.Unspecified
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    }
     
     Card(
         modifier = modifier
@@ -60,10 +76,10 @@ fun TrainingMethodCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                painter = painterResource(id = SkillMetadata.getMethodIcon(method.skill, method.type)),
+                painter = painterResource(id = iconResId),
                 contentDescription = null,
                 modifier = Modifier.size(40.dp),
-                tint = if (selected) theme.primaryColor else MaterialTheme.colorScheme.onSurfaceVariant
+                tint = iconTint
             )
             
             Spacer(modifier = Modifier.width(16.dp))
@@ -103,16 +119,21 @@ fun TrainingMethodCard(
 @Composable
 fun TrainingMethodCardPreview() {
     IdleSkillsTheme {
-        Box(modifier = Modifier.padding(16.dp)) {
-            TrainingMethodCard(
-                method = TrainingMethod(
-                    type = TrainingMethodType.WC_OAK,
-                    xpPerAction = 37,
-                    actionDurationMs = 4000
-                ),
-                selected = true,
-                onClick = {}
-            )
+        androidx.compose.runtime.CompositionLocalProvider(
+            LocalItemRegistry provides com.lucdre.idleskills.inventory.domain.ItemRegistry()
+        ) {
+            Box(modifier = Modifier.padding(16.dp)) {
+                TrainingMethodCard(
+                    method = TrainingMethod(
+                        type = TrainingMethodType.WC_OAK,
+                        xpPerAction = 37,
+                        actionDurationMs = 4000,
+                        producedItemType = com.lucdre.idleskills.inventory.domain.ItemType.OAK_LOGS
+                    ),
+                    selected = true,
+                    onClick = {}
+                )
+            }
         }
     }
 }

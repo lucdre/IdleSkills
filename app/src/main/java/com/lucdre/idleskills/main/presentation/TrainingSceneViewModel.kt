@@ -2,6 +2,7 @@ package com.lucdre.idleskills.main.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lucdre.idleskills.inventory.domain.ItemRegistry
 import com.lucdre.idleskills.loot.domain.LootEvent
 import com.lucdre.idleskills.loot.domain.usecase.CollectLootRewardsUseCase
 import com.lucdre.idleskills.loot.domain.usecase.ObserveLootEventsUseCase
@@ -24,12 +25,14 @@ sealed class TrainingSceneUiEffect {
  *
  * @property collectLootRewardsUseCase Use case to handle loot collection when the sprite is clicked.
  * @property observeLootEventsUseCase Use case to observe the stream of loot spawn/hide events.
+ * @property itemRegistry For looking up item metadata for messages.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class TrainingSceneViewModel @Inject constructor(
     private val collectLootRewardsUseCase: CollectLootRewardsUseCase,
-    private val observeLootEventsUseCase: ObserveLootEventsUseCase
+    private val observeLootEventsUseCase: ObserveLootEventsUseCase,
+    private val itemRegistry: ItemRegistry
 ) : ViewModel() {
 
     private val _isSpawningActive = MutableStateFlow(false)
@@ -87,7 +90,8 @@ class TrainingSceneViewModel @Inject constructor(
             if (reward != null) {
                 val message = buildString {
                     val items = reward.items.entries.joinToString(", ") { (type, qty) ->
-                        "$qty ${type.displayName}"
+                        val metadata = itemRegistry.getMetadata(type)
+                        "$qty ${metadata.displayName}"
                     }
                     if (items.isNotEmpty()) {
                         append("Found $items")

@@ -3,9 +3,9 @@ package com.lucdre.idleskills.inventory.presentation
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lucdre.idleskills.inventory.domain.InventoryRepositoryInterface
 import com.lucdre.idleskills.inventory.domain.Item
-import com.lucdre.idleskills.inventory.domain.ItemType
+import com.lucdre.idleskills.inventory.domain.ItemRegistry
+import com.lucdre.idleskills.inventory.domain.usecase.GetInventoryUseCase
 import com.lucdre.idleskills.loot.domain.LootBox
 import com.lucdre.idleskills.loot.domain.usecase.ObserveLootBoxCountUseCase
 import com.lucdre.idleskills.loot.domain.usecase.OpenLootBoxUseCase
@@ -27,28 +27,30 @@ import javax.inject.Inject
 data class InventoryUiState(
     val inventoryItems: List<Item> = emptyList(),
     val lootBoxes: List<LootBox> = emptyList(),
-    val lastRewards: Map<ItemType, Int>? = null,
+    val lastRewards: List<Item>? = null,
     val isLoading: Boolean = true
 )
 
 /**
  * ViewModel for managing the player's inventory items and loot box interaction.
  *
- * @property inventoryRepository The repository for player inventory data.
+ * @property getInventoryUseCase Use case for observing inventory items.
  * @property observeLootBoxCountUseCase Use case for observing available loot boxes.
  * @property openLootBoxUseCase Use case for opening a loot box and receiving rewards.
+ * @property itemRegistry Central registry for item metadata.
  */
 @HiltViewModel
 class InventoryViewModel @Inject constructor(
-    private val inventoryRepository: InventoryRepositoryInterface,
+    private val getInventoryUseCase: GetInventoryUseCase,
     private val observeLootBoxCountUseCase: ObserveLootBoxCountUseCase,
-    private val openLootBoxUseCase: OpenLootBoxUseCase
+    private val openLootBoxUseCase: OpenLootBoxUseCase,
+    private val itemRegistry: ItemRegistry
 ) : ViewModel() {
 
-    private val _lastRewards = MutableStateFlow<Map<ItemType, Int>?>(null)
+    private val _lastRewards = MutableStateFlow<List<Item>?>(null)
 
     val uiState: StateFlow<InventoryUiState> = combine(
-        inventoryRepository.observeItems(),
+        getInventoryUseCase(),
         observeLootBoxCountUseCase(),
         _lastRewards
     ) { inventory, loot, rewards ->
@@ -67,7 +69,13 @@ class InventoryViewModel @Inject constructor(
     fun onOpenBoxClick(skill: SkillType) {
         viewModelScope.launch {
             openLootBoxUseCase(skill).onSuccess { rewards ->
-                _lastRewards.value = rewards
+                _lastRewards.value = rewards.map { (type, quantity) ->
+                    Item(
+                        type = type,
+                        quantity = quantity,
+                        metadata = itemRegistry.getMetadata(type)
+                    )
+                }
             }
         }
     }

@@ -4,10 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.cards.domain.CardCalculator
-import com.lucdre.idleskills.cards.domain.UpgradeRequirement
 import com.lucdre.idleskills.cards.domain.usecase.GetOwnedCardsUseCase
 import com.lucdre.idleskills.cards.domain.usecase.UpgradeCardUseCase
-import com.lucdre.idleskills.inventory.domain.InventoryRepositoryInterface
+import com.lucdre.idleskills.inventory.domain.ItemMetadata
+import com.lucdre.idleskills.inventory.domain.ItemRegistry
+import com.lucdre.idleskills.inventory.domain.usecase.GetInventoryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
@@ -23,13 +24,26 @@ sealed class CardUiEffect {
 }
 
 /**
+ * Representation of an upgrade requirement.
+ *
+ * @property requiredQuantity The amount needed for the upgrade.
+ * @property ownedQuantity The amount currently in the player's inventory.
+ * @property metadata Display information for the item.
+ */
+data class CardRequirementUiState(
+    val requiredQuantity: Int,
+    val ownedQuantity: Int,
+    val metadata: ItemMetadata
+)
+
+/**
  * UI state for an individual card item.
  */
 data class CardItemUiState(
     val card: Card,
     val canUpgrade: Boolean,
     val nextLevelBonus: Float,
-    val requirements: List<UpgradeRequirement> = emptyList()
+    val requirements: List<CardRequirementUiState> = emptyList()
 )
 
 /**
@@ -49,14 +63,16 @@ data class CardUiState(
  * @property getOwnedCardsUseCase For observing cards.
  * @property upgradeCardUseCase For upgrading cards.
  * @property cardCalculator For card-related calculations.
- * @property inventoryRepository For observing inventory resources.
+ * @property getInventoryUseCase For observing mapped inventory resources.
+ * @property itemRegistry For looking up item metadata.
  */
 @HiltViewModel
 class CardViewModel @Inject constructor(
     private val getOwnedCardsUseCase: GetOwnedCardsUseCase,
     private val upgradeCardUseCase: UpgradeCardUseCase,
     private val cardCalculator: CardCalculator,
-    private val inventoryRepository: InventoryRepositoryInterface
+    private val getInventoryUseCase: GetInventoryUseCase,
+    private val itemRegistry: ItemRegistry
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CardUiState(isLoading = true))
@@ -68,14 +84,22 @@ class CardViewModel @Inject constructor(
     init {
         combine(
             getOwnedCardsUseCase(),
-            inventoryRepository.observeItems()
+            getInventoryUseCase()
         ) { cards, inventory ->
             cards.map { card ->
+                val requirements = cardCalculator.getUpgradeRequirements(card.type, card.level)
                 CardItemUiState(
                     card = card,
                     canUpgrade = cardCalculator.canUpgrade(card, inventory),
                     nextLevelBonus = cardCalculator.getNextLevelBonus(card),
-                    requirements = cardCalculator.getUpgradeRequirements(card.type, card.level)
+                    requirements = requirements.map { req ->
+                        val owned = inventory.find { it.type == req.itemType }?.quantity ?: 0
+                        CardRequirementUiState(
+                            requiredQuantity = req.quantity,
+                            ownedQuantity = owned,
+                            metadata = itemRegistry.getMetadata(req.itemType)
+                        )
+                    }
                 )
             }
             .groupBy { it.card.type.rarity }

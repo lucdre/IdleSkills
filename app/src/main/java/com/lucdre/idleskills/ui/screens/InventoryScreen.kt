@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lucdre.idleskills.inventory.domain.Item
+import com.lucdre.idleskills.inventory.domain.ItemMetadata
 import com.lucdre.idleskills.inventory.domain.ItemType
 import com.lucdre.idleskills.inventory.presentation.InventoryViewModel
 import com.lucdre.idleskills.loot.domain.LootBox
@@ -35,31 +36,31 @@ import com.lucdre.idleskills.ui.components.AutoSizeText
 
 @Composable
 fun InventoryScreen(
-    viewModel: InventoryViewModel = hiltViewModel(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: InventoryViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     
     InventoryScreenContent(
+        modifier = modifier,
         inventoryItems = uiState.inventoryItems,
         lootBoxes = uiState.lootBoxes,
         lastRewards = uiState.lastRewards,
         onOpenBoxClick = { viewModel.onOpenBoxClick(it) },
         clearRewards = { viewModel.clearRewards() },
-        isLoading = uiState.isLoading,
-        modifier = modifier
+        isLoading = uiState.isLoading
     )
 }
 
 @Composable
 fun InventoryScreenContent(
+    modifier: Modifier = Modifier,
     inventoryItems: List<Item>,
     lootBoxes: List<LootBox>,
-    lastRewards: Map<ItemType, Int>?,
+    lastRewards: List<Item>?,
     onOpenBoxClick: (SkillType) -> Unit,
     clearRewards: () -> Unit,
-    isLoading: Boolean = false,
-    modifier: Modifier = Modifier
+    isLoading: Boolean = false
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         Column(
@@ -142,8 +143,8 @@ fun InventoryScreenContent(
                 title = { Text("You found items!") },
                 text = {
                     Column {
-                        rewards.forEach { (type, quantity) ->
-                            Text("${type.displayName} x$quantity")
+                        rewards.forEach { item ->
+                            Text("${item.metadata.displayName} x${item.quantity}")
                         }
                     }
                 }
@@ -205,14 +206,14 @@ fun InventoryItemCard(item: Item) {
             verticalArrangement = Arrangement.Center
         ) {
             Icon(
-                painter = painterResource(id = item.type.iconResId),
+                painter = painterResource(id = item.metadata.iconResId),
                 contentDescription = null,
                 modifier = Modifier.size(32.dp),
                 tint = Color.Unspecified
             )
             Spacer(modifier = Modifier.height(2.dp))
             AutoSizeText(
-                text = item.type.displayName,
+                text = item.metadata.displayName,
                 style = MaterialTheme.typography.labelSmall,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -239,7 +240,11 @@ fun InventoryScreenPreview() {
                 LootBox(SkillType.WOODCUTTING, 5)
             ),
             inventoryItems = listOf(
-                Item(ItemType.OAK_LOGS, 150)
+                Item(
+                    type = ItemType.OAK_LOGS,
+                    quantity = 150,
+                    metadata = ItemMetadata("Oak Logs", com.lucdre.idleskills.R.drawable.item_normal_logs)
+                )
             ),
             lastRewards = null,
             onOpenBoxClick = {},

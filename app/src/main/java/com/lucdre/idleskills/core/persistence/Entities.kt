@@ -81,5 +81,6 @@ data class LootBoxEntity(
 @Entity(tableName = "inventory")
 data class InventoryEntity(
     @PrimaryKey val itemId: Int,
-    val quantity: Int
+    val quantity: Int,
+    val acquiredAt: Long = System.currentTimeMillis()
 )

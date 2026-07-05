@@ -173,6 +173,7 @@ private fun SingleColumnTrainingLayout(
             SkillSelector(
                 skills = SkillType.entries,
                 selectedSkill = skillsState.expandedSkillName?.let { SkillType.fromString(it) },
+                activeSkill = skillsState.activeTrainingSkill,
                 onSkillSelected = onSkillSelect
             )
         }
@@ -259,6 +260,7 @@ private fun TwoColumnTrainingLayout(
                 SkillSelector(
                     skills = SkillType.entries,
                     selectedSkill = skillsState.expandedSkillName?.let { SkillType.fromString(it) },
+                    activeSkill = skillsState.activeTrainingSkill,
                     onSkillSelected = onSkillSelect
                 )
             }

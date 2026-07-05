@@ -134,8 +134,12 @@ fun TradingCardItem(
 @Composable
 fun TradingCardPreview() {
     IdleSkillsTheme {
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
             TradingCardItem(
+                modifier = Modifier.width(160.dp),
                 cardState = CardItemUiState(
                     card = GameCard("Woodcutting Speed", CardType.WOODCUTTING_CARD, 1, 1, 0.05f, R.drawable.ic_tree),
                     canUpgrade = true,
@@ -144,6 +148,7 @@ fun TradingCardPreview() {
                 onClick = {}
             )
             TradingCardItem(
+                modifier = Modifier.width(160.dp),
                 cardState = CardItemUiState(
                     card = GameCard("Mining Speed", CardType.MINING_CARD, 2, 1, 0.12f, R.drawable.ic_tree),
                     canUpgrade = false,

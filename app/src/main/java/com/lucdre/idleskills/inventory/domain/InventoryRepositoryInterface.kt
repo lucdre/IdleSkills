@@ -1,5 +1,6 @@
 package com.lucdre.idleskills.inventory.domain
 
+import com.lucdre.idleskills.core.persistence.InventoryEntity
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -7,9 +8,9 @@ import kotlinx.coroutines.flow.Flow
  */
 interface InventoryRepositoryInterface {
     /**
-     * Observes the list of all items in the inventory.
+     * Observes the list of all items in the inventory as database entities.
      */
-    fun observeItems(): Flow<List<Item>>
+    fun observeItems(): Flow<List<InventoryEntity>>
 
     /**
      * Adds a quantity of an item to the inventory.
