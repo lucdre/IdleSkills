@@ -70,6 +70,15 @@ class TrainingSessionManager @Inject constructor(
     )
 
     /**
+     * Handles foreground transition.
+     */
+    suspend fun handleForegroundTransition() {
+        calculateOfflineProgressUseCase()?.let { result ->
+            _offlineProgress.value = result
+        }
+    }
+
+    /**
      * Initializes the training session.
      *
      * - Calculates and stores offline progress.
@@ -77,9 +86,7 @@ class TrainingSessionManager @Inject constructor(
      */
     fun initializeSession() {
         managerScope.launch {
-            calculateOfflineProgressUseCase()?.let { result ->
-                _offlineProgress.value = result
-            }
+            handleForegroundTransition()
 
             val activeSession = sessionRepository.observeActiveTraining().first()
             if (activeSession != null) {

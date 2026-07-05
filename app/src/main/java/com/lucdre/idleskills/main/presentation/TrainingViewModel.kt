@@ -69,7 +69,10 @@ class TrainingViewModel @Inject constructor(
     }
 
     override fun onStart(owner: LifecycleOwner) {
-        setAppVisibility(true)
+        viewModelScope.launch {
+            trainingSessionManager.handleForegroundTransition()
+            setAppVisibility(true)
+        }
     }
 
     override fun onStop(owner: LifecycleOwner) {

@@ -6,8 +6,8 @@ import com.lucdre.idleskills.cards.domain.usecase.GetActiveCardsUseCase
 import com.lucdre.idleskills.inventory.domain.ItemType
 import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
-import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodRepositoryDispatcher
+import kotlin.math.floor
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -80,7 +80,7 @@ class OfflineProgressManager @Inject constructor(
         val effectiveDuration = method.getEffectiveActionDuration(cards)
 
         // Calculate XP: (Diff / EffectiveActionDuration) * XpPerAction
-        val actionsCompleted = (diffMs.toDouble() / effectiveDuration).toLong()
+        val actionsCompleted = floor(diffMs.toDouble() / effectiveDuration).toLong()
         val earnedXp = (actionsCompleted * method.xpPerAction).toInt()
         
         // Calculate actual gain accounting for 200M cap
@@ -95,7 +95,7 @@ class OfflineProgressManager @Inject constructor(
         }
 
         if (actualXpGain > 0 || earnedItems.isNotEmpty()) {
-            // Atomic multi-domain application via repository
+            // Apply progress atomically
             gameActionRepository.applyOfflineProgress(
                 skillName = activeSkill.name,
                 xpAmount = actualXpGain,
