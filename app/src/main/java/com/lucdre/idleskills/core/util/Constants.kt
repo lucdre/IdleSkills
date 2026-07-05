@@ -18,4 +18,9 @@ object Constants {
      * Maximum time offline progress can accumulate (48 hours).
      */
     const val OFFLINE_PROGRESS_CAP_MS = 48L * 60 * 60 * 1000
+
+    /**
+     * The percentage of offline time that actually counts towards progress (30%).
+     */
+    const val BASE_OFFLINE_EFFICIENCY = 0.3f
 }

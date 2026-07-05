@@ -44,6 +44,8 @@ fun SettingsScreen(
         modifier = modifier,
         playerProfile = uiState.playerProfile,
         regionName = uiState.currentRegionName,
+        offlineCapHours = uiState.offlineCapHours,
+        offlineEfficiencyPercent = uiState.offlineEfficiencyPercent,
         onResetClick = { showResetDialog = true }
     )
 
@@ -82,6 +84,8 @@ fun SettingsScreenPreview() {
                 username = "IdleMaster"
             ),
             regionName = "Region 1",
+            offlineCapHours = 48,
+            offlineEfficiencyPercent = 30,
             onResetClick = {}
         )
     }
@@ -92,6 +96,8 @@ fun SettingsScreenContent(
     modifier: Modifier = Modifier,
     playerProfile: PlayerProfile,
     regionName: String,
+    offlineCapHours: Int,
+    offlineEfficiencyPercent: Int,
     onResetClick: () -> Unit
 ) {
     Column(
@@ -159,7 +165,51 @@ fun SettingsScreenContent(
                         fontWeight = FontWeight.Bold
                     )
                 }
+            }
+        }
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Offline Stats Card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = "Offline Stats",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = "Max Offline Time", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        text = "${offlineCapHours}h",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = "Offline Efficiency", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        text = "${offlineEfficiencyPercent}%",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
 

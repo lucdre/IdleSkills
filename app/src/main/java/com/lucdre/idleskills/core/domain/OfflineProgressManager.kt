@@ -80,8 +80,11 @@ class OfflineProgressManager @Inject constructor(
         val cards = getActiveCardsUseCase(activeSkill, method.type).first()
         val effectiveDuration = method.getEffectiveActionDuration(cards)
 
-        // Calculate XP: (Diff / EffectiveActionDuration) * XpPerAction
-        val actionsCompleted = floor(diffMs.toDouble() / effectiveDuration).toLong()
+        // Apply offline efficiency multiplier
+        val effectiveDiffMs = (diffMs * Constants.BASE_OFFLINE_EFFICIENCY).toLong()
+
+        // Calculate XP: (EffectiveDiff / EffectiveActionDuration) * XpPerAction
+        val actionsCompleted = floor(effectiveDiffMs.toDouble() / effectiveDuration).toLong()
         val earnedXp = (actionsCompleted * method.xpPerAction).toInt()
         
         // Calculate actual gain accounting for 200M cap

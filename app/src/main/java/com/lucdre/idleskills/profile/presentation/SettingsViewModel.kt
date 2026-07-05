@@ -11,6 +11,7 @@ import com.lucdre.idleskills.profile.domain.UserPreferences
 import com.lucdre.idleskills.profile.domain.usecase.GetPlayerProfileUseCase
 import com.lucdre.idleskills.skills.domain.training.TrainingService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import com.lucdre.idleskills.core.util.Constants
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -22,6 +23,8 @@ import javax.inject.Inject
  * @property playerProfile The current player's profile information.
  * @property userPreferences The user's settings and preferences.
  * @property currentRegionName The name of the region the player is currently in.
+ * @property offlineCapHours The maximum offline progress time in hours.
+ * @property offlineEfficiencyPercent The base offline efficiency percentage.
  * @property isLoading Whether the settings data is currently being loaded.
  */
 @Immutable
@@ -29,6 +32,8 @@ data class SettingsUiState(
     val playerProfile: PlayerProfile = PlayerProfile(),
     val userPreferences: UserPreferences = UserPreferences(),
     val currentRegionName: String = "",
+    val offlineCapHours: Int = 0,
+    val offlineEfficiencyPercent: Int = 0,
     val isLoading: Boolean = true
 )
 
@@ -66,6 +71,8 @@ class SettingsViewModel @Inject constructor(
             playerProfile = profile,
             userPreferences = preferences,
             currentRegionName = region.displayName,
+            offlineCapHours = (Constants.OFFLINE_PROGRESS_CAP_MS / (1000 * 60 * 60)).toInt(),
+            offlineEfficiencyPercent = (Constants.BASE_OFFLINE_EFFICIENCY * 100).toInt(),
             isLoading = false
         )
     }.stateIn(
