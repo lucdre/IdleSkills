@@ -27,13 +27,14 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.lucdre.idleskills.R
 import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.cards.domain.CardType
-import com.lucdre.idleskills.cards.domain.UpgradeRequirement
 import com.lucdre.idleskills.cards.presentation.CardItemUiState
+import com.lucdre.idleskills.cards.presentation.CardRequirementUiState
 import com.lucdre.idleskills.cards.presentation.CardUiEffect
 import com.lucdre.idleskills.cards.presentation.CardViewModel
+import com.lucdre.idleskills.inventory.domain.ItemMetadata
 import com.lucdre.idleskills.skills.domain.skill.SkillMetadata
+import com.lucdre.idleskills.ui.screens.trainingScreen.components.UpgradeRequirementsSection
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
-import com.lucdre.idleskills.ui.util.NumberFormatter
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -210,76 +211,28 @@ fun CardDetailScreenContent(
             val canUpgrade = cardState.canUpgrade
             val requirements = cardState.requirements
 
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.Start
+            UpgradeRequirementsSection(requirements = requirements)
+                
+            Spacer(modifier = Modifier.height(24.dp))
+                
+            Button(
+                onClick = { onUpgradeClick(card) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                enabled = canUpgrade,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = skillColor,
+                    disabledContainerColor = Color.DarkGray
+                ),
+                shape = RoundedCornerShape(12.dp)
             ) {
                 Text(
-                    text = "Upgrade Requirements",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Color.White,
-                    modifier = Modifier.padding(bottom = 12.dp)
+                    text = if (canUpgrade) "UPGRADE" else if (requirements.isEmpty()) "MAX LEVEL" else "INSUFFICIENT RESOURCES",
+                    color = if (canUpgrade) Color.White else Color.White.copy(alpha = 0.5f),
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp
                 )
-
-                if (requirements.isEmpty()) {
-                    Text(
-                        text = "Max Level Reached",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color.Gray,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-                } else {
-                    requirements.forEach { req ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    painter = painterResource(id = req.itemType.iconResId),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(20.dp),
-                                    tint = Color.Unspecified
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = req.itemType.displayName,
-                                    color = Color.LightGray
-                                )
-                            }
-                            Text(
-                                text = NumberFormatter.formatNumber(req.quantity),
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-                }
-                
-                Spacer(modifier = Modifier.height(24.dp))
-                
-                Button(
-                    onClick = { onUpgradeClick(card) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    enabled = canUpgrade,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = skillColor,
-                        disabledContainerColor = Color.DarkGray
-                    ),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(
-                        text = if (canUpgrade) "UPGRADE" else if (requirements.isEmpty()) "MAX LEVEL" else "INSUFFICIENT RESOURCES",
-                        color = if (canUpgrade) Color.White else Color.White.copy(alpha = 0.5f),
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.sp
-                    )
-                }
             }
         }
     }
@@ -302,7 +255,11 @@ fun CardDetailScreenPreview() {
                 canUpgrade = false,
                 nextLevelBonus = 0.10f,
                 requirements = listOf(
-                    UpgradeRequirement(com.lucdre.idleskills.inventory.domain.ItemType.NORMAL_LOGS, 50)
+                    CardRequirementUiState(
+                        requiredQuantity = 50,
+                        ownedQuantity = 10,
+                        metadata = ItemMetadata("Logs", R.drawable.ic_tree)
+                    )
                 )
             ),
             uiEffects = remember { MutableSharedFlow<CardUiEffect>().asSharedFlow() },

@@ -34,7 +34,7 @@ class CardUpgradeRegistry @Inject constructor() {
                 UpgradeRequirement(ItemType.COPPER_ORE, 250),
                 UpgradeRequirement(ItemType.TIN_ORE, 250),
                 UpgradeRequirement(ItemType.IRON_ORE, 250),
-                UpgradeRequirement(ItemType.COAL, 250)
+                UpgradeRequirement(ItemType.COAL_ORE, 250)
             )
         ),
         CardType.FISHING_CARD to mapOf(

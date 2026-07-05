@@ -46,7 +46,7 @@ class LootGenerator @Inject constructor(
         )
         
         private val miningItems = listOf(
-            ItemType.COPPER_ORE, ItemType.TIN_ORE, ItemType.IRON_ORE, ItemType.COAL,
+            ItemType.COPPER_ORE, ItemType.TIN_ORE, ItemType.IRON_ORE, ItemType.COAL_ORE,
             ItemType.MITHRIL_ORE, ItemType.ADAMANT_ORE, ItemType.RUNE_ORE, ItemType.DRAGON_ORE
         )
         

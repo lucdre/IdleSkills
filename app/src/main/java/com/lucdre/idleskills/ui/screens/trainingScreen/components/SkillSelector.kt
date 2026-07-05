@@ -26,6 +26,7 @@ fun SkillSelector(
     modifier: Modifier = Modifier,
     skills: List<SkillType>,
     selectedSkill: SkillType?,
+    activeSkill: SkillType? = null,
     onSkillSelected: (SkillType) -> Unit,
 ) {
     Column(modifier = modifier) {
@@ -71,7 +72,7 @@ fun SkillSelector(
                             painter = painterResource(id = theme.iconResId),
                             contentDescription = skill.displayName,
                             modifier = Modifier.size(32.dp),
-                            tint = if (isSelected) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = if (isSelected || skill == activeSkill) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         AutoSizeText(
@@ -97,7 +98,8 @@ fun SkillSelectorPreview() {
         Box(modifier = Modifier.padding(16.dp)) {
             SkillSelector(
                 skills = SkillType.entries,
-                selectedSkill = SkillType.WOODCUTTING,
+                selectedSkill = SkillType.MINING,
+                activeSkill = SkillType.MINING,
                 onSkillSelected = {}
             )
         }

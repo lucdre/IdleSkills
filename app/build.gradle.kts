@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.compose.runtime)
+    implementation(libs.google.errorprone.annotations)
     implementation(libs.androidx.sqlite.bundled)
 
     // Hilt & KSP

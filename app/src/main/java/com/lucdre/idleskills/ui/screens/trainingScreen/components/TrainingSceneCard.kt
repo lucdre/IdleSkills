@@ -231,9 +231,9 @@ fun AnimatedCharacter(activeSkill: SkillType?) {
 
         // Tool icon
         val toolPainter = when (activeSkill) {
-            SkillType.WOODCUTTING -> rememberVectorPainter(Icons.Default.Handyman) // TODO: Axe icon
+            SkillType.WOODCUTTING -> painterResource(id = R.drawable.skill_woodcutting_axe)
             SkillType.MINING -> painterResource(id = R.drawable.skill_mining_pickaxe)
-            SkillType.FISHING -> rememberVectorPainter(Icons.Default.Phishing) // TODO: Rod icon
+            SkillType.FISHING -> painterResource(id = R.drawable.skill_fishing_rod)
             else -> null
         }
 
@@ -242,7 +242,7 @@ fun AnimatedCharacter(activeSkill: SkillType?) {
                 painter = it,
                 contentDescription = null,
                 modifier = Modifier.size(32.dp).offset(x = 20.dp, y = (-40).dp),
-                tint = if(activeSkill == SkillType.MINING) Color.Unspecified else Color.LightGray
+                tint = Color.Unspecified
             )
         }
     }

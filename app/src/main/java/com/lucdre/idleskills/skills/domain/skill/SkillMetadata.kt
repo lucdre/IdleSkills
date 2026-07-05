@@ -3,8 +3,6 @@ package com.lucdre.idleskills.skills.domain.skill
 import androidx.compose.ui.graphics.Color
 import com.lucdre.idleskills.R
 
-import com.lucdre.idleskills.skills.domain.training.TrainingMethodType
-
 /**
  * Visual configuration for a skill's UI elements.
  */
@@ -29,7 +27,7 @@ object SkillMetadata {
             indicatorColor = Color(0xFF4CAF50),
             unselectedIconTint = Color.Gray,
             panelBackgroundColor = Color(0x0A4CAF50),
-            iconResId = R.drawable.ic_tree,
+            iconResId = R.drawable.skill_woodcutting_axe,
             biomeColors = listOf(Color(0xFF2E7D32), Color(0xFF1B5E20))
         ),
         SkillType.MINING to SkillTheme(
@@ -47,7 +45,7 @@ object SkillMetadata {
             indicatorColor = Color(0xFF0288D1),
             unselectedIconTint = Color(0xFF81D4FA),
             panelBackgroundColor = Color(0x1A0277BD),
-            iconResId = R.drawable.ic_tree, // TODO: Replace with fishing icon
+            iconResId = R.drawable.skill_fishing_rod,
             biomeColors = listOf(Color(0xFF01579B), Color(0xFF0277BD))
         )
     )
@@ -76,13 +74,5 @@ object SkillMetadata {
     fun getTheme(skillName: String): SkillTheme {
         val skillType = SkillType.fromString(skillName)
         return if (skillType != null) getTheme(skillType) else getTheme(SkillType.WOODCUTTING) // Fallback
-    }
-
-    /**
-     * Get the icon for a specific training method.
-     */
-    fun getMethodIcon(skill: SkillType, methodType: TrainingMethodType): Int {
-        // TODO: Replace with specific training method icons
-        return R.drawable.ic_tree
     }
 }
