@@ -18,14 +18,4 @@ class Converters {
         return runCatching { Region.valueOf(value) }
             .getOrElse { Region.FIRST_REGION }
     }
-
-    @ColumnTypeConverter
-    fun fromStringSet(value: Set<String>): String {
-        return value.joinToString("|")
-    }
-
-    @ColumnTypeConverter
-    fun toStringSet(value: String): Set<String> {
-        return if (value.isEmpty()) emptySet() else value.split("|").toSet()
-    }
 }
