@@ -66,6 +66,15 @@ class NewUserViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(errorMessage = null)
         }
     }
+
+    /**
+     * Updates the username state and clears any existing errors.
+     *
+     * @param newUsername The new username input.
+     */
+    fun updateUsername(newUsername: String) {
+        _uiState.value = _uiState.value.copy(username = newUsername, errorMessage = null)
+    }
 }
 
 /**
@@ -77,4 +86,8 @@ class NewUserViewModel @Inject constructor(
 data class NewUserUiState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-)
+    val username: String = "",
+) {
+    val isStartEnabled: Boolean
+        get() = !isLoading && username.isNotBlank()
+}

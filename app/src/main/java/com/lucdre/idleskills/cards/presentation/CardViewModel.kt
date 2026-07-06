@@ -54,7 +54,8 @@ data class CardItemUiState(
  */
 data class CardUiState(
     val cardsByRarity: Map<String, List<CardItemUiState>> = emptyMap(),
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val expandedRarities: Map<String, Boolean> = emptyMap()
 )
 
 /**
@@ -129,6 +130,20 @@ class CardViewModel @Inject constructor(
                     _uiEffects.emit(CardUiEffect.ShowMessage(error.message ?: "Failed to upgrade card"))
                     android.util.Log.e("CardViewModel", "Failed to upgrade card: ${error.message}")
                 }
+        }
+    }
+
+    /**
+     * Toggles the expanded state of a specific card rarity group.
+     *
+     * @param rarity The rarity group to toggle.
+     */
+    fun toggleRarityExpansion(rarity: String) {
+        _uiState.update { state ->
+            val currentExpanded = state.expandedRarities[rarity] ?: true
+            state.copy(
+                expandedRarities = state.expandedRarities + (rarity to !currentExpanded)
+            )
         }
     }
 }

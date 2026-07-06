@@ -26,7 +26,6 @@ fun NewUserScreen(
     viewModel: NewUserViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var username by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
@@ -40,16 +39,16 @@ fun NewUserScreen(
 
     Box(modifier = modifier.fillMaxSize()) {
         NewUserScreenContent(
-            username = username,
+            username = uiState.username,
             onUsernameChange = { 
-                username = it
-                viewModel.clearError()
+                viewModel.updateUsername(it)
             },
             onStartClick = {
-                viewModel.setupProfile(username)
+                viewModel.setupProfile(uiState.username)
             },
             isLoading = uiState.isLoading,
-            errorMessage = uiState.errorMessage
+            errorMessage = uiState.errorMessage,
+            isStartEnabled = uiState.isStartEnabled
         )
     }
 }
@@ -61,7 +60,8 @@ private fun NewUserScreenContent(
     onUsernameChange: (String) -> Unit,
     onStartClick: () -> Unit,
     isLoading: Boolean,
-    errorMessage: String?
+    errorMessage: String?,
+    isStartEnabled: Boolean
 ) {
     Column(
         modifier = modifier
@@ -105,7 +105,7 @@ private fun NewUserScreenContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
-            enabled = !isLoading && username.isNotBlank()
+            enabled = isStartEnabled
         ) {
             if (isLoading) {
                 CircularProgressIndicator(
@@ -130,7 +130,8 @@ fun NewUserScreenScreenPreview() {
             onUsernameChange = {},
             onStartClick = {},
             isLoading = false,
-            errorMessage = null
+            errorMessage = null,
+            isStartEnabled = true
         )
     }
 }

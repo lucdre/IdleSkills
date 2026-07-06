@@ -71,7 +71,8 @@ fun CardsScreen(
             uiState = uiState,
             onCardClick = { card ->
                 navController?.navigate(Route.CardDetail(card.name))
-            }
+            },
+            onToggleRarity = viewModel::toggleRarityExpansion
         )
     }
 }
@@ -80,9 +81,9 @@ fun CardsScreen(
 fun CardsScreenContent(
     modifier: Modifier = Modifier,
     uiState: CardUiState,
-    onCardClick: (Card) -> Unit
+    onCardClick: (Card) -> Unit,
+    onToggleRarity: (String) -> Unit
 ) {
-    val expandedRarities = remember { mutableStateMapOf<String, Boolean>() }
 
     Column(
         modifier = modifier
@@ -122,18 +123,18 @@ fun CardsScreenContent(
                 contentPadding = PaddingValues(bottom = 80.dp) // Space for bottom nav
             ) {
                 uiState.cardsByRarity.forEach { (rarity, cardStates) ->
-                    val isExpanded = expandedRarities[rarity] ?: true
+                    val isExpanded = uiState.expandedRarities[rarity] ?: true
                     
                     item(key = rarity, span = { GridItemSpan(maxLineSpan) }) {
                         RarityGroupHeader(
                             rarity = rarity,
                             isExpanded = isExpanded,
-                            onToggle = { expandedRarities[rarity] = !isExpanded }
+                            onToggle = { onToggleRarity(rarity) }
                         )
                     }
 
                     if (isExpanded) {
-                        items(cardStates, key = { it.card.name }) { cardState ->
+                        items(cardStates, key = { it.card.type.name }) { cardState ->
                             TradingCardItem(
                                 cardState = cardState,
                                 onClick = { onCardClick(cardState.card) }
@@ -212,7 +213,8 @@ fun CardsScreenPreview() {
                     )
                 )
             ),
-            onCardClick = {}
+            onCardClick = {},
+            onToggleRarity = {}
         )
     }
 }
