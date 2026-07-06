@@ -5,15 +5,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lucdre.idleskills.core.domain.SessionRepositoryInterface
 import com.lucdre.idleskills.core.domain.usecase.ResetAllDataUseCase
+import com.lucdre.idleskills.core.util.Constants
 import com.lucdre.idleskills.profile.domain.PlayerProfile
 import com.lucdre.idleskills.profile.domain.PreferencesRepositoryInterface
 import com.lucdre.idleskills.profile.domain.UserPreferences
 import com.lucdre.idleskills.profile.domain.usecase.GetPlayerProfileUseCase
 import com.lucdre.idleskills.skills.domain.training.TrainingService
 import dagger.hilt.android.lifecycle.HiltViewModel
-import com.lucdre.idleskills.core.util.Constants
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -86,26 +90,6 @@ class SettingsViewModel @Inject constructor(
             trainingService.stopTraining()
             resetAllDataUseCase()
             _effect.send(Effect.TriggerRebirth)
-        }
-    }
-
-    /**
-     * Updates the notification preference.
-     */
-    fun toggleNotifications(enabled: Boolean) {
-        viewModelScope.launch {
-            val current = uiState.value.userPreferences
-            preferencesRepository.updatePreferences(current.copy(isNotificationsEnabled = enabled))
-        }
-    }
-
-    /**
-     * Updates the theme preference.
-     */
-    fun updateTheme(theme: String) {
-        viewModelScope.launch {
-            val current = uiState.value.userPreferences
-            preferencesRepository.updatePreferences(current.copy(theme = theme))
         }
     }
 }

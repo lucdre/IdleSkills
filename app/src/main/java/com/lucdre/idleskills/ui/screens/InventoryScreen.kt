@@ -1,13 +1,30 @@
 package com.lucdre.idleskills.ui.screens
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -17,9 +34,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
-import com.lucdre.idleskills.ui.theme.Spacing
-import com.lucdre.idleskills.ui.util.IdleSkillsPreviews
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -30,10 +44,13 @@ import com.lucdre.idleskills.inventory.domain.ItemType
 import com.lucdre.idleskills.inventory.presentation.InventoryViewModel
 import com.lucdre.idleskills.loot.domain.LootBox
 import com.lucdre.idleskills.skills.domain.skill.SkillType
-import com.lucdre.idleskills.ui.screens.trainingScreen.components.LootBoxItem
-import com.lucdre.idleskills.ui.util.NumberFormatter
-import com.lucdre.idleskills.ui.components.shimmer
 import com.lucdre.idleskills.ui.components.AutoSizeText
+import com.lucdre.idleskills.ui.components.shimmer
+import com.lucdre.idleskills.ui.screens.trainingScreen.components.LootBoxItem
+import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
+import com.lucdre.idleskills.ui.theme.Spacing
+import com.lucdre.idleskills.ui.util.IdleSkillsPreviews
+import com.lucdre.idleskills.ui.util.NumberFormatter
 
 @Composable
 fun InventoryScreen(
