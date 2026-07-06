@@ -42,7 +42,6 @@ import androidx.navigation.toRoute
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import kotlinx.serialization.Serializable
-import com.lucdre.idleskills.cards.presentation.CardViewModel
 import com.lucdre.idleskills.main.presentation.TrainingSceneViewModel
 import com.lucdre.idleskills.main.presentation.TrainingViewModel
 import com.lucdre.idleskills.ui.screens.CardDetailScreen
@@ -128,11 +127,9 @@ fun MainNavigation(
         else -> {
             val trainingViewModel: TrainingViewModel = hiltViewModel()
             val sceneViewModel: TrainingSceneViewModel = hiltViewModel()
-            val cardViewModel: CardViewModel = hiltViewModel()
             MainNavigationContent(
                 trainingViewModel = trainingViewModel,
-                sceneViewModel = sceneViewModel,
-                cardViewModel = cardViewModel
+                sceneViewModel = sceneViewModel
             )
         }
     }
@@ -145,12 +142,10 @@ fun MainNavigation(
 @Composable
 private fun MainNavigationContent(
     trainingViewModel: TrainingViewModel,
-    sceneViewModel: TrainingSceneViewModel,
-    cardViewModel: CardViewModel
+    sceneViewModel: TrainingSceneViewModel
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
     val navUiState by hiltViewModel<MainNavigationViewModel>().uiState.collectAsStateWithLifecycle()
     val adaptiveInfo = currentWindowAdaptiveInfo()
 
@@ -273,7 +268,6 @@ private fun MainNavigationContent(
             }
             composable<Route.Cards> {
                 CardsScreen(
-                    viewModel = cardViewModel,
                     navController = navController
                 )
             }
@@ -282,17 +276,10 @@ private fun MainNavigationContent(
             }
             composable<Route.CardDetail> { backStackEntry ->
                 val cardDetail = backStackEntry.toRoute<Route.CardDetail>()
-                val cardName = cardDetail.cardName
-                val uiState by cardViewModel.uiState.collectAsStateWithLifecycle()
-                val cardState = uiState.cardsByRarity.values.flatten().find { it.card.name == cardName }
-                
-                if (cardState != null) {
-                    CardDetailScreen(
-                        cardState = cardState,
-                        viewModel = cardViewModel,
-                        onBack = { navController.popBackStack() }
-                    )
-                }
+                CardDetailScreen(
+                    cardName = cardDetail.cardName,
+                    onBack = { navController.popBackStack() }
+                )
             }
         }
     }

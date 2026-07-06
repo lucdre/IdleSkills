@@ -10,6 +10,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lucdre.idleskills.R
 import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.cards.domain.CardType
@@ -41,19 +43,28 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 
 /**
  * Screen displaying details for a specific card and upgrade requirements.
+ *
+ * @param cardName The name of the card to display.
+ * @param viewModel Destination-scoped ViewModel provided by Hilt.
+ * @param onBack Callback to navigate back.
  */
 @Composable
 fun CardDetailScreen(
-    cardState: CardItemUiState,
+    cardName: String,
     viewModel: CardViewModel = hiltViewModel(),
     onBack: () -> Unit
 ) {
-    CardDetailScreenContent(
-        cardState = cardState,
-        uiEffects = viewModel.uiEffects,
-        onUpgradeClick = { viewModel.upgradeCard(it) },
-        onBack = onBack
-    )
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val cardState = uiState.cardsByRarity.values.flatten().find { it.card.name == cardName }
+
+    if (cardState != null) {
+        CardDetailScreenContent(
+            cardState = cardState,
+            uiEffects = viewModel.uiEffects,
+            onUpgradeClick = { viewModel.upgradeCard(it) },
+            onBack = onBack
+        )
+    }
 }
 
 /**
