@@ -11,6 +11,21 @@ android {
     namespace = "com.lucdre.idleskills"
     compileSdk = 37
 
+    /*buildTypes {
+        getByName("release") {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            signingConfig = signingConfigs.getByName("debug")
+        }
+
+        getByName("debug") {
+            applicationIdSuffix = ".debug"
+            isDebuggable = true
+        }
+
+    }*/
+
     defaultConfig {
         applicationId = "com.lucdre.idleskills"
         minSdk = 33
@@ -19,6 +34,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        //manifestPlaceholders["hostName"] = "www.example.com"
     }
 
     compileOptions {

@@ -31,6 +31,8 @@ import com.lucdre.idleskills.skills.domain.training.TrainingMethodType
 import com.lucdre.idleskills.ui.components.CustomLinearProgressIndicator
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun TrainingSceneCard(
@@ -44,6 +46,7 @@ fun TrainingSceneCard(
 ) {
     val theme = if (activeSkill != null) SkillMetadata.getTheme(activeSkill) else null
     val biomeColors = theme?.biomeColors ?: listOf(Color(0xFF1B5E20), Color(0xFF2E7D32))
+    val biomeGradient = remember(biomeColors) { Brush.verticalGradient(biomeColors) }
 
     var progress by remember { mutableFloatStateOf(0f) }
 
@@ -56,7 +59,7 @@ fun TrainingSceneCard(
                 val newProgress = (elapsed.toFloat() / durationMs).coerceIn(0f, 1f)
                 progress = newProgress
                 if (newProgress >= 1f) break
-                withFrameMillis { }
+                delay(50.milliseconds)
             }
         }
     }
@@ -70,7 +73,7 @@ fun TrainingSceneCard(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Brush.verticalGradient(biomeColors))
+                .background(biomeGradient)
         ) {
             // Region Selector
             Surface(
@@ -141,7 +144,7 @@ fun TrainingSceneCard(
                     
                     Spacer(modifier = Modifier.width(40.dp))
                     
-                    // Target Object (Tree/Rock)
+                    // Target Object
                     TrainingTarget(activeSkill = activeSkill, progressProvider = { progress }, biome = biomeColors)
                 }
             }
@@ -166,7 +169,7 @@ fun TrainingTarget(activeSkill: SkillType?, progressProvider: () -> Float, biome
                     .width(60.dp)
                     .height(4.dp)
                     .clip(RoundedCornerShape(2.dp)),
-                progress = progressProvider(),
+                progressProvider = progressProvider,
                 progressColor = biome[0].copy(alpha = 0.8f),
                 backgroundColor = MaterialTheme.colorScheme.surfaceVariant
             )
@@ -176,44 +179,51 @@ fun TrainingTarget(activeSkill: SkillType?, progressProvider: () -> Float, biome
 
 @Composable
 fun AnimatedCharacter(activeSkill: SkillType?) {
-    val infiniteTransition = rememberInfiniteTransition(label = "CharacterAnimation")
+    var animationFrame by remember(activeSkill) { mutableFloatStateOf(0f) }
+
+    if (activeSkill != null) {
+        LaunchedEffect(activeSkill) {
+            val startTime = System.currentTimeMillis()
+            while (isActive) {
+                val elapsed = System.currentTimeMillis() - startTime
+                animationFrame = elapsed.toFloat()
+                delay(40.milliseconds) // 25 FPS animation ticks
+            }
+        }
+    }
 
     val characterAnimationModifier = when (activeSkill) {
         SkillType.WOODCUTTING -> {
-            val rotation by infiniteTransition.animateFloat(
-                initialValue = -20f,
-                targetValue = 20f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(500, easing = LinearEasing),
-                    repeatMode = RepeatMode.Reverse
-                ),
-                label = "AxeSwing"
-            )
-            Modifier.graphicsLayer { rotationZ = rotation }
+            Modifier.graphicsLayer {
+                val elapsed = animationFrame
+                val cycle = (elapsed % 1000) / 1000f
+                val angle = if (cycle < 0.5f) {
+                    -20f + (cycle * 2f) * 40f
+                } else {
+                    20f - ((cycle - 0.5f) * 2f) * 40f
+                }
+                rotationZ = angle
+            }
         }
         SkillType.MINING -> {
-            val offset by infiniteTransition.animateFloat(
-                initialValue = 0f,
-                targetValue = 10f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(200, easing = FastOutSlowInEasing),
-                    repeatMode = RepeatMode.Reverse
-                ),
-                label = "PickaxeHit"
-            )
-            Modifier.offset { IntOffset(0, offset.dp.roundToPx()) }
+            Modifier.graphicsLayer {
+                val elapsed = animationFrame
+                val cycle = (elapsed % 400) / 400f
+                val offset = if (cycle < 0.5f) {
+                    (cycle * 2f) * 10f
+                } else {
+                    10f - ((cycle - 0.5f) * 2f) * 10f
+                }
+                translationY = offset.dp.toPx()
+            }
         }
         SkillType.FISHING -> {
-            val bobbing by infiniteTransition.animateFloat(
-                initialValue = 0f,
-                targetValue = 15f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(1000, easing = EaseInOutSine),
-                    repeatMode = RepeatMode.Reverse
-                ),
-                label = "FishingBob"
-            )
-            Modifier.offset { IntOffset(0, bobbing.dp.roundToPx()) }
+            Modifier.graphicsLayer {
+                val elapsed = animationFrame
+                val cycle = (elapsed % 2000) / 2000f
+                val bobbing = kotlin.math.sin(cycle * 2 * kotlin.math.PI.toFloat()) * 7.5f + 7.5f
+                translationY = bobbing.dp.toPx()
+            }
         }
         else -> Modifier
     }

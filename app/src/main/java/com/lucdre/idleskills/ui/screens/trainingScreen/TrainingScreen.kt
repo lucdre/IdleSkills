@@ -49,8 +49,11 @@ import com.lucdre.idleskills.ui.screens.trainingScreen.components.SkillSelector
 import com.lucdre.idleskills.ui.screens.trainingScreen.components.StatsCard
 import com.lucdre.idleskills.ui.screens.trainingScreen.components.TrainingMethodCard
 import com.lucdre.idleskills.ui.screens.trainingScreen.components.TrainingSceneCard
+import androidx.compose.runtime.CompositionLocalProvider
+import com.lucdre.idleskills.inventory.domain.ItemRegistry
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 import com.lucdre.idleskills.ui.util.IdleSkillsPreviews
+import com.lucdre.idleskills.ui.util.LocalItemRegistry
 import com.lucdre.idleskills.ui.util.NumberFormatter
 
 @Composable
@@ -98,49 +101,35 @@ fun TrainingScreen(
             .padding(paddingValues)
             .background(MaterialTheme.colorScheme.background)
         ) {
-            val isWideScreen = windowSizeClass != null && 
-                windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)
+            SingleColumnTrainingLayout(
+                skillsState = skillsState,
+                sceneState = sceneState,
+                sessionState = sessionState,
+                activeStateProvider = activeStateProvider,
+                onSkillSelect = onSkillSelect,
+                onMethodSelect = onMethodSelect,
+                onRegionClick = onRegionClick
+            )
+        }
 
-            if (isWideScreen) {
-                TwoColumnTrainingLayout(
-                    skillsState = skillsState,
-                    sceneState = sceneState,
-                    sessionState = sessionState,
-                    activeStateProvider = activeStateProvider,
-                    onSkillSelect = onSkillSelect,
-                    onMethodSelect = onMethodSelect,
-                    onRegionClick = onRegionClick
-                )
-            } else {
-                SingleColumnTrainingLayout(
-                    skillsState = skillsState,
-                    sceneState = sceneState,
-                    sessionState = sessionState,
-                    activeStateProvider = activeStateProvider,
-                    onSkillSelect = onSkillSelect,
-                    onMethodSelect = onMethodSelect,
-                    onRegionClick = onRegionClick
-                )
-            }
+        // Random Loot Sprite
+        if (sceneState.isSpriteVisible) {
+            LootSpriteOverlay(
+                position = sceneState.spritePosition,
+                onSpriteClick = onSpriteClick
+            )
+        }
 
-            // Random Loot Sprite
-            if (sceneState.isSpriteVisible) {
-                LootSpriteOverlay(
-                    position = sceneState.spritePosition,
-                    onSpriteClick = onSpriteClick
-                )
-            }
-
-            // Offline Progress Popup
-            sessionState.offlineProgress?.let { result ->
-                OfflineProgressPopup(
-                    result = result,
-                    onDismiss = onDismissOfflineProgress
-                )
-            }
+        // Offline Progress Popup
+        sessionState.offlineProgress?.let { result ->
+            OfflineProgressPopup(
+                result = result,
+                onDismiss = onDismissOfflineProgress
+            )
         }
     }
 }
+
 
 @Composable
 private fun SingleColumnTrainingLayout(
@@ -208,84 +197,6 @@ private fun SingleColumnTrainingLayout(
     }
 }
 
-@Composable
-private fun TwoColumnTrainingLayout(
-    skillsState: TrainingSkillsState,
-    sceneState: TrainingSceneState,
-    sessionState: TrainingSessionState,
-    activeStateProvider: () -> ActiveTrainingState,
-    onSkillSelect: (SkillType) -> Unit,
-    onMethodSelect: (TrainingMethodType) -> Unit,
-    onRegionClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        // Left Column: Scene and Stats
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            item {
-                val activeState = activeStateProvider()
-                TrainingSceneCard(
-                    regionName = sessionState.regionName,
-                    activeSkill = skillsState.activeTrainingSkill,
-                    methodType = skillsState.activeTrainingMethod?.type,
-                    startTime = activeState.startTime,
-                    durationMs = activeState.durationMs,
-                    onRegionClick = onRegionClick
-                )
-            }
-
-            if (skillsState.activeTrainingSkill != null) {
-                item {
-                    TrainingStatsSection(
-                        skillsState = skillsState,
-                        activeStateProvider = activeStateProvider
-                    )
-                }
-            }
-        }
-
-        // Right Column: Skill and Method Selection
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            item {
-                SkillSelector(
-                    skills = SkillType.entries,
-                    selectedSkill = skillsState.expandedSkillName?.let { SkillType.fromString(it) },
-                    activeSkill = skillsState.activeTrainingSkill,
-                    onSkillSelected = onSkillSelect
-                )
-            }
-
-            if (skillsState.trainingMethods.isNotEmpty()) {
-                item {
-                    Text(
-                        text = "Training Method",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onBackground, //TODO put this item on the card as well
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
-                }
-                items(skillsState.trainingMethods) { method ->
-                    TrainingMethodCard(
-                        method = method,
-                        selected = skillsState.activeTrainingMethod?.type == method.type,
-                        onClick = { onMethodSelect(method.type) }
-                    )
-                }
-            }
-        }
-    }
-}
 
 @Composable
 fun TrainingStatsSection(
@@ -315,7 +226,7 @@ fun TrainingStatsSection(
         Row(modifier = Modifier.fillMaxWidth()) {
             StatsCard(
                 modifier = Modifier.weight(1f),
-                label = "XP Per Hour",
+                label = "XP/h",
                 valueProvider = { NumberFormatter.formatNumber(activeStateProvider().xpPerHour) },
                 icon = Icons.Default.Schedule
             )
@@ -324,7 +235,7 @@ fun TrainingStatsSection(
 
             StatsCard(
                 modifier = Modifier.weight(1f),
-                label = "Time to Level Up",
+                label = "ETA",
                 valueProvider = { NumberFormatter.formatDuration(activeStateProvider().timeToLevelUpMs) },
                 icon = Icons.Default.Timer
             )
@@ -333,7 +244,7 @@ fun TrainingStatsSection(
 
             StatsCard(
                 modifier = Modifier.weight(1f),
-                label = "XP gained",
+                label = "Session XP",
                 valueProvider = { NumberFormatter.formatNumber(activeStateProvider().sessionXpGained) },
                 icon = Icons.Default.Timer
             )
@@ -365,16 +276,20 @@ fun TrainingScreenPreview() {
             timeToLevelUpMs = 619000,
         )
 
-        TrainingScreen(
-            skillsState = skillsState,
-            sceneState = TrainingSceneState(),
-            sessionState = TrainingSessionState(regionName = "Region 1"),
-            activeStateProvider = { activeState },
-            onSkillSelect = {},
-            onMethodSelect = {},
-            onRegionClick = {},
-            onSpriteClick = {},
-            onDismissOfflineProgress = {}
-        )
+        CompositionLocalProvider(
+            LocalItemRegistry provides ItemRegistry()
+        ) {
+            TrainingScreen(
+                skillsState = skillsState,
+                sceneState = TrainingSceneState(),
+                sessionState = TrainingSessionState(regionName = "Region 1"),
+                activeStateProvider = { activeState },
+                onSkillSelect = {},
+                onMethodSelect = {},
+                onRegionClick = {},
+                onSpriteClick = {},
+                onDismissOfflineProgress = {}
+            )
+        }
     }
 }

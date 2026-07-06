@@ -59,7 +59,7 @@ fun LevelProgressCard(
         Spacer(modifier = Modifier.height(8.dp))
         
         CustomLinearProgressIndicator(
-            progress = animatedProgress,
+            progressProvider = { animatedProgress },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(8.dp),
