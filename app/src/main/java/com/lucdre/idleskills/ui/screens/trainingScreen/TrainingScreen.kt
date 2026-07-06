@@ -13,8 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardDoubleArrowUp
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.MaterialTheme
@@ -26,7 +26,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -48,7 +53,7 @@ import com.lucdre.idleskills.ui.screens.trainingScreen.components.LevelProgressC
 import com.lucdre.idleskills.ui.screens.trainingScreen.components.LootSpriteOverlay
 import com.lucdre.idleskills.ui.screens.trainingScreen.components.SkillSelector
 import com.lucdre.idleskills.ui.screens.trainingScreen.components.StatsCard
-import com.lucdre.idleskills.ui.screens.trainingScreen.components.TrainingMethodCard
+import com.lucdre.idleskills.ui.screens.trainingScreen.components.TrainingMethodSelector
 import com.lucdre.idleskills.ui.screens.trainingScreen.components.TrainingSceneCard
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 import com.lucdre.idleskills.ui.theme.Spacing
@@ -132,6 +137,22 @@ fun TrainingScreen(
 
 
 @Composable
+fun rememberTickingDuration(baseDurationMs: Long): Long {
+    val startTime = remember(baseDurationMs) { System.currentTimeMillis() }
+    var currentTime by remember(baseDurationMs) { mutableStateOf(startTime) }
+
+    LaunchedEffect(baseDurationMs) {
+        while (isActive) {
+            delay(1000)
+            currentTime = System.currentTimeMillis()
+        }
+    }
+
+    val elapsed = currentTime - startTime
+    return maxOf(0L, baseDurationMs - elapsed)
+}
+
+@Composable
 private fun SingleColumnTrainingLayout(
     skillsState: TrainingSkillsState,
     sceneState: TrainingSceneState,
@@ -169,19 +190,10 @@ private fun SingleColumnTrainingLayout(
 
         if (skillsState.trainingMethods.isNotEmpty()) {
             item {
-                Text(
-                    text = "Training Method",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-            }
-            items(skillsState.trainingMethods) { method ->
-                TrainingMethodCard(
-                    method = method,
-                    selected = skillsState.activeTrainingMethod?.type == method.type,
-                    onClick = { onMethodSelect(method.type) }
+                TrainingMethodSelector(
+                    methods = skillsState.trainingMethods,
+                    selectedMethodType = skillsState.activeTrainingMethod?.type,
+                    onMethodSelected = onMethodSelect
                 )
             }
         }
@@ -233,11 +245,14 @@ fun TrainingStatsSection(
 
             Spacer(modifier = Modifier.width(8.dp))
 
+            val staticTime = activeStateProvider().timeToLevelUpMs
+            val tickingTime = rememberTickingDuration(baseDurationMs = staticTime)
+
             StatsCard(
                 modifier = Modifier.weight(1f),
-                label = "ETA",
-                valueProvider = { NumberFormatter.formatDuration(activeStateProvider().timeToLevelUpMs) },
-                icon = Icons.Default.Timer
+                label = "Level " + (skillsState.levelInfo.currentLevel + 1).toString() + " in",
+                valueProvider = { NumberFormatter.formatDuration(tickingTime) },
+                icon = Icons.Default.KeyboardDoubleArrowUp
             )
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -260,6 +275,11 @@ fun TrainingScreenPreview() {
             activeTrainingSkill = SkillType.WOODCUTTING,
             expandedSkillName = "Woodcutting",
             trainingMethods = listOf(
+                com.lucdre.idleskills.skills.domain.training.TrainingMethod(
+                    type = TrainingMethodType.WC_TREE,
+                    xpPerAction = 25,
+                    actionDurationMs = 5000
+                ),
                 com.lucdre.idleskills.skills.domain.training.TrainingMethod(
                     type = TrainingMethodType.WC_TREE,
                     xpPerAction = 25,

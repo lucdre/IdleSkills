@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lucdre.idleskills.ui.components.AutoSizeText
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
 @Composable
@@ -62,10 +63,13 @@ fun StatsCard(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                 }
-                Text(
+                AutoSizeText(
                     text = label,
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    minFontSize = 8.sp
                 )
             }
             Text(

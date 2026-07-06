@@ -5,14 +5,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -50,17 +48,17 @@ fun SkillSelector(
             modifier = Modifier.padding(bottom = 12.dp)
         )
         
-        LazyRow(
+        Row(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(skills) { skill ->
+            skills.forEach { skill ->
                 val isSelected = skill == selectedSkill
                 val theme = SkillMetadata.getTheme(skill)
                 
                 Card(
                     modifier = Modifier
-                        .width(110.dp)
+                        .weight(1f)
                         .clickable { onSkillSelected(skill) },
                     colors = CardDefaults.cardColors(
                         containerColor = if (isSelected) {
