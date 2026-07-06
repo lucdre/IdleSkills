@@ -4,8 +4,6 @@ import android.util.Log
 import com.lucdre.idleskills.cards.domain.Card
 import com.lucdre.idleskills.cards.domain.CardRepositoryInterface
 import com.lucdre.idleskills.cards.domain.CardType
-import com.lucdre.idleskills.core.persistence.CardDao
-import com.lucdre.idleskills.core.persistence.CardEntity
 import com.lucdre.idleskills.skills.domain.skill.SkillType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

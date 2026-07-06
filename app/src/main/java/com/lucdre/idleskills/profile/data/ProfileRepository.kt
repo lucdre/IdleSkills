@@ -1,7 +1,5 @@
 package com.lucdre.idleskills.profile.data
 
-import com.lucdre.idleskills.core.persistence.ProfileDao
-import com.lucdre.idleskills.core.persistence.ProfileEntity
 import com.lucdre.idleskills.profile.domain.PlayerProfile
 import com.lucdre.idleskills.profile.domain.ProfileRepositoryInterface
 import kotlinx.coroutines.flow.Flow

@@ -1,7 +1,7 @@
 package com.lucdre.idleskills.inventory.di
 
 import com.lucdre.idleskills.core.persistence.AppDatabase
-import com.lucdre.idleskills.core.persistence.InventoryDao
+import com.lucdre.idleskills.inventory.data.InventoryDao
 import com.lucdre.idleskills.inventory.data.InventoryRepository
 import com.lucdre.idleskills.inventory.domain.InventoryRepositoryInterface
 import dagger.Binds

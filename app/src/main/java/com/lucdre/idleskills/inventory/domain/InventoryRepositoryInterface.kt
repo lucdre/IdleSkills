@@ -1,6 +1,6 @@
 package com.lucdre.idleskills.inventory.domain
 
-import com.lucdre.idleskills.core.persistence.InventoryEntity
+import com.lucdre.idleskills.inventory.data.InventoryEntity
 import kotlinx.coroutines.flow.Flow
 
 /**

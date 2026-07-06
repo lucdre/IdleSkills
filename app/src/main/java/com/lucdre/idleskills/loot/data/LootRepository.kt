@@ -1,6 +1,5 @@
 package com.lucdre.idleskills.loot.data
 
-import com.lucdre.idleskills.core.persistence.LootBoxDao
 import com.lucdre.idleskills.loot.domain.LootBox
 import com.lucdre.idleskills.loot.domain.LootRepositoryInterface
 import com.lucdre.idleskills.skills.domain.skill.SkillType

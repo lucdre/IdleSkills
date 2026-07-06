@@ -1,7 +1,5 @@
 package com.lucdre.idleskills.profile.data
 
-import com.lucdre.idleskills.core.persistence.PreferencesDao
-import com.lucdre.idleskills.core.persistence.PreferencesEntity
 import com.lucdre.idleskills.profile.domain.PreferencesRepositoryInterface
 import com.lucdre.idleskills.profile.domain.UserPreferences
 import kotlinx.coroutines.flow.Flow

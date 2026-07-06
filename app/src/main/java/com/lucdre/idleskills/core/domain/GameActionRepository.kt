@@ -1,7 +1,7 @@
 package com.lucdre.idleskills.core.domain
 
-import com.lucdre.idleskills.core.persistence.InventoryEntity
 import com.lucdre.idleskills.core.persistence.ProgressApplicationDao
+import com.lucdre.idleskills.inventory.data.InventoryEntity
 import com.lucdre.idleskills.inventory.domain.ItemType
 import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
 import javax.inject.Inject

@@ -44,22 +44,7 @@ abstract class DatabaseModule {
         }
 
         @Provides
-        fun provideProfileDao(db: AppDatabase): ProfileDao = db.profileDao()
-
-        @Provides
-        fun providePreferencesDao(db: AppDatabase): PreferencesDao = db.preferencesDao()
-
-        @Provides
         fun provideSessionDao(db: AppDatabase): SessionDao = db.sessionDao()
-
-        @Provides
-        fun provideSkillDao(db: AppDatabase): SkillDao = db.skillDao()
-
-        @Provides
-        fun provideCardDao(db: AppDatabase): CardDao = db.cardDao()
-
-        @Provides
-        fun provideLootBoxDao(db: AppDatabase): LootBoxDao = db.lootBoxDao()
 
         @Provides
         fun provideProgressApplicationDao(db: AppDatabase): ProgressApplicationDao = db.progressApplicationDao()

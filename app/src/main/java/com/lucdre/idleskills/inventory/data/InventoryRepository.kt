@@ -1,7 +1,5 @@
 package com.lucdre.idleskills.inventory.data
 
-import com.lucdre.idleskills.core.persistence.InventoryDao
-import com.lucdre.idleskills.core.persistence.InventoryEntity
 import com.lucdre.idleskills.inventory.domain.InventoryRepositoryInterface
 import com.lucdre.idleskills.inventory.domain.ItemType
 import kotlinx.coroutines.flow.Flow

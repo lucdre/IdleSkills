@@ -1,8 +1,20 @@
 package com.lucdre.idleskills.core.persistence
 
+import androidx.room3.ColumnTypeConverters
 import androidx.room3.Database
 import androidx.room3.RoomDatabase
-import androidx.room3.ColumnTypeConverters
+import com.lucdre.idleskills.cards.data.CardDao
+import com.lucdre.idleskills.cards.data.CardEntity
+import com.lucdre.idleskills.inventory.data.InventoryDao
+import com.lucdre.idleskills.inventory.data.InventoryEntity
+import com.lucdre.idleskills.loot.data.LootBoxDao
+import com.lucdre.idleskills.loot.data.LootBoxEntity
+import com.lucdre.idleskills.profile.data.PreferencesDao
+import com.lucdre.idleskills.profile.data.PreferencesEntity
+import com.lucdre.idleskills.profile.data.ProfileDao
+import com.lucdre.idleskills.profile.data.ProfileEntity
+import com.lucdre.idleskills.skills.data.SkillDao
+import com.lucdre.idleskills.skills.data.SkillEntity
 
 /**
  * Main database for the application.
@@ -18,7 +30,7 @@ import androidx.room3.ColumnTypeConverters
         InventoryEntity::class,
     ],
     version = 1,
-    exportSchema = true // Enabled to support auto-migrations in the future
+    exportSchema = true
 )
 @ColumnTypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {

@@ -1,6 +1,12 @@
 package com.lucdre.idleskills.core.persistence
 
-import androidx.room3.*
+import androidx.room3.Dao
+import androidx.room3.Insert
+import androidx.room3.OnConflictStrategy
+import androidx.room3.Query
+import androidx.room3.Transaction
+import com.lucdre.idleskills.inventory.data.InventoryEntity
+import com.lucdre.idleskills.skills.data.SkillEntity
 
 /**
  * Bulk updates for offline progress.

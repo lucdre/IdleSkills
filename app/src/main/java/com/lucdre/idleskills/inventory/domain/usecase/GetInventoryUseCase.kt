@@ -1,6 +1,6 @@
 package com.lucdre.idleskills.inventory.domain.usecase
 
-import com.lucdre.idleskills.core.persistence.InventoryEntity
+import com.lucdre.idleskills.inventory.data.InventoryEntity
 import com.lucdre.idleskills.inventory.domain.InventoryRepositoryInterface
 import com.lucdre.idleskills.inventory.domain.Item
 import com.lucdre.idleskills.inventory.domain.ItemRegistry

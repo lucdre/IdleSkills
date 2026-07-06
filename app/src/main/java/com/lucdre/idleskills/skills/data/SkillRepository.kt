@@ -1,7 +1,5 @@
 package com.lucdre.idleskills.skills.data
 
-import com.lucdre.idleskills.core.persistence.SkillDao
-import com.lucdre.idleskills.core.persistence.SkillEntity
 import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillRepositoryInterface
