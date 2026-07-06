@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "bbbc1ad368505a107ba2f0051b5fa655",
+    "identityHash": "7d7180a86b86dc3f5e9be3b8ad4af277",
     "entities": [
       {
         "tableName": "player_profile",
@@ -234,12 +234,23 @@
           "columnNames": [
             "itemId"
           ]
-        }
+        },
+        "indices": [
+          {
+            "name": "index_inventory_acquiredAt",
+            "unique": false,
+            "columnNames": [
+              "acquiredAt"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_inventory_acquiredAt` ON `${TABLE_NAME}` (`acquiredAt`)"
+          }
+        ]
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bbbc1ad368505a107ba2f0051b5fa655')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7d7180a86b86dc3f5e9be3b8ad4af277')"
     ]
   }
 }

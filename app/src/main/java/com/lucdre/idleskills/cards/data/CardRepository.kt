@@ -27,7 +27,7 @@ class CardRepository @Inject constructor(
                 }
             }
             .map { entities ->
-                entities.map { it.toDomain() }
+                entities.mapNotNull { it.toDomain() }
                     .sortedBy { it.type.ordinal }
             }
     }
@@ -99,10 +99,11 @@ class CardRepository @Inject constructor(
         )
     }
 
-    private fun CardEntity.toDomain(): Card {
+    private fun CardEntity.toDomain(): Card? {
+        val type = runCatching { CardType.valueOf(cardType) }.getOrNull() ?: return null
         return Card(
             name = name,
-            type = CardType.valueOf(cardType),
+            type = type,
             level = level,
             quantity = quantity,
             efficiencyBonus = efficiencyBonus,
