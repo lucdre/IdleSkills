@@ -23,6 +23,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -33,7 +34,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
-import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
+import com.lucdre.idleskills.inventory.domain.ItemRegistry
 import com.lucdre.idleskills.main.presentation.ActiveTrainingState
 import com.lucdre.idleskills.main.presentation.TrainingSceneState
 import com.lucdre.idleskills.main.presentation.TrainingSceneUiEffect
@@ -49,9 +50,8 @@ import com.lucdre.idleskills.ui.screens.trainingScreen.components.SkillSelector
 import com.lucdre.idleskills.ui.screens.trainingScreen.components.StatsCard
 import com.lucdre.idleskills.ui.screens.trainingScreen.components.TrainingMethodCard
 import com.lucdre.idleskills.ui.screens.trainingScreen.components.TrainingSceneCard
-import androidx.compose.runtime.CompositionLocalProvider
-import com.lucdre.idleskills.inventory.domain.ItemRegistry
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
+import com.lucdre.idleskills.ui.theme.Spacing
 import com.lucdre.idleskills.ui.util.IdleSkillsPreviews
 import com.lucdre.idleskills.ui.util.LocalItemRegistry
 import com.lucdre.idleskills.ui.util.NumberFormatter
@@ -144,7 +144,7 @@ private fun SingleColumnTrainingLayout(
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(12.dp),
-        contentPadding = PaddingValues(16.dp)
+        contentPadding = PaddingValues(Spacing.ScreenEdge)
     ) {
         item {
             val activeState = activeStateProvider()

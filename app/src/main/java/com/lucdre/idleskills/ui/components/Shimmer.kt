@@ -6,42 +6,46 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.unit.IntSize
 
 /**
  * Shimmer effect modifier.
  */
 fun Modifier.shimmer(): Modifier = composed {
-    var size by remember { mutableStateOf(IntSize.Zero) }
     val transition = rememberInfiniteTransition(label = "shimmer")
     
-    val startOffsetX by transition.animateFloat(
-        initialValue = -2 * size.width.toFloat(),
-        targetValue = 2 * size.width.toFloat(),
+    val progress by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
         animationSpec = infiniteRepeatable(
             animation = tween(1000)
         ),
-        label = "shimmerOffset"
+        label = "shimmerProgress"
     )
 
     val baseColor = MaterialTheme.colorScheme.surfaceVariant
     val highlightColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
+    val colors = remember(baseColor, highlightColor) { 
+        listOf(baseColor, highlightColor, baseColor) 
+    }
 
-    this.background(
-        brush = Brush.linearGradient(
-            colors = listOf(
-                baseColor,
-                highlightColor,
-                baseColor,
-            ),
-            start = Offset(startOffsetX, 0f),
-            end = Offset(startOffsetX + size.width.toFloat(), size.height.toFloat())
-        )
-    )
-    .onGloballyPositioned {
-        size = it.size
+    this.drawWithCache {
+        val width = size.width
+        val height = size.height
+        
+        onDrawBehind {
+            val currentProgress = progress
+            val startOffsetX = -2 * width + (currentProgress * 4 * width)
+            
+            val brush = Brush.linearGradient(
+                colors = colors,
+                start = Offset(startOffsetX, 0f),
+                end = Offset(startOffsetX + width, height)
+            )
+            
+            drawRect(brush = brush)
+        }
     }
 }

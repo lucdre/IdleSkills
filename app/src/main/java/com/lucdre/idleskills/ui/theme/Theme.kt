@@ -13,7 +13,7 @@ private val DarkColorScheme = darkColorScheme(
     onPrimary = Color.Black,
 
     secondary = SecondaryBlue,
-    onSecondary = Color.White,
+    onSecondary = Background,
 
     background = Background,
     onBackground = TextPrimary,

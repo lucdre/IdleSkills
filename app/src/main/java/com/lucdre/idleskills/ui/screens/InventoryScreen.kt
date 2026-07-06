@@ -18,6 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
+import com.lucdre.idleskills.ui.theme.Spacing
 import com.lucdre.idleskills.ui.util.IdleSkillsPreviews
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -66,12 +67,12 @@ fun InventoryScreenContent(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(Spacing.ScreenEdge)
         ) {
             Text(
                 text = "Inventory",
                 style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = Spacing.SectionVertical)
             )
 
             if (isLoading) {
@@ -119,8 +120,9 @@ fun InventoryScreenContent(
                 } else {
                     LazyVerticalGrid(
                         columns = GridCells.Adaptive(80.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(Spacing.GridItem),
+                        horizontalArrangement = Arrangement.spacedBy(Spacing.GridItem),
+                        contentPadding = PaddingValues(bottom = 80.dp),
                         modifier = Modifier.weight(1f)
                     ) {
                         items(inventoryItems) { item ->

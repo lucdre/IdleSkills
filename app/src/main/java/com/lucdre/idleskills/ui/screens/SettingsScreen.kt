@@ -9,6 +9,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.lucdre.idleskills.ui.theme.Spacing
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lucdre.idleskills.profile.domain.PlayerProfile
 import com.lucdre.idleskills.profile.presentation.SettingsViewModel
@@ -103,7 +104,7 @@ fun SettingsScreenContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(Spacing.ScreenEdge)
     ) {
         Text(
             text = "Settings",

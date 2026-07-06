@@ -38,6 +38,7 @@ import com.lucdre.idleskills.profile.domain.PlayerStatistics
 import com.lucdre.idleskills.skills.domain.skill.LevelCalculator
 import com.lucdre.idleskills.skills.domain.skill.Skill
 import com.lucdre.idleskills.skills.domain.skill.SkillType
+import com.lucdre.idleskills.ui.theme.Spacing
 import com.lucdre.idleskills.profile.presentation.StatsViewModel
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodType
 import com.lucdre.idleskills.ui.util.formatNumber
@@ -105,12 +106,12 @@ private fun StatsScreenContent(
     onSkillClick: (Skill) -> Unit = {}
 ) {
     Column(
-        modifier = modifier.fillMaxSize().padding(16.dp)
+        modifier = modifier.fillMaxSize().padding(Spacing.ScreenEdge)
     ) {
         Text(
             text = "Stats",
             style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = Spacing.SectionVertical)
         )
 
         Card(
@@ -130,7 +131,7 @@ private fun StatsScreenContent(
                 FlowRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(24.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(Spacing.SectionVertical)
                 ) {
                     StatisticItem(
                         label = "Trees cut",

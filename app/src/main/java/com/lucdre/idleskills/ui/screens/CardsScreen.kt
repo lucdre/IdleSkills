@@ -34,6 +34,7 @@ import com.lucdre.idleskills.cards.presentation.TradingCardItem
 import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.ui.navigation.Route
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
+import com.lucdre.idleskills.ui.theme.Spacing
 
 /**
  * Screen displaying the collection of cards owned by the player.
@@ -88,10 +89,10 @@ fun CardsScreenContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(Spacing.ScreenEdge)
     ) {
         Text(
-            modifier = Modifier.padding(bottom = 16.dp),
+            modifier = Modifier.padding(bottom = Spacing.SectionVertical),
             text = "Collection",
             style = MaterialTheme.typography.headlineMedium
         )
@@ -100,8 +101,8 @@ fun CardsScreenContent(
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = 100.dp),
                 modifier = Modifier.fillMaxSize(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.GridItem),
+                verticalArrangement = Arrangement.spacedBy(Spacing.GridItem),
                 contentPadding = PaddingValues(bottom = 80.dp)
             ) {
                 items(12) {
@@ -118,8 +119,8 @@ fun CardsScreenContent(
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = 100.dp),
                 modifier = Modifier.fillMaxSize(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.GridItem),
+                verticalArrangement = Arrangement.spacedBy(Spacing.GridItem),
                 contentPadding = PaddingValues(bottom = 80.dp) // Space for bottom nav
             ) {
                 uiState.cardsByRarity.forEach { (rarity, cardStates) ->
