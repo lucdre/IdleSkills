@@ -7,6 +7,7 @@ import com.lucdre.idleskills.loot.domain.LootEvent
 import com.lucdre.idleskills.loot.domain.usecase.CollectLootRewardsUseCase
 import com.lucdre.idleskills.loot.domain.usecase.ObserveLootEventsUseCase
 import com.lucdre.idleskills.skills.domain.skill.SkillType
+import com.lucdre.idleskills.skills.domain.training.TrainingService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -26,22 +27,29 @@ sealed class TrainingSceneUiEffect {
  * @property collectLootRewardsUseCase Use case to handle loot collection when the sprite is clicked.
  * @property observeLootEventsUseCase Use case to observe the stream of loot spawn/hide events.
  * @property itemRegistry For looking up item metadata for messages.
+ * @property trainingService Service providing the global training state to synchronize sprite spawns.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class TrainingSceneViewModel @Inject constructor(
     private val collectLootRewardsUseCase: CollectLootRewardsUseCase,
     private val observeLootEventsUseCase: ObserveLootEventsUseCase,
-    private val itemRegistry: ItemRegistry
+    private val itemRegistry: ItemRegistry,
+    private val trainingService: TrainingService
 ) : ViewModel() {
 
-    private val _isSpawningActive = MutableStateFlow(false)
+    private val _isScreenVisible = MutableStateFlow(false)
     private val _clickSignal = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
 
     /**
      * A [StateFlow] representing the current [TrainingSceneState].
      */
-    val uiState: StateFlow<TrainingSceneState> = _isSpawningActive.flatMapLatest { active ->
+    val uiState: StateFlow<TrainingSceneState> = combine(
+        _isScreenVisible,
+        trainingService.trainingState.map { it.activeSkillName != null }.distinctUntilChanged()
+    ) { isVisible, isTraining ->
+        isVisible && isTraining
+    }.flatMapLatest { active ->
         if (active) {
             observeLootEventsUseCase(_clickSignal).map { event ->
                 when (event) {
@@ -65,13 +73,12 @@ class TrainingSceneViewModel @Inject constructor(
     val uiEffects: SharedFlow<TrainingSceneUiEffect> = _uiEffects.asSharedFlow()
 
     /**
-     * Updates the spawning activity based on screen visibility and training status.
+     * Updates the spawning activity based on screen visibility.
      *
      * @param visible Whether the training screen is currently visible.
-     * @param isTraining Whether the player is currently actively training a skill.
      */
-    fun updateSpawningStatus(visible: Boolean, isTraining: Boolean) {
-        _isSpawningActive.value = visible && isTraining
+    fun setScreenVisible(visible: Boolean) {
+        _isScreenVisible.value = visible
     }
 
     /**

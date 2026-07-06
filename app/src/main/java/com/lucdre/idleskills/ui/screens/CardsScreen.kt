@@ -32,7 +32,7 @@ import com.lucdre.idleskills.cards.presentation.CardUiState
 import com.lucdre.idleskills.cards.presentation.CardViewModel
 import com.lucdre.idleskills.cards.presentation.TradingCardItem
 import com.lucdre.idleskills.skills.domain.skill.SkillType
-import com.lucdre.idleskills.ui.navigation.Routes
+import com.lucdre.idleskills.ui.navigation.Route
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 
 /**
@@ -70,7 +70,7 @@ fun CardsScreen(
             modifier = modifier.padding(paddingValues),
             uiState = uiState,
             onCardClick = { card ->
-                navController?.navigate("${Routes.CARD_DETAIL}/${card.name}")
+                navController?.navigate(Route.CardDetail(card.name))
             }
         )
     }

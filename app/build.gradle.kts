@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.hiltAndroid)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -75,6 +76,7 @@ dependencies {
     implementation(libs.androidx.compose.runtime)
     implementation(libs.google.errorprone.annotations)
     implementation(libs.androidx.sqlite.bundled)
+    implementation(libs.kotlinx.serialization.json)
 
     // Hilt & KSP
     implementation(libs.hilt.android)

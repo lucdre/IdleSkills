@@ -4,6 +4,7 @@ hiltAndroid = "2.60"
 hiltNavigationCompose = "1.4.0"
 kotlin = "2.4.0"
 ksp = "2.3.9"
+kotlinxSerialization = "1.11.0"
 coreKtx = "1.19.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
@@ -55,6 +56,7 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTestVersion" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoVersion" }
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlinVersion" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 androidx-room-runtime = { group = "androidx.room3", name = "room3-runtime", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room3", name = "room3-compiler", version.ref = "room" }
 process-phoenix = { module = "com.jakewharton:process-phoenix", version.ref = "processPhoenix" }
@@ -67,5 +69,6 @@ androidx-compose-material3-adaptive-navigation-suite = { group = "androidx.compo
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 hiltAndroid = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroid" }
 kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

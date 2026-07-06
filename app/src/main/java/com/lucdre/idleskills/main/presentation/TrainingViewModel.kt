@@ -44,7 +44,6 @@ class TrainingViewModel @Inject constructor(
 ) : ViewModel(), DefaultLifecycleObserver {
 
     private val _expandedSkillName = MutableStateFlow<String?>(null)
-    private val _isScreenVisible = MutableStateFlow(value = false)
 
     /**
      * State for skills and training methods.
@@ -193,6 +192,5 @@ class TrainingViewModel @Inject constructor(
         trainingSessionManager.toggleTraining(skill, method)
     }
 
-    fun setScreenVisible(visible: Boolean) { _isScreenVisible.value = visible }
     fun dismissOfflineProgress() { trainingSessionManager.dismissOfflineProgress() }
 }

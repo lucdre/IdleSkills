@@ -38,6 +38,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import kotlinx.serialization.Serializable
 import com.lucdre.idleskills.cards.presentation.CardViewModel
 import com.lucdre.idleskills.main.presentation.TrainingSceneViewModel
 import com.lucdre.idleskills.main.presentation.TrainingViewModel
@@ -54,13 +58,13 @@ import com.lucdre.idleskills.ui.util.IdleSkillsPreviews
 /**
  * Navigation routes.
  */
-object Routes {
-    const val TRAINING = "training"
-    const val INVENTORY = "inventory"
-    const val STATS = "stats"
-    const val CARDS = "cards"
-    const val SETTINGS = "settings"
-    const val CARD_DETAIL = "card_detail"
+sealed interface Route {
+    @Serializable data object Training : Route
+    @Serializable data object Inventory : Route
+    @Serializable data object Stats : Route
+    @Serializable data object Cards : Route
+    @Serializable data object Settings : Route
+    @Serializable data class CardDetail(val cardName: String) : Route
 }
 
 /**
@@ -72,12 +76,12 @@ object Routes {
  * @param hasNews 'true' activates [Badge], 'false' doesn't
  * @param route
  */
-data class BottomNavigationItem(
+data class BottomNavigationItem<T : Any>(
     val title: String,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector,
     val hasNews: Boolean,
-    val route: String
+    val route: T
 )
 
 /**
@@ -156,28 +160,28 @@ private fun MainNavigationContent(
             Icons.Filled.Inventory,
             Icons.Outlined.Inventory,
             navUiState.hasLootBoxes,
-            Routes.INVENTORY
+            Route.Inventory
         ),
         BottomNavigationItem(
             "Stats",
             Icons.Filled.BarChart,
             Icons.Outlined.BarChart,
             false,
-            Routes.STATS
+            Route.Stats
         ),
         BottomNavigationItem(
             "Cards",
             Icons.Filled.Star,
             Icons.Outlined.Star,
             false,
-            Routes.CARDS
+            Route.Cards
         ),
         BottomNavigationItem(
             "Settings",
             Icons.Filled.Settings,
             Icons.Outlined.Settings,
             false,
-            Routes.SETTINGS
+            Route.Settings
         )
     )
 
@@ -185,13 +189,13 @@ private fun MainNavigationContent(
         modifier = Modifier.statusBarsPadding(),
         navigationSuiteItems = {
             items.forEach { item ->
-                val selected = currentRoute == item.route
+                val selected = navBackStackEntry?.destination?.hasRoute(item.route::class) == true
                 item(
                     selected = selected,
                     onClick = {
                         if (selected) {
-                            navController.navigate(Routes.TRAINING) {
-                                popUpTo(navController.graph.startDestinationId) {
+                            navController.navigate(Route.Training) {
+                                popUpTo(navController.graph.findStartDestination().id) {
                                     saveState = true
                                 }
                                 launchSingleTop = true
@@ -199,7 +203,7 @@ private fun MainNavigationContent(
                             }
                         } else {
                             navController.navigate(item.route) {
-                                popUpTo(navController.graph.startDestinationId) {
+                                popUpTo(navController.graph.findStartDestination().id) {
                                     saveState = true
                                 }
                                 launchSingleTop = true
@@ -232,22 +236,16 @@ private fun MainNavigationContent(
     ) {
         NavHost(
             navController = navController,
-            startDestination = Routes.TRAINING,
+            startDestination = Route.Training,
             modifier = Modifier.fillMaxSize()
         ) {
-            composable(Routes.TRAINING) {
+            composable<Route.Training> {
                 val skillsState by trainingViewModel.skillsState.collectAsStateWithLifecycle()
                 val sceneState by sceneViewModel.uiState.collectAsStateWithLifecycle()
                 val sessionState by trainingViewModel.sessionState.collectAsStateWithLifecycle()
                 val activeStateState = trainingViewModel.activeTrainingState.collectAsStateWithLifecycle()
 
-                androidx.compose.runtime.LaunchedEffect(skillsState.activeTrainingSkill) {
-                    sceneViewModel.updateSpawningStatus(
-                        visible = true,
-                        isTraining = skillsState.activeTrainingSkill != null
-                    )
-                }
-                
+
                 TrainingScreen(
                     skillsState = skillsState,
                     sceneState = sceneState,
@@ -261,33 +259,30 @@ private fun MainNavigationContent(
                     },
                     onDismissOfflineProgress = { trainingViewModel.dismissOfflineProgress() },
                     onSetScreenVisible = { isVisible -> 
-                        trainingViewModel.setScreenVisible(isVisible)
-                        sceneViewModel.updateSpawningStatus(
-                            visible = isVisible, 
-                            isTraining = skillsState.activeTrainingSkill != null
-                        )
+                        sceneViewModel.setScreenVisible(isVisible)
                     },
                     windowSizeClass = adaptiveInfo.windowSizeClass,
                     sceneViewModel = sceneViewModel
                 )
             }
-            composable(Routes.INVENTORY) {
+            composable<Route.Inventory> {
                 InventoryScreen()
             }
-            composable(Routes.STATS) {
+            composable<Route.Stats> {
                 StatsScreen()
             }
-            composable(Routes.CARDS) {
+            composable<Route.Cards> {
                 CardsScreen(
                     viewModel = cardViewModel,
                     navController = navController
                 )
             }
-            composable(Routes.SETTINGS) {
+            composable<Route.Settings> {
                 SettingsScreen()
             }
-            composable("${Routes.CARD_DETAIL}/{cardName}") { backStackEntry ->
-                val cardName = backStackEntry.arguments?.getString("cardName")
+            composable<Route.CardDetail> { backStackEntry ->
+                val cardDetail = backStackEntry.toRoute<Route.CardDetail>()
+                val cardName = cardDetail.cardName
                 val uiState by cardViewModel.uiState.collectAsStateWithLifecycle()
                 val cardState = uiState.cardsByRarity.values.flatten().find { it.card.name == cardName }
                 
