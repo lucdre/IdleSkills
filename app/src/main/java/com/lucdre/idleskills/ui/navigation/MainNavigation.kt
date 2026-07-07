@@ -28,6 +28,7 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -149,36 +150,38 @@ private fun MainNavigationContent(
     val navUiState by hiltViewModel<MainNavigationViewModel>().uiState.collectAsStateWithLifecycle()
     val adaptiveInfo = currentWindowAdaptiveInfo()
 
-    val items = listOf(
-        BottomNavigationItem(
-            "Inventory",
-            Icons.Filled.Inventory,
-            Icons.Outlined.Inventory,
-            navUiState.hasLootBoxes,
-            Route.Inventory
-        ),
-        BottomNavigationItem(
-            "Stats",
-            Icons.Filled.BarChart,
-            Icons.Outlined.BarChart,
-            false,
-            Route.Stats
-        ),
-        BottomNavigationItem(
-            "Cards",
-            Icons.Filled.Star,
-            Icons.Outlined.Star,
-            false,
-            Route.Cards
-        ),
-        BottomNavigationItem(
-            "Settings",
-            Icons.Filled.Settings,
-            Icons.Outlined.Settings,
-            false,
-            Route.Settings
+    val items = remember(navUiState.hasLootBoxes) {
+        listOf(
+            BottomNavigationItem(
+                "Inventory",
+                Icons.Filled.Inventory,
+                Icons.Outlined.Inventory,
+                navUiState.hasLootBoxes,
+                Route.Inventory
+            ),
+            BottomNavigationItem(
+                "Stats",
+                Icons.Filled.BarChart,
+                Icons.Outlined.BarChart,
+                false,
+                Route.Stats
+            ),
+            BottomNavigationItem(
+                "Cards",
+                Icons.Filled.Star,
+                Icons.Outlined.Star,
+                false,
+                Route.Cards
+            ),
+            BottomNavigationItem(
+                "Settings",
+                Icons.Filled.Settings,
+                Icons.Outlined.Settings,
+                false,
+                Route.Settings
+            )
         )
-    )
+    }
 
     NavigationSuiteScaffold(
         modifier = Modifier.statusBarsPadding(),
@@ -235,28 +238,23 @@ private fun MainNavigationContent(
             modifier = Modifier.fillMaxSize()
         ) {
             composable<Route.Training> {
-                val skillsState by trainingViewModel.skillsState.collectAsStateWithLifecycle()
-                val sceneState by sceneViewModel.uiState.collectAsStateWithLifecycle()
-                val sessionState by trainingViewModel.sessionState.collectAsStateWithLifecycle()
-                val activeStateState = trainingViewModel.activeTrainingState.collectAsStateWithLifecycle()
+                val skillsState = trainingViewModel.skillsState.collectAsStateWithLifecycle()
+                val sceneState = sceneViewModel.uiState.collectAsStateWithLifecycle()
+                val sessionState = trainingViewModel.sessionState.collectAsStateWithLifecycle()
+                val activeState = trainingViewModel.activeTrainingState.collectAsStateWithLifecycle()
 
 
                 TrainingScreen(
-                    skillsState = skillsState,
-                    sceneState = sceneState,
-                    sessionState = sessionState,
-                    activeStateProvider = { activeStateState.value },
-                    onSkillSelect = { skill -> trainingViewModel.selectSkill(skill) },
-                    onMethodSelect = { method -> trainingViewModel.selectTrainingMethod(method) },
+                    skillsStateProvider = { skillsState.value },
+                    sceneStateProvider = { sceneState.value },
+                    sessionStateProvider = { sessionState.value },
+                    activeStateProvider = { activeState.value },
+                    onSkillSelect = trainingViewModel::selectSkill,
+                    onMethodSelect = trainingViewModel::selectTrainingMethod,
                     onRegionClick = { /* Handle region change */ },
-                    onSpriteClick = { 
-                        sceneViewModel.onSpriteClick()
-                    },
-                    onDismissOfflineProgress = { trainingViewModel.dismissOfflineProgress() },
-                    onSetScreenVisible = { isVisible -> 
-                        sceneViewModel.setScreenVisible(isVisible)
-                    },
-                    windowSizeClass = adaptiveInfo.windowSizeClass,
+                    onSpriteClick = sceneViewModel::onSpriteClick,
+                    onDismissOfflineProgress = trainingViewModel::dismissOfflineProgress,
+                    onSetScreenVisible = sceneViewModel::setScreenVisible,
                     sceneViewModel = sceneViewModel
                 )
             }

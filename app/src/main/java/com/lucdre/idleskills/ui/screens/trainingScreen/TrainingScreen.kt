@@ -38,7 +38,6 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.window.core.layout.WindowSizeClass
 import com.lucdre.idleskills.inventory.domain.ItemRegistry
 import com.lucdre.idleskills.main.presentation.ActiveTrainingState
 import com.lucdre.idleskills.main.presentation.TrainingSceneState
@@ -46,6 +45,7 @@ import com.lucdre.idleskills.main.presentation.TrainingSceneUiEffect
 import com.lucdre.idleskills.main.presentation.TrainingSceneViewModel
 import com.lucdre.idleskills.main.presentation.TrainingSessionState
 import com.lucdre.idleskills.main.presentation.TrainingSkillsState
+import com.lucdre.idleskills.skills.domain.skill.LevelInfo
 import com.lucdre.idleskills.skills.domain.skill.SkillType
 import com.lucdre.idleskills.skills.domain.training.TrainingMethodType
 import com.lucdre.idleskills.ui.components.OfflineProgressPopup
@@ -63,9 +63,9 @@ import com.lucdre.idleskills.ui.util.NumberFormatter
 
 @Composable
 fun TrainingScreen(
-    skillsState: TrainingSkillsState,
-    sceneState: TrainingSceneState,
-    sessionState: TrainingSessionState,
+    skillsStateProvider: () -> TrainingSkillsState,
+    sceneStateProvider: () -> TrainingSceneState,
+    sessionStateProvider: () -> TrainingSessionState,
     activeStateProvider: () -> ActiveTrainingState,
     onSkillSelect: (SkillType) -> Unit,
     onMethodSelect: (TrainingMethodType) -> Unit,
@@ -73,7 +73,6 @@ fun TrainingScreen(
     onSpriteClick: () -> Unit,
     onDismissOfflineProgress: () -> Unit,
     onSetScreenVisible: (Boolean) -> Unit = {},
-    windowSizeClass: WindowSizeClass? = null,
     sceneViewModel: TrainingSceneViewModel? = null
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -106,31 +105,115 @@ fun TrainingScreen(
             .padding(paddingValues)
             .background(MaterialTheme.colorScheme.background)
         ) {
-            SingleColumnTrainingLayout(
-                skillsState = skillsState,
-                sceneState = sceneState,
-                sessionState = sessionState,
+            TrainingContent(
+                skillsStateProvider = skillsStateProvider,
+                sessionStateProvider = sessionStateProvider,
                 activeStateProvider = activeStateProvider,
                 onSkillSelect = onSkillSelect,
                 onMethodSelect = onMethodSelect,
                 onRegionClick = onRegionClick
             )
-        }
 
-        // Random Loot Sprite
-        if (sceneState.isSpriteVisible) {
-            LootSpriteOverlay(
-                position = sceneState.spritePosition,
+            // Random Loot Sprite
+            LootSpriteLayer(
+                sceneStateProvider = sceneStateProvider,
                 onSpriteClick = onSpriteClick
             )
         }
 
         // Offline Progress Popup
-        sessionState.offlineProgress?.let { result ->
-            OfflineProgressPopup(
-                result = result,
-                onDismiss = onDismissOfflineProgress
+        OfflineProgressLayer(
+            sessionStateProvider = sessionStateProvider,
+            onDismiss = onDismissOfflineProgress
+        )
+    }
+}
+
+@Composable
+private fun LootSpriteLayer(
+    sceneStateProvider: () -> TrainingSceneState,
+    onSpriteClick: () -> Unit
+) {
+    val sceneState = sceneStateProvider()
+    if (sceneState.isSpriteVisible) {
+        LootSpriteOverlay(
+            position = sceneState.spritePosition,
+            onSpriteClick = onSpriteClick
+        )
+    }
+}
+
+@Composable
+private fun OfflineProgressLayer(
+    sessionStateProvider: () -> TrainingSessionState,
+    onDismiss: () -> Unit
+) {
+    val sessionState = sessionStateProvider()
+    sessionState.offlineProgress?.let { result ->
+        OfflineProgressPopup(
+            result = result,
+            onDismiss = onDismiss
+        )
+    }
+}
+
+@Composable
+private fun TrainingContent(
+    skillsStateProvider: () -> TrainingSkillsState,
+    sessionStateProvider: () -> TrainingSessionState,
+    activeStateProvider: () -> ActiveTrainingState,
+    onSkillSelect: (SkillType) -> Unit,
+    onMethodSelect: (TrainingMethodType) -> Unit,
+    onRegionClick: () -> Unit
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(Spacing.ScreenEdge)
+    ) {
+        item(key = "scene") {
+            val activeState = activeStateProvider()
+            val sessionState = sessionStateProvider()
+            val skillsState = skillsStateProvider()
+            TrainingSceneCard(
+                regionName = sessionState.regionName,
+                activeSkill = skillsState.activeTrainingSkill,
+                methodType = skillsState.activeTrainingMethod?.type,
+                startTime = activeState.startTime,
+                durationMs = activeState.durationMs,
+                onRegionClick = onRegionClick
             )
+        }
+
+        item(key = "skills") {
+            val skillsState = skillsStateProvider()
+            SkillSelector(
+                skills = SkillType.entries,
+                selectedSkill = skillsState.expandedSkillName?.let { SkillType.fromString(it) },
+                activeSkill = skillsState.activeTrainingSkill,
+                onSkillSelected = onSkillSelect
+            )
+        }
+
+        item(key = "methods") {
+            val skillsState = skillsStateProvider()
+            if (skillsState.trainingMethods.isNotEmpty()) {
+                TrainingMethodSelector(
+                    methods = skillsState.trainingMethods,
+                    selectedMethodType = skillsState.activeTrainingMethod?.type,
+                    onMethodSelected = onMethodSelect
+                )
+            }
+        }
+
+        item(key = "stats") {
+            val skillsState = skillsStateProvider()
+            if (skillsState.activeTrainingSkill != null) {
+                TrainingStatsSection(
+                    levelInfoProvider = { skillsStateProvider().levelInfo },
+                    activeStateProvider = activeStateProvider
+                )
+            }
         }
     }
 }
@@ -152,67 +235,10 @@ fun rememberTickingDuration(baseDurationMs: Long): Long {
     return maxOf(0L, baseDurationMs - elapsed)
 }
 
-@Composable
-private fun SingleColumnTrainingLayout(
-    skillsState: TrainingSkillsState,
-    sceneState: TrainingSceneState,
-    sessionState: TrainingSessionState,
-    activeStateProvider: () -> ActiveTrainingState,
-    onSkillSelect: (SkillType) -> Unit,
-    onMethodSelect: (TrainingMethodType) -> Unit,
-    onRegionClick: () -> Unit
-) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        contentPadding = PaddingValues(Spacing.ScreenEdge)
-    ) {
-        item {
-            val activeState = activeStateProvider()
-            TrainingSceneCard(
-                regionName = sessionState.regionName,
-                activeSkill = skillsState.activeTrainingSkill,
-                methodType = skillsState.activeTrainingMethod?.type,
-                startTime = activeState.startTime,
-                durationMs = activeState.durationMs,
-                onRegionClick = onRegionClick
-            )
-        }
-
-        item {
-            SkillSelector(
-                skills = SkillType.entries,
-                selectedSkill = skillsState.expandedSkillName?.let { SkillType.fromString(it) },
-                activeSkill = skillsState.activeTrainingSkill,
-                onSkillSelected = onSkillSelect
-            )
-        }
-
-        if (skillsState.trainingMethods.isNotEmpty()) {
-            item {
-                TrainingMethodSelector(
-                    methods = skillsState.trainingMethods,
-                    selectedMethodType = skillsState.activeTrainingMethod?.type,
-                    onMethodSelected = onMethodSelect
-                )
-            }
-        }
-
-        if (skillsState.activeTrainingSkill != null) {
-            item {
-                TrainingStatsSection(
-                    skillsState = skillsState,
-                    activeStateProvider = activeStateProvider
-                )
-            }
-        }
-    }
-}
-
 
 @Composable
 fun TrainingStatsSection(
-    skillsState: TrainingSkillsState,
+    levelInfoProvider: () -> LevelInfo,
     activeStateProvider: () -> ActiveTrainingState
 ) {
     Column {
@@ -223,13 +249,15 @@ fun TrainingStatsSection(
             modifier = Modifier.padding(bottom = 12.dp)
         )
 
-        // Level Progress Card - Stable
+        val levelInfo = levelInfoProvider()
+
+        // Level Progress Card
         LevelProgressCard(
-            level = skillsState.levelInfo.currentLevel,
-            totalXp = skillsState.levelInfo.totalXp,
-            nextLevelXp = skillsState.levelInfo.nextLevelXp,
-            xpToNextLevel = skillsState.levelInfo.xpToNextLevel,
-            progress = skillsState.levelInfo.progressDecimal
+            level = levelInfo.currentLevel,
+            totalXp = levelInfo.totalXp,
+            nextLevelXp = levelInfo.nextLevelXp,
+            xpToNextLevel = levelInfo.xpToNextLevel,
+            progress = levelInfo.progressDecimal
         )
         
         Spacer(modifier = Modifier.height(12.dp))
@@ -250,7 +278,7 @@ fun TrainingStatsSection(
 
             StatsCard(
                 modifier = Modifier.weight(1f),
-                label = "Level " + (skillsState.levelInfo.currentLevel + 1).toString() + " in",
+                label = "Level " + (levelInfo.currentLevel + 1).toString() + " in",
                 valueProvider = { NumberFormatter.formatDuration(tickingTime) },
                 icon = Icons.Default.KeyboardDoubleArrowUp
             )
@@ -300,9 +328,9 @@ fun TrainingScreenPreview() {
             LocalItemRegistry provides ItemRegistry()
         ) {
             TrainingScreen(
-                skillsState = skillsState,
-                sceneState = TrainingSceneState(),
-                sessionState = TrainingSessionState(regionName = "Region 1"),
+                skillsStateProvider = { skillsState },
+                sceneStateProvider = { TrainingSceneState() },
+                sessionStateProvider = { TrainingSessionState(regionName = "Region 1") },
                 activeStateProvider = { activeState },
                 onSkillSelect = {},
                 onMethodSelect = {},

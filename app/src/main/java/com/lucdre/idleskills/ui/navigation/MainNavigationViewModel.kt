@@ -9,6 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -71,10 +72,12 @@ class MainNavigationViewModel @Inject constructor(
      */
     private fun observeLootBoxes() {
         viewModelScope.launch {
-            observeLootBoxCountUseCase().collect { lootBoxes ->
-                val hasLoot = lootBoxes.any { it.count > 0 }
-                _uiState.update { it.copy(hasLootBoxes = hasLoot) }
-            }
+            observeLootBoxCountUseCase()
+                .distinctUntilChanged()
+                .collect { lootBoxes ->
+                    val hasLoot = lootBoxes.any { it.count > 0 }
+                    _uiState.update { it.copy(hasLootBoxes = hasLoot) }
+                }
         }
     }
 
