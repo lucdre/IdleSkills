@@ -27,11 +27,9 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -60,6 +58,9 @@ import com.lucdre.idleskills.ui.theme.Spacing
 import com.lucdre.idleskills.ui.util.IdleSkillsPreviews
 import com.lucdre.idleskills.ui.util.LocalItemRegistry
 import com.lucdre.idleskills.ui.util.NumberFormatter
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun TrainingScreen(
@@ -222,11 +223,11 @@ private fun TrainingContent(
 @Composable
 fun rememberTickingDuration(baseDurationMs: Long): Long {
     val startTime = remember(baseDurationMs) { System.currentTimeMillis() }
-    var currentTime by remember(baseDurationMs) { mutableStateOf(startTime) }
+    var currentTime by remember(baseDurationMs) { mutableLongStateOf(startTime) }
 
     LaunchedEffect(baseDurationMs) {
         while (isActive) {
-            delay(1000)
+            delay(1000.milliseconds)
             currentTime = System.currentTimeMillis()
         }
     }

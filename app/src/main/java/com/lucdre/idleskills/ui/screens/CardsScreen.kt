@@ -209,8 +209,7 @@ fun CardsScreenPreview() {
                                 type = com.lucdre.idleskills.cards.domain.CardType.WOODCUTTING_CARD,
                                 level = 1,
                                 quantity = 1,
-                                efficiencyBonus = 0.05f,
-                                iconResId = com.lucdre.idleskills.R.drawable.ic_tree
+                                efficiencyBonus = 0.05f
                             ),
                             canUpgrade = false,
                             nextLevelBonus = 0.10f
@@ -221,8 +220,7 @@ fun CardsScreenPreview() {
                                 type = com.lucdre.idleskills.cards.domain.CardType.MINING_CARD,
                                 level = 1,
                                 quantity = 1,
-                                efficiencyBonus = 0.05f,
-                                iconResId = com.lucdre.idleskills.R.drawable.ic_tree
+                                efficiencyBonus = 0.05f
                             ),
                             canUpgrade = false,
                             nextLevelBonus = 0.10f

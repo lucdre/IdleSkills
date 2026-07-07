@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED") // Hilt dependency injection
+
 package com.lucdre.idleskills.skills.di
 
 import com.lucdre.idleskills.core.persistence.AppDatabase

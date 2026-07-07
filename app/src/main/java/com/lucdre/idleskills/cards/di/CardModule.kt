@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED") // Hilt dependency injection
+
 package com.lucdre.idleskills.cards.di
 
 import com.lucdre.idleskills.cards.data.CardDao

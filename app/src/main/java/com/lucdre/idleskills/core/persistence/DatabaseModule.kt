@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED") // Hilt dependency injection
+
 package com.lucdre.idleskills.core.persistence
 
 import android.content.Context

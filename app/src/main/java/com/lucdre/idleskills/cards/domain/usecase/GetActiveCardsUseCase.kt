@@ -13,10 +13,6 @@ import javax.inject.Inject
 /**
  * Use case to retrieve all owned cards relevant to a specific skill and training method.
  *
- * It filters cards based on:
- * 1. Skill compatibility (e.g., Woodcutting cards for Woodcutting skill).
- * 2. Training method compatibility (e.g., Fishing Rod card only for Rod Fishing methods).
- *
  * @property cardRepository The card repository
  * @property trainingMethodRepository The training method repository
  * @property sessionRepository The session repository

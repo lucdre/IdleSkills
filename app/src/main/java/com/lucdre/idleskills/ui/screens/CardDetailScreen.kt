@@ -56,6 +56,7 @@ import com.lucdre.idleskills.cards.presentation.CardUiEffect
 import com.lucdre.idleskills.cards.presentation.CardViewModel
 import com.lucdre.idleskills.inventory.domain.ItemMetadata
 import com.lucdre.idleskills.skills.domain.skill.SkillMetadata
+import com.lucdre.idleskills.ui.components.AutoSizeText
 import com.lucdre.idleskills.ui.screens.trainingScreen.components.UpgradeRequirementsSection
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -158,11 +159,12 @@ fun CardDetailScreenContent(
                     modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
+                    AutoSizeText(
                         text = card.name,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = Color.White,
+                        maxLines = 1
                     )
                     
                     Spacer(modifier = Modifier.height(16.dp))
@@ -180,7 +182,7 @@ fun CardDetailScreenContent(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            painter = painterResource(id = card.iconResId),
+                            painter = painterResource(id = card.type.iconResId),
                             contentDescription = null,
                             modifier = Modifier.size(100.dp),
                             tint = skillColor
@@ -282,7 +284,6 @@ fun CardDetailScreenPreview() {
                     level = 1,
                     quantity = 1,
                     efficiencyBonus = 0.05f,
-                    iconResId = R.drawable.ic_tree
                 ),
                 canUpgrade = false,
                 nextLevelBonus = 0.10f,

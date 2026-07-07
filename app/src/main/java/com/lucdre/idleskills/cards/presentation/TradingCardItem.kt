@@ -30,7 +30,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.lucdre.idleskills.R
 import com.lucdre.idleskills.cards.domain.CardType
 import com.lucdre.idleskills.skills.domain.skill.SkillMetadata
 import com.lucdre.idleskills.ui.theme.IdleSkillsTheme
@@ -84,7 +83,7 @@ fun TradingCardItem(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    painter = painterResource(id = card.iconResId),
+                    painter = painterResource(id = card.type.iconResId),
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(0.6f),
                     tint = cardColor
@@ -99,7 +98,7 @@ fun TradingCardItem(
                         .padding(horizontal = 2.dp, vertical = 2.dp)
                 ) {
                     Icon(
-                        painter = painterResource(id = card.iconResId),
+                        imageVector = card.type.iconTypeResId,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp),
                         tint = cardColor
@@ -150,7 +149,7 @@ fun TradingCardPreview() {
             TradingCardItem(
                 modifier = Modifier.width(160.dp),
                 cardState = CardItemUiState(
-                    card = GameCard("Woodcutting Speed", CardType.WOODCUTTING_CARD, 1, 1, 0.05f, R.drawable.ic_tree),
+                    card = GameCard("Woodcutting Speed", CardType.WOODCUTTING_CARD, 1, 1, 0.05f),
                     canUpgrade = true,
                     nextLevelBonus = 0.10f
                 ),
@@ -159,7 +158,7 @@ fun TradingCardPreview() {
             TradingCardItem(
                 modifier = Modifier.width(160.dp),
                 cardState = CardItemUiState(
-                    card = GameCard("Mining Speed", CardType.MINING_CARD, 2, 1, 0.12f, R.drawable.ic_tree),
+                    card = GameCard("Mining Speed", CardType.MINING_CARD, 2, 1, 0.12f),
                     canUpgrade = false,
                     nextLevelBonus = 0.17f
                 ),

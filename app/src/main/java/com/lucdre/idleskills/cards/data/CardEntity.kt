@@ -10,8 +10,7 @@ import androidx.room3.PrimaryKey
  * @property name User-facing name of the card.
  * @property quantity Current number of copies owned.
  * @property level Current upgrade level of the card.
- * @property efficiencyBonus Active percentage multiplier for training speed.
- * @property iconResId Resource ID of the card's artwork.
+ * @property efficiencyBonus Active percentage multiplier for boost.
  */
 @Entity(tableName = "cards")
 data class CardEntity(
@@ -19,6 +18,5 @@ data class CardEntity(
     val name: String,
     val quantity: Int,
     val level: Int,
-    val efficiencyBonus: Float,
-    val iconResId: Int
+    val efficiencyBonus: Float
 )

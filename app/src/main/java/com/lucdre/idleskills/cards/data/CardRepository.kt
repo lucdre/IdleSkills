@@ -39,8 +39,7 @@ class CardRepository @Inject constructor(
                 type = type,
                 level = 1,
                 quantity = 1,
-                efficiencyBonus = type.initialEfficiencyBonus,
-                iconResId = type.iconResId
+                efficiencyBonus = type.initialEfficiencyBonus
             ).toEntity()
         }
         cardDao.insertAll(initialEntities)
@@ -69,8 +68,7 @@ class CardRepository @Inject constructor(
                     name = cardType.displayName,
                     quantity = quantity,
                     level = 1,
-                    efficiencyBonus = cardType.initialEfficiencyBonus,
-                    iconResId = cardType.iconResId
+                    efficiencyBonus = cardType.initialEfficiencyBonus
                 )
         }
         cardDao.insertAll(updatedEntities)
@@ -94,8 +92,7 @@ class CardRepository @Inject constructor(
             name = name,
             quantity = quantity,
             level = level,
-            efficiencyBonus = efficiencyBonus,
-            iconResId = iconResId
+            efficiencyBonus = efficiencyBonus
         )
     }
 
@@ -106,8 +103,7 @@ class CardRepository @Inject constructor(
             type = type,
             level = level,
             quantity = quantity,
-            efficiencyBonus = efficiencyBonus,
-            iconResId = iconResId
+            efficiencyBonus = efficiencyBonus
         )
     }
 }

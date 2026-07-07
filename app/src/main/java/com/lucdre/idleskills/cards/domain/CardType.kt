@@ -1,5 +1,8 @@
 package com.lucdre.idleskills.cards.domain
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.lucdre.idleskills.R
 import com.lucdre.idleskills.skills.domain.skill.SkillType
 
@@ -14,7 +17,8 @@ enum class CardType(
     val displayName: String,
     val initialEfficiencyBonus: Float,
     val bonusPerLevel: Float,
-    val iconResId: Int
+    val iconResId: Int,
+    val iconTypeResId: ImageVector
 ) {
     WOODCUTTING_CARD(
         skill = SkillType.WOODCUTTING,
@@ -22,7 +26,8 @@ enum class CardType(
         displayName = "Woodcutting Speed",
         initialEfficiencyBonus = 0.00f,
         bonusPerLevel = 0.05f,
-        iconResId = R.drawable.ic_tree
+        iconResId = R.drawable.skill_woodcutting_axe,
+        iconTypeResId = Icons.Default.Bolt
     ),
     MINING_CARD(
         skill = SkillType.MINING,
@@ -30,7 +35,8 @@ enum class CardType(
         displayName = "Mining Speed",
         initialEfficiencyBonus = 0.00f,
         bonusPerLevel = 0.05f,
-        iconResId = R.drawable.ic_tree
+        iconResId = R.drawable.skill_mining_pickaxe,
+        iconTypeResId = Icons.Default.Bolt
     ),
     FISHING_CARD(
         skill = SkillType.FISHING,
@@ -38,6 +44,7 @@ enum class CardType(
         displayName = "Fishing Speed",
         initialEfficiencyBonus = 0.00f,
         bonusPerLevel = 0.05f,
-        iconResId = R.drawable.ic_tree
+        iconResId = R.drawable.skill_fishing_rod,
+        iconTypeResId = Icons.Default.Bolt
     ),
 }
